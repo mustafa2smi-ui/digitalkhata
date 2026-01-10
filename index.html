@@ -8,56 +8,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
    <style>
-    /* Screen Lock */
-body, html {
-    margin: 0; padding: 0;
-    height: 100%; width: 100%;
-    overflow: hidden; 
-    background: #f8fafc;
+   /* Screen Lock */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Main window scroll band */
 }
 
 #calc-page {
+    display: none; /* JS isse grid kar dega */
     height: 100vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
+    display: grid;
+    grid-template-rows: 1fr auto; /* Upar wala hissa flexible, niche wala auto-fit */
 }
 
-/* Scrollable Bill Area */
+/* UPAR WALA SCROLL AREA */
 .bill-capture-area {
-    flex: 1;
+    grid-row: 1;
     overflow-y: auto;
     padding: 15px;
     background: #fff;
-    /* Keypad ke liye niche jagah chhodi hai */
-    padding-bottom: 280px; 
     -webkit-overflow-scrolling: touch;
 }
 
-/* FLOATING KEYPAD SECTION */
-.floating-keypad {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+/* NICHE WALA FIXED FOOTER (Keypad) */
+.fixed-footer-keypad {
+    grid-row: 2;
     background: #ffffff;
     padding: 10px 15px;
-    box-shadow: 0 -8px 25px rgba(0,0,0,0.15);
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
     border-top: 1px solid #e2e8f0;
-    border-radius: 20px 20px 0 0;
     z-index: 1000;
 }
 
-/* Compact Adjustments */
-.display-box { background: #1e293b; color: #fff; padding: 8px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
-#total-view { font-size: 22px; color: #10b981; font-weight: bold; }
-.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.n-btn { padding: 12px; font-size: 16px; border-radius: 8px; border: none; background: #f1f5f9; font-weight: 600; touch-action: manipulation; }
-.eq-btn { background: #2563eb; color: white; grid-column: span 2; }
+/* Compact Keypad Adjustments */
+.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.n-btn { padding: 10px; font-size: 16px; border-radius: 8px; border: none; background: #f1f5f9; font-weight: 600; }
+.display-box { padding: 8px; border-radius: 10px; margin-bottom: 5px; }
 
-/* Screenshot Mode Fix */
-.screenshot-mode-active .floating-keypad { display: none !important; }
-.screenshot-mode-active .bill-capture-area { padding-bottom: 20px !important; overflow: visible !important; height: auto !important; }
+/* Screenshot Fix */
+.screenshot-mode-active #calc-page { display: block; height: auto; overflow: visible; }
+.screenshot-mode-active .fixed-footer-keypad { display: none !important; }
 
 </style>
 <header>

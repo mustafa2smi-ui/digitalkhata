@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Khata Pro</title>
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -481,6 +482,37 @@ function exportToCSV() {
     link.click();
 }
 </script>
+    <!--
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Offline Mode Ready!'))
+        .catch(err => console.log('Registration failed', err));
+    });
+  }
+</script>
+    -->
+    <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    
+    // Prevent default install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      console.log('PWA installation available');
+    });
+  </script>
   <footer style="background: #1e293b; color: #f8fafc; padding: 40px 20px; text-align: center; margin-top: 50px; border-top: 5px solid var(--p);">
     <div style="max-width: 800px; margin: auto;">
         <h2 style="color: var(--p); margin-bottom: 10px;">DigitalKhata</h2>
@@ -517,16 +549,8 @@ function exportToCSV() {
     }
 </style>
 
-  <link rel="manifest" href="/manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('Offline Mode Ready!'))
-        .catch(err => console.log('Registration failed', err));
-    });
-  }
-</script>
+  
+
 
 </body>
 </html>

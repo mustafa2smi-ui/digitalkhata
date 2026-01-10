@@ -8,59 +8,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
    <style>
-    /* Screen Reset */
+    /* Screen Lock */
 body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    overflow: hidden; /* Bahar ka scroll band */
-    background: var(--bg);
+    margin: 0; padding: 0;
+    height: 100%; width: 100%;
+    overflow: hidden; 
+    background: #f8fafc;
 }
 
 #calc-page {
-    display: none; /* JS isse flex kar dega */
     height: 100vh;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
     position: relative;
 }
 
-/* 1. UPAR KA AREA (Scrollable) */
+/* Scrollable Bill Area */
 .bill-capture-area {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    /* Niche se 330px jagah chhodi hai keypad ke liye */
-    bottom: 330px; 
+    flex: 1;
     overflow-y: auto;
     padding: 15px;
     background: #fff;
+    /* Keypad ke liye niche jagah chhodi hai */
+    padding-bottom: 280px; 
     -webkit-overflow-scrolling: touch;
 }
 
-/* 2. NICHE KA AREA (Fixed/Chipka hua) */
-.fixed-controls {
-    position: absolute;
+/* FLOATING KEYPAD SECTION */
+.floating-keypad {
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 330px; /* Iski height fix kar di */
     background: #ffffff;
     padding: 10px 15px;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
-    border-top: 1px solid #ddd;
+    box-shadow: 0 -8px 25px rgba(0,0,0,0.15);
+    border-top: 1px solid #e2e8f0;
+    border-radius: 20px 20px 0 0;
     z-index: 1000;
 }
 
-/* Screenshot ke waqt keypad hatane ke liye */
-.screenshot-mode-active .fixed-controls { display: none !important; }
-.screenshot-mode-active .bill-capture-area { position: relative; height: auto; bottom: 0; overflow: visible; }
+/* Compact Adjustments */
+.display-box { background: #1e293b; color: #fff; padding: 8px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
+#total-view { font-size: 22px; color: #10b981; font-weight: bold; }
+.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.n-btn { padding: 12px; font-size: 16px; border-radius: 8px; border: none; background: #f1f5f9; font-weight: 600; touch-action: manipulation; }
+.eq-btn { background: #2563eb; color: white; grid-column: span 2; }
 
-/* Buttons compact karein */
-.n-btn { padding: 12px; font-size: 16px; border-radius: 8px; }
-.display-box { padding: 8px; margin-bottom: 8px; }
-#total-view { font-size: 20px; }
+/* Screenshot Mode Fix */
+.screenshot-mode-active .floating-keypad { display: none !important; }
+.screenshot-mode-active .bill-capture-area { padding-bottom: 20px !important; overflow: visible !important; height: auto !important; }
+
 </style>
 <header>
     <div class="logo" onclick="location.reload()">DigitalKhata</div>
@@ -71,67 +69,70 @@ body, html {
     <p>Modern billing for modern shops.</p>
     <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:18px 45px; border-radius:50px; font-size:18px; font-weight:600; cursor:pointer;">Start Billing <i class="fas fa-arrow-right"></i></button>
 </div>
-<div id="calc-page">
+<div id="calc-page" style="display: flex;">
     
     <div class="bill-capture-area" id="bill-area">
         <div class="bill-header">
             <input type="text" id="custName" placeholder="Customer Name">
-            <span id="dateDisplay" style="font-size:11px;"></span>
+            <span id="dateDisplay" style="font-size:11px; color:#94a3b8;"></span>
         </div>
 
-        <div class="items-list" id="items-list">
-            </div>
+        <div class="items-list" id="items-list"></div>
 
         <div class="footer-billing">
             <div style="display:flex; gap:10px;">
-                <div style="flex:1;"><label style="font-size:9px;">OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" style="width:100%;"></div>
-                <div style="flex:1;"><label style="font-size:9px;">RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" style="width:100%;"></div>
+                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
+                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
             </div>
             <div class="final-total">
-                <span style="font-size:12px;">TOTAL BAKI:</span> 
+                <span style="font-size:14px;">TOTAL BAKI:</span> 
                 <span id="final-baki">₹ 0.00</span>
             </div>
         </div>
 
+        <div style="margin-top: 20px;">
+            <button class="screenshot-btn" onclick="saveBill()" style="background: #059669; margin-bottom: 10px;">
+                <i class="fas fa-camera"></i> Save & Backup Image
+            </button>
+            <button class="screenshot-btn" onclick="exportToCSV()" style="background: #2563eb;">
+                <i class="fas fa-file-csv"></i> Download CSV (Excel)
+            </button>
+            <center><small class="backup-note">Backup images in Google Photos</small></center>
+        </div>
+
         <div class="history-section">
-            <h3 style="font-size:15px; color:var(--p);">Recent History</h3>
+            <h3 style="font-size:16px; color:var(--p);"><i class="fas fa-history"></i> Recent History</h3>
             <div id="gallery-grid" class="gallery-grid"></div>
         </div>
+        
+        <footer style="margin-top:40px; text-align:center; padding:20px; font-size:10px; color:#94a3b8;">
+            &copy; 2026 DigitalKhata.pro | All Rights Reserved
+        </footer>
     </div>
 
-    <div class="fixed-controls">
-        <input type="text" id="itemName" placeholder="Item Name" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd; margin-bottom:8px;">
-        
+    <div class="floating-keypad">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)" style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:10px; margin-bottom:8px; outline:none; font-size:14px;">
         <div class="display-box">
             <div id="exp-view">0</div>
             <div id="total-view">₹ 0.00</div>
         </div>
-
         <div class="numpad">
             <button class="n-btn ac-btn" onclick="smartAC()">AC</button>
             <button class="n-btn op-btn" onclick="addVal('/')">/</button>
             <button class="n-btn op-btn" onclick="addVal('*')">×</button>
             <button class="n-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
-            
             <button class="n-btn" onclick="addVal('7')">7</button>
             <button class="n-btn" onclick="addVal('8')">8</button>
             <button class="n-btn" onclick="addVal('9')">9</button>
             <button class="n-btn op-btn" onclick="addVal('-')">-</button>
-            
             <button class="n-btn" onclick="addVal('4')">4</button>
             <button class="n-btn" onclick="addVal('5')">5</button>
             <button class="n-btn" onclick="addVal('6')">6</button>
             <button class="n-btn op-btn" onclick="addVal('+')">+</button>
-            
             <button class="n-btn" onclick="addVal('1')">1</button>
             <button class="n-btn" onclick="addVal('2')">2</button>
             <button class="n-btn" onclick="addVal('3')">3</button>
             <button class="n-btn eq-btn" onclick="addItem()">ADD (=)</button>
-        </div>
-
-        <div style="display: flex; gap: 5px; margin-top: 8px;">
-            <button class="screenshot-btn" onclick="saveBill()" style="background:#059669; margin:0; flex:1; padding:10px;">SAVE</button>
-            <button class="screenshot-btn" onclick="exportToCSV()" style="background:#2563eb; margin:0; flex:1; padding:10px;">CSV</button>
         </div>
     </div>
 </div>

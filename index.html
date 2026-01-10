@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Khata Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+    :root { --p: #2563eb; --bg: #f8fafc; --card: #ffffff; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: 0.2s; }
+    
+    /* Screen ko fix karne ke liye */
+    body, html { 
+        height: 100%; 
+        margin: 0; 
+        overflow: hidden; 
+        background: var(--bg); 
+    }
+
+    header { background: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+    .logo { font-size: 20px; font-weight: 800; color: var(--p); cursor: pointer; }
+
+    #homepage { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90vh; text-align: center; padding: 20px; }
+    
+    /* Layout Logic */
+    #calc-page { 
+        display: none; 
+        height: calc(100vh - 50px); /* Header ki jagah chhod kar */
+        flex-direction: column; 
+    }
+
+    /* 1. SCROLLABLE AREA (Bill & History) */
+    .bill-capture-area { 
+        flex: 1; 
+        overflow-y: auto; 
+        padding: 15px; 
+        background: #fff; 
+        -webkit-overflow-scrolling: touch; 
+    }
+
+    .bill-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px; }
+    .bill-header input { border: none; font-weight: bold; outline: none; width: 60%; font-size: 16px; background: transparent; }
+    
+    .items-list { margin-top: 5px; margin-bottom: 15px; }
+    .item-row { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 5px; border-left: 4px solid var(--p); }
+    .row-main { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+    .row-data { font-size: 11px; color: #64748b; }
+
+    .footer-billing { background: #f1f5f9; padding: 12px; border-radius: 12px; }
+    .final-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: #ef4444; margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 5px; }
+
+    /* 2. FIXED BOTTOM SECTION (Keypad) */
+    .input-section { 
+        background: #fff; 
+        padding: 12px; 
+        border-top: 1px solid #e2e8f0; 
+        box-shadow: 0 -10px 25px rgba(0,0,0,0.05); 
+        z-index: 10;
+    }
+
+    .display-box { background: #1e293b; color: white; padding: 10px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
+    #exp-view { color: #94a3b8; font-size: 13px; }
+    #total-view { font-size: 20px; font-weight: bold; color: #10b981; }
+
+    .numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .n-btn { padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; background: #f1f5f9; touch-action: manipulation; }
+    .op-btn { background: #dbeafe; color: var(--p); }
+    .eq-btn { background: var(--p); color: white; grid-column: span 2; }
+    .ac-btn { background: #fee2e2; color: #ef4444; }
+
+    .action-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .screenshot-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; color: white; }
+
+    .history-section { padding-top: 20px; border-top: 2px solid #f1f5f9; margin-top: 20px; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .gallery-item { background: white; border-radius: 10px; border: 1px solid #eee; overflow: hidden; }
+
+    /* Fix for Screenshot */
+    .screenshot-mode-active #calc-page { height: auto; overflow: visible; display: block; }
+    .screenshot-mode-active .input-section { display: none; }
+</style>
+
+<header>
+    <div class="logo" onclick="location.reload()">DigitalKhata</div>
+</header>
+
+<div id="homepage">
+    <h1 style="font-size:32px;">Smart Shop <br>Calculator</h1>
+    <p>Modern billing for modern shops.</p>
+    <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:18px 45px; border-radius:50px; font-size:18px; font-weight:600; cursor:pointer;">Start Billing <i class="fas fa-arrow-right"></i></button>
+</div>
+
+<div id="calc-page">
+    <div class="bill-capture-area" id="bill-area">
+        <div class="bill-header">
+            <input type="text" id="custName" placeholder="Customer Name">
+            <span id="dateDisplay" style="font-size:11px; color:#94a3b8;"></span>
+        </div>
+
+        <div class="items-list" id="items-list">
+            <p style='color:#999; text-align:center; font-size:13px; margin-top:20px;'>No items added yet.</p>
+        </div>
+
+        <div class="footer-billing">
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" placeholder="0" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
+                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" placeholder="0" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
+            </div>
+            <div class="final-total">
+                <span style="font-size:12px;">TOTAL BAKI:</span> 
+                <span id="final-baki">₹ 0.00</span>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3 style="font-size:15px; color:var(--p);"><i class="fas fa-history"></i> Recent History</h3>
+            <div id="gallery-grid" class="gallery-grid"></div>
+        </div>
+    </div>
+
+    <div class="input-section">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)" style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px; margin-bottom:8px; outline:none; font-size:14px;">
+        <div class="display-box">
+            <div id="exp-view">0</div>
+            <div id="total-view">₹ 0.00</div>
+        </div>
+        <div class="numpad">
+            <button class="n-btn ac-btn" onclick="smartAC()">AC</button>
+            <button class="n-btn op-btn" onclick="addVal('/')">/</button>
+            <button class="n-btn op-btn" onclick="addVal('*')">×</button>
+            <button class="n-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="n-btn" onclick="addVal('7')">7</button>
+            <button class="n-btn" onclick="addVal('8')">8</button>
+            <button class="n-btn" onclick="addVal('9')">9</button>
+            <button class="n-btn op-btn" onclick="addVal('-')">-</button>
+            <button class="n-btn" onclick="addVal('4')">4</button>
+            <button class="n-btn" onclick="addVal('5')">5</button>
+            <button class="n-btn" onclick="addVal('6')">6</button>
+            <button class="n-btn op-btn" onclick="addVal('+')">+</button>
+            <button class="n-btn" onclick="addVal('1')">1</button>
+            <button class="n-btn" onclick="addVal('2')">2</button>
+            <button class="n-btn" onclick="addVal('3')">3</button>
+            <button class="n-btn eq-btn" onclick="addItem()">ADD (=)</button>
+        </div>
+
+        <div class="action-btns">
+            <button class="screenshot-btn" onclick="saveBill()" style="background: #059669;"><i class="fas fa-camera"></i> SAVE</button>
+            <button class="screenshot-btn" onclick="exportToCSV()" style="background: #2563eb;"><i class="fas fa-file-csv"></i> EXCEL</button>
+        </div>
+        <small class="backup-note" style="display:block; font-size:9px; margin-top:5px;">Backup images in Google Photos</small>
+    </div>
+</div>
+
+
+<script>
+    let currentExp = "";
+    let items = [];
+    let editingIndex = null;
+
+    function goToCalc() {
+        document.getElementById('homepage').style.display = 'none';
+        document.getElementById('calc-page').style.display = 'block';
+        document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('hi-IN');
+        renderGallery();
+    }
+
+    function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }
+    function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
+
+    function smartAC() {
+        if(confirm("Naya bill banayein? Pura data clear ho jayega.")) {
+            items = [];
+            currentExp = "";
+            document.getElementById('custName').value = "";
+            document.getElementById('oldBal').value = "";
+            document.getElementById('cashPaid').value = "";
+            document.getElementById('exp-view').innerText = "0";
+            document.getElementById('total-view').innerText = "₹ 0.00";
+            updateList();
+        }
+    }
+/*
+    function addItem() {
+        try {
+            let res = eval(currentExp);
+            if(res == undefined) return;
+            let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
+            items.push({ name: name, price: parseFloat(res), detail: currentExp });
+            updateList();
+            currentExp = ""; document.getElementById('exp-view').innerText = "0";
+            document.getElementById('itemName').value = "";
+        } catch(e) { alert("Invalid Calculation"); }
+    }
+*/
+  function addItem() {
+    try {
+        // SECURITY FIX 1: Sirf Numbers aur Math operators (+,-,*,/,.) allow karein
+        let sanitizedExp = currentExp.replace(/[^-+*/.0-9]/g, ''); 
+        
+        let res = eval(sanitizedExp);
+        if(res == undefined) return;
+
+        // SECURITY FIX 2: Input box se < > tags ko remove karein (XSS Protection)
+        let nameInput = document.getElementById('itemName').value;
+        let safeName = nameInput.replace(/<[^>]*>?/gm, ''); 
+
+        let name = safeName || "Item " + (items.length + 1);
+        items.push({ name: name, price: parseFloat(res), detail: sanitizedExp });
+        
+        updateList();
+        currentExp = ""; 
+        document.getElementById('exp-view').innerText = "0";
+        document.getElementById('itemName').value = "";
+    } catch(e) { 
+        alert("Invalid Calculation! Kripya sahi number daalein."); 
+        currentExp = "";
+    }
+}
+
+    function updateList() {
+        const listDiv = document.getElementById('items-list');
+        listDiv.innerHTML = items.length === 0 ? "<p style='color:#999; text-align:center; font-size:13px;'>No items added yet.</p>" : "";
+        let subTotal = 0;
+        items.forEach((it, idx) => {
+            subTotal += it.price;
+            listDiv.innerHTML += `
+                <div class="item-row" onclick="this.classList.toggle('active')">
+                    <span class="row-data">${it.detail}</span>
+                    <div class="row-main"><span>${it.name}</span> <span>₹${it.price.toFixed(2)}</span></div>
+                    <div class="row-btns">
+                        <span onclick="event.stopPropagation(); openEdit(${idx})" style="color:var(--p)"><i class="fas fa-edit"></i> Edit</span>
+                        <span onclick="event.stopPropagation(); delItem(${idx})" style="color:red"><i class="fas fa-trash"></i> Del</span>
+                    </div>
+                </div>`;
+        });
+        document.getElementById('total-view').innerText = "₹ " + subTotal.toFixed(2);
+        calculateFinal();
+    }
+
+    function openEdit(idx) {
+        editingIndex = idx;
+        document.getElementById('editName').value = items[idx].name;
+        document.getElementById('editPrice').value = items[idx].detail;
+        document.getElementById('editModal').style.display = "flex";
+    }
+
+    function closeModal() { document.getElementById('editModal').style.display = "none"; }
+
+    function saveEdit() {
+        try {
+            let newExp = document.getElementById('editPrice').value;
+            items[editingIndex].name = document.getElementById('editName').value;
+            items[editingIndex].detail = newExp;
+            items[editingIndex].price = parseFloat(eval(newExp));
+            updateList();
+            closeModal();
+        } catch(e) { alert("Error in calculation"); }
+    }
+
+    function delItem(i) { items.splice(i, 1); updateList(); }
+
+    function calculateFinal() {
+        let subTotal = items.reduce((a, b) => a + b.price, 0);
+        let old = parseFloat(document.getElementById('oldBal').value) || 0;
+        let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
+        document.getElementById('final-baki').innerText = "₹ " + ((subTotal + old) - paid).toFixed(2);
+    }
+/*
+    function saveBill() {
+        const area = document.getElementById('bill-area');
+        const name = document.getElementById('custName').value || 'Grahak';
+        const total = document.getElementById('final-baki').innerText;
+        area.classList.add('screenshot-mode');
+        
+        html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
+            let base64Image = canvas.toDataURL('image/png');
+            let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
+            savedBills.unshift({
+                id: Date.now(),
+                name: name,
+                total: total,
+                date: new Date().toLocaleString('hi-IN', {timeStyle: 'short', dateStyle: 'short'}),
+                image: base64Image
+            });
+            localStorage.setItem('myBills', JSON.stringify(savedBills));
+            area.classList.remove('screenshot-mode');
+            renderGallery();
+            
+            // Auto-Download for backup
+            let link = document.createElement('a');
+            link.download = name + "_Bill.png";
+            link.href = base64Image;
+            link.click();
+        });
+    }
+  */
+  // 3. Updated SaveBill with Watermark
+function saveBill() {
+    const area = document.getElementById('bill-area');
+    const name = document.getElementById('custName').value || 'Grahak';
+    
+    // Add Watermark Temporarily
+    const watermark = document.createElement("div");
+    watermark.id = "temp-watermark";
+    watermark.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:12px; margin-top:10px; border-top:1px solid #eee; padding-top:10px;">Bill generated by <b>DigitalKhata.pro</b></p>`;
+    area.appendChild(watermark);
+
+    area.classList.add('screenshot-mode');
+    
+    html2canvas(area, { scale: 2 }).then(canvas => {
+        let base64Image = canvas.toDataURL('image/png');
+        
+        // Save to Local Storage
+        let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
+        savedBills.unshift({
+            id: Date.now(),
+            name: name,
+            total: document.getElementById('final-baki').innerText,
+            date: new Date().toLocaleString('hi-IN'),
+            image: base64Image
+        });
+        localStorage.setItem('myBills', JSON.stringify(savedBills));
+
+        // Remove watermark after screenshot
+        document.getElementById('temp-watermark').remove();
+        area.classList.remove('screenshot-mode');
+        
+        renderGallery();
+        
+        // Auto Download
+        let link = document.createElement('a');
+        link.download = name + "_Bill.png";
+        link.href = base64Image;
+        link.click();
+    });
+}
+/*
+    function renderGallery() {
+        const grid = document.getElementById('gallery-grid');
+        const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+        grid.innerHTML = bills.length === 0 ? "<p style='font-size:12px; color:#999;'>No history.</p>" : "";
+        bills.slice(0, 10).forEach(bill => {
+            grid.innerHTML += `
+                <div class="gallery-item">
+                    <img src="${bill.image}" onclick="viewFullImage('${bill.image}')">
+                    <div style="padding:5px; font-size:10px;">
+                        <b>${bill.name}</b><br><span style="color:green">${bill.total}</span>
+                        <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                            <i class="fas fa-trash" onclick="deleteBill(${bill.id})" style="color:red"></i>
+                            <i class="fas fa-download" onclick="downloadImage('${bill.image}','${bill.name}')"></i>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+*/
+  // 1. Gallery Render Function (With Share, Print, Delete)
+function renderGallery() {
+    const grid = document.getElementById('gallery-grid');
+    const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+    grid.innerHTML = bills.length === 0 ? "<p style='font-size:12px; color:#999; grid-column:span 2; text-align:center;'>No history.</p>" : "";
+    
+    bills.slice(0, 10).forEach(bill => {
+        grid.innerHTML += `
+            <div class="gallery-item" style="border:1px solid #ddd; border-radius:10px; overflow:hidden; background:#fff;">
+                <img src="${bill.image}" onclick="viewFullImage('${bill.image}')" style="width:100%; height:100px; object-fit:cover;">
+                <div style="padding:8px; font-size:11px;">
+                    <b style="color:#333;">${bill.name}</b><br>
+                    <span style="color:green; font-weight:bold;">${bill.total}</span>
+                    <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:14px;">
+                        <i class="fas fa-trash" onclick="deleteBill(${bill.id})" style="color:#ef4444; cursor:pointer;"></i>
+                        <i class="fas fa-print" onclick="printBill('${bill.image}')" style="color:#64748b; cursor:pointer;"></i>
+                        <i class="fab fa-whatsapp" onclick="shareBill('${bill.image}', '${bill.name}', '${bill.total}')" style="color:#25d366; cursor:pointer; font-size:16px;"></i>
+                    </div>
+                </div>
+            </div>`;
+    });
+}
+
+// 2. Print Specific Bill
+function printBill(imgUrl) {
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html>
+            <head><title>Print Bill</title></head>
+            <body style="margin:0; display:flex; justify-content:center;">
+                <img src="${imgUrl}" style="max-width:100%;" onload="window.print();window.close();">
+            </body>
+        </html>
+    `);
+}
+/*
+// 3. Smart Share Logic (Image or Text Message)
+async function shareBill(imgBase64, name, total) {
+    const msg = `*Namaste ${name} ji,*\nAapka naya bill taiyar hai.\n*Total Balance: ${total}*\nDate: ${new Date().toLocaleDateString('hi-IN')}\n\n_Generated by DigitalKhata_`;
+    
+    // Check if Web Share API supports files (Modern Browsers)
+    if (navigator.canShare && navigator.share) {
+        try {
+            // Convert Base64 to File
+            const blob = await (await fetch(imgBase64)).blob();
+            const file = new File([blob], `${name}_bill.png`, { type: 'image/png' });
+            
+            await navigator.share({
+                title: 'Digital Bill',
+                text: msg,
+                files: [file]
+            });
+        } catch (err) {
+            // Agar image share fail hui toh WhatsApp text par switch karein
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    } else {
+        // Purane browsers ke liye direct WhatsApp text
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+}
+*/
+  // 2. Updated Share Logic with Website Link
+async function shareBill(imgBase64, name, total) {
+    const siteLink = window.location.href; // Aapki website ka link
+    const msg = `*Namaste ${name} ji,*\n\nAapka bill taiyar hai.\n*Total Balance: ${total}*\n\nApna hisab yahan dekhein ya naya bill banayein:\n${siteLink}\n\n_Generated by DigitalKhata_`;
+    
+    if (navigator.canShare && navigator.share) {
+        try {
+            const blob = await (await fetch(imgBase64)).blob();
+            const file = new File([blob], `${name}_bill.png`, { type: 'image/png' });
+            await navigator.share({ title: 'Digital Bill', text: msg, files: [file] });
+        } catch (err) {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+}
+    function deleteBill(id) {
+        if(confirm("Delete history?")) {
+            let bills = JSON.parse(localStorage.getItem('myBills') || "[]").filter(b => b.id !== id);
+            localStorage.setItem('myBills', JSON.stringify(bills));
+            renderGallery();
+        }
+    }
+/*
+    function downloadImage(url, name) {
+        let link = document.createElement('a');
+        link.download = name + ".png";
+        link.href = url;
+        link.click();
+    }
+*/
+    function viewFullImage(img) {
+        let win = window.open();
+        win.document.write(`<img src="${img}" style="width:100%">`);
+    }
+  // 1. CSV Export Logic (4-inch printing compatible)
+function exportToCSV() {
+    if (items.length === 0) {
+        alert("Pehle kuch items add karein!");
+        return;
+    }
+
+    let name = document.getElementById('custName').value || 'Grahak';
+    let date = new Date().toLocaleDateString('hi-IN');
+    
+    // CSV Header and Data
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "DigitalKhata Report\n";
+    csvContent += `Customer: ${name}, Date: ${date}\n\n`;
+    csvContent += "Item Name,Calculation,Price\n";
+
+    items.forEach(it => {
+        csvContent += `${it.name},${it.detail},${it.price.toFixed(2)}\n`;
+    });
+
+    csvContent += `\nOld Balance,,${document.getElementById('oldBal').value || 0}`;
+    csvContent += `\nCash Received,,${document.getElementById('cashPaid').value || 0}`;
+    csvContent += `\nFINAL TOTAL,,${document.getElementById('final-baki').innerText.replace('₹ ', '')}`;
+
+    // Download Link
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${name}_Hisab_${date}.csv`);
+    document.body.appendChild(link);
+    link.click();
+}
+</script>
+    <!--
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Offline Mode Ready!'))
+        .catch(err => console.log('Registration failed', err));
+    });
+  }
+</script>
+    -->
+    <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    
+    // Prevent default install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      console.log('PWA installation available');
+    });
+  </script>
+  <footer style="background: #1e293b; color: #f8fafc; padding: 40px 20px; text-align: center; margin-top: 50px; border-top: 5px solid var(--p);">
+    <div style="max-width: 800px; margin: auto;">
+        <h2 style="color: var(--p); margin-bottom: 10px;">DigitalKhata</h2>
+        <p style="font-size: 14px; color: #94a3b8; line-height: 1.6;">
+            Dukandaron ke liye Bharat ka sabse saral aur surakshit digital hisab-kitab tool. 
+            Apna business digital banayein aur calculation ki galtiyon ko zero karein.
+        </p>
+        
+        <div style="margin: 20px 0; display: flex; justify-content: center; gap: 20px; font-size: 20px;">
+            <i class="fab fa-whatsapp" style="cursor:pointer; color: #25d366;"></i>
+            <i class="fas fa-envelope" style="cursor:pointer; color: #ea4335;"></i>
+            <i class="fas fa-globe" style="cursor:pointer; color: var(--p);"></i>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
+
+        <div style="font-size: 12px; color: #64748b;">
+            <a href="#" style="color: #94a3b8; text-decoration: none; margin: 0 10px;">Privacy Policy</a> | 
+            <a href="#" style="color: #94a3b8; text-decoration: none; margin: 0 10px;">Terms of Service</a> | 
+            <a href="#" style="color: #94a3b8; text-decoration: none; margin: 0 10px;">Contact Us</a>
+        </div>
+        
+        <p style="font-size: 12px; margin-top: 20px; color: #475569;">
+            &copy; 2026 <b>DigitalKhata.pro</b> - All Rights Reserved. <br>
+            <small>Made with ❤️ for Small Businesses</small>
+        </p>
+    </div>
+</footer>
+
+<style>
+    .n-btn, .op-btn, .eq-btn {
+        touch-action: manipulation; /* Double tap zoom ko rokne ke liye */
+        user-select: none; /* Text select na ho tap karte waqt */
+    }
+</style>
+
+  
+
+
+</body>
+</html>

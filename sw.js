@@ -2,6 +2,7 @@ const CACHE_NAME = 'khata-v1';
 const assets = [
   '/',
   '/index.html',
+  '/manifest.jsin',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];

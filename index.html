@@ -8,47 +8,50 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
    <style>
-   /* Screen Lock */
+   /* Screen Lock: Mobile App Feel */
 html, body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden; /* Main window scroll band */
+    margin: 0; padding: 0;
+    height: 100dvh; width: 100vw;
+    overflow: hidden; 
+    background: #f8fafc;
 }
 
 #calc-page {
-    display: none; /* JS isse grid kar dega */
-    height: 100vh;
+    display: none; /* JS isse 'grid' karega */
+    height: 100dvh;
+    width: 100%;
     display: grid;
-    grid-template-rows: 1fr auto; /* Upar wala hissa flexible, niche wala auto-fit */
+    /* Yeh line layout fix karegi: Upar flexible, Niche fixed */
+    grid-template-columns: 1fr; 
+    grid-template-rows: 1fr auto; 
 }
 
-/* UPAR WALA SCROLL AREA */
+/* AREA 1: UPAR WALA (Scrollable Bill & History) */
 .bill-capture-area {
     grid-row: 1;
     overflow-y: auto;
     padding: 15px;
-    background: #fff;
+    background: #ffffff;
     -webkit-overflow-scrolling: touch;
 }
 
-/* NICHE WALA FIXED FOOTER (Keypad) */
+/* AREA 2: NICHE WALA (Fixed Keypad) */
 .fixed-footer-keypad {
     grid-row: 2;
     background: #ffffff;
-    padding: 10px 15px;
+    padding: 10px 15px 20px 15px;
     box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
     border-top: 1px solid #e2e8f0;
-    z-index: 1000;
+    z-index: 2000;
 }
 
-/* Compact Keypad Adjustments */
-.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-.n-btn { padding: 10px; font-size: 16px; border-radius: 8px; border: none; background: #f1f5f9; font-weight: 600; }
-.display-box { padding: 8px; border-radius: 10px; margin-bottom: 5px; }
+/* Buttons Compact Style */
+.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.n-btn { padding: 15px 5px; font-size: 18px; border-radius: 10px; border: none; background: #f1f5f9; font-weight: 600; touch-action: manipulation; }
+.display-box { background: #1e293b; color: #fff; padding: 10px; border-radius: 12px; text-align: right; margin-bottom: 8px; }
+#total-view { font-size: 22px; color: #10b981; font-weight: bold; }
 
-/* Screenshot Fix */
+/* Screenshot Mode Logic */
 .screenshot-mode-active #calc-page { display: block; height: auto; overflow: visible; }
 .screenshot-mode-active .fixed-footer-keypad { display: none !important; }
 
@@ -137,7 +140,7 @@ html, body {
 
     function goToCalc() {
         document.getElementById('homepage').style.display = 'none';
-        document.getElementById('calc-page').style.display = 'block';
+        document.getElementById('calc-page').style.display = 'grid';
         document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('hi-IN');
         renderGallery();
     }

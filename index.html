@@ -16,10 +16,25 @@
         .logo { font-size: 20px; font-weight: 800; color: var(--p); cursor: pointer; }
 
         #homepage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; padding: 20px; }
-        #calc-page { display: none; padding: 15px; max-width: 500px; margin: auto; }
-
+      /*  #calc-page { display: none; padding: 15px; max-width: 500px; margin: auto; }*/
+#calc-page {
+    display: none;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
         /* Screenshot Area - Ab Bill details upar hain */
-        .bill-capture-area { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #e2e8f0; }
+      /*  .bill-capture-area { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #e2e8f0; }*/
+       /* 1. Upar wala hissa jahan Bill list hai */
+.bill-capture-area {
+    flex: 1; /* Bachi hui poori jagah ye lega */
+    overflow-y: auto; /* Sirf ye area scroll hoga */
+    padding: 10px;
+    background: #fff;
+    margin-bottom: 0;
+    border-radius: 0;
+    border: none;
+}
         .bill-header { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
         .bill-header input { border: none; font-weight: bold; outline: none; width: 60%; font-size: 16px; background: transparent; }
         
@@ -34,7 +49,15 @@
         .final-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; color: #ef4444; margin-top: 10px; padding-top: 10px; border-top: 2px dashed #cbd5e1; }
         
         /* Keypad UI - Ye screenshot ke bahar rahega */
-        .input-section { margin-top: 20px; background: #fff; padding: 15px; border-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
+      /*  .input-section { margin-top: 20px; background: #fff; padding: 15px; border-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }*/
+       /* 2. Niche wala hissa jahan Keypad hai */
+.input-section {
+    background: #fff;
+    padding: 10px;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+    z-index: 10;
+}
         .display-box { background: #1e293b; color: white; padding: 12px; border-radius: 12px; text-align: right; margin-bottom: 10px; }
         #exp-view { color: #94a3b8; font-size: 14px; }
         #total-view { font-size: 24px; font-weight: bold; color: #10b981; }
@@ -59,6 +82,30 @@
         .modal-content input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
 
         .screenshot-mode .row-btns { display: none !important; }
+    /* Body ko fix karein taaki poora page na hile */
+body, html {
+    height: 100%;
+    overflow: hidden; /* Main page scroll nahi hoga */
+}
+/* Font size aur Padding ko compact karna */
+/*.n-btn { padding: 12px; font-size: 16px; }
+.display-box { padding: 8px; margin-bottom: 8px; }
+#total-view { font-size: 20px; }
+.item-row { padding: 8px; margin-bottom: 4px; font-size: 13px; }
+.footer-billing { padding: 10px; margin-top: 5px; }
+*/
+/* History Section ko Scroll area ke andar niche rakhein */
+.history-section {
+    padding: 15px;
+    background: #f8fafc;
+}
+
+/* Screenshot lete waqt sab kuch dikhane ke liye helper class */
+.screenshot-mode {
+    height: auto !important;
+    overflow: visible !important;
+}
+
     </style>
 </head>
 <body>

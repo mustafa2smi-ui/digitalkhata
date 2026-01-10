@@ -7,55 +7,81 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-   <style>
-   /* Screen Lock: Mobile App Feel */
-html, body {
-    margin: 0; padding: 0;
-    height: 100dvh; width: 100vw;
-    overflow: hidden; 
-    background: #f8fafc;
-}
+<style>
+    :root { --p: #2563eb; --bg: #f8fafc; --card: #ffffff; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: 0.2s; }
+    
+    /* Screen ko fix karne ke liye */
+    body, html { 
+        height: 100%; 
+        margin: 0; 
+        overflow: hidden; 
+        background: var(--bg); 
+    }
 
-#calc-page {
-    display: none; /* JS isse 'grid' karega */
-    height: 100dvh;
-    width: 100%;
-    display: grid;
-    /* Yeh line layout fix karegi: Upar flexible, Niche fixed */
-    grid-template-columns: 1fr; 
-    grid-template-rows: 1fr auto; 
-}
+    header { background: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+    .logo { font-size: 20px; font-weight: 800; color: var(--p); cursor: pointer; }
 
-/* AREA 1: UPAR WALA (Scrollable Bill & History) */
-.bill-capture-area {
-    grid-row: 1;
-    overflow-y: auto;
-    padding: 15px;
-    background: #ffffff;
-    -webkit-overflow-scrolling: touch;
-}
+    #homepage { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90vh; text-align: center; padding: 20px; }
+    
+    /* Layout Logic */
+    #calc-page { 
+        display: none; 
+        height: calc(100vh - 50px); /* Header ki jagah chhod kar */
+        flex-direction: column; 
+    }
 
-/* AREA 2: NICHE WALA (Fixed Keypad) */
-.fixed-footer-keypad {
-    grid-row: 2;
-    background: #ffffff;
-    padding: 10px 15px 20px 15px;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
-    border-top: 1px solid #e2e8f0;
-    z-index: 2000;
-}
+    /* 1. SCROLLABLE AREA (Bill & History) */
+    .bill-capture-area { 
+        flex: 1; 
+        overflow-y: auto; 
+        padding: 15px; 
+        background: #fff; 
+        -webkit-overflow-scrolling: touch; 
+    }
 
-/* Buttons Compact Style */
-.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.n-btn { padding: 15px 5px; font-size: 18px; border-radius: 10px; border: none; background: #f1f5f9; font-weight: 600; touch-action: manipulation; }
-.display-box { background: #1e293b; color: #fff; padding: 10px; border-radius: 12px; text-align: right; margin-bottom: 8px; }
-#total-view { font-size: 22px; color: #10b981; font-weight: bold; }
+    .bill-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px; }
+    .bill-header input { border: none; font-weight: bold; outline: none; width: 60%; font-size: 16px; background: transparent; }
+    
+    .items-list { margin-top: 5px; margin-bottom: 15px; }
+    .item-row { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 5px; border-left: 4px solid var(--p); }
+    .row-main { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+    .row-data { font-size: 11px; color: #64748b; }
 
-/* Screenshot Mode Logic */
-.screenshot-mode-active #calc-page { display: block; height: auto; overflow: visible; }
-.screenshot-mode-active .fixed-footer-keypad { display: none !important; }
+    .footer-billing { background: #f1f5f9; padding: 12px; border-radius: 12px; }
+    .final-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; color: #ef4444; margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 5px; }
 
+    /* 2. FIXED BOTTOM SECTION (Keypad) */
+    .input-section { 
+        background: #fff; 
+        padding: 12px; 
+        border-top: 1px solid #e2e8f0; 
+        box-shadow: 0 -10px 25px rgba(0,0,0,0.05); 
+        z-index: 10;
+    }
+
+    .display-box { background: #1e293b; color: white; padding: 10px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
+    #exp-view { color: #94a3b8; font-size: 13px; }
+    #total-view { font-size: 20px; font-weight: bold; color: #10b981; }
+
+    .numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .n-btn { padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; background: #f1f5f9; touch-action: manipulation; }
+    .op-btn { background: #dbeafe; color: var(--p); }
+    .eq-btn { background: var(--p); color: white; grid-column: span 2; }
+    .ac-btn { background: #fee2e2; color: #ef4444; }
+
+    .action-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .screenshot-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; color: white; }
+
+    .history-section { padding-top: 20px; border-top: 2px solid #f1f5f9; margin-top: 20px; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .gallery-item { background: white; border-radius: 10px; border: 1px solid #eee; overflow: hidden; }
+
+    /* Fix for Screenshot */
+    .screenshot-mode-active #calc-page { height: auto; overflow: visible; display: block; }
+    .screenshot-mode-active .input-section { display: none; }
 </style>
+
 <header>
     <div class="logo" onclick="location.reload()">DigitalKhata</div>
 </header>
@@ -65,49 +91,37 @@ html, body {
     <p>Modern billing for modern shops.</p>
     <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:18px 45px; border-radius:50px; font-size:18px; font-weight:600; cursor:pointer;">Start Billing <i class="fas fa-arrow-right"></i></button>
 </div>
-<div id="calc-page" style="display: flex;">
-    
+
+<div id="calc-page">
     <div class="bill-capture-area" id="bill-area">
         <div class="bill-header">
             <input type="text" id="custName" placeholder="Customer Name">
             <span id="dateDisplay" style="font-size:11px; color:#94a3b8;"></span>
         </div>
 
-        <div class="items-list" id="items-list"></div>
+        <div class="items-list" id="items-list">
+            <p style='color:#999; text-align:center; font-size:13px; margin-top:20px;'>No items added yet.</p>
+        </div>
 
         <div class="footer-billing">
             <div style="display:flex; gap:10px;">
-                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
-                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
+                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" placeholder="0" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
+                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" placeholder="0" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
             </div>
             <div class="final-total">
-                <span style="font-size:14px;">TOTAL BAKI:</span> 
+                <span style="font-size:12px;">TOTAL BAKI:</span> 
                 <span id="final-baki">₹ 0.00</span>
             </div>
         </div>
 
-        <div style="margin-top: 20px;">
-            <button class="screenshot-btn" onclick="saveBill()" style="background: #059669; margin-bottom: 10px;">
-                <i class="fas fa-camera"></i> Save & Backup Image
-            </button>
-            <button class="screenshot-btn" onclick="exportToCSV()" style="background: #2563eb;">
-                <i class="fas fa-file-csv"></i> Download CSV (Excel)
-            </button>
-            <center><small class="backup-note">Backup images in Google Photos</small></center>
-        </div>
-
         <div class="history-section">
-            <h3 style="font-size:16px; color:var(--p);"><i class="fas fa-history"></i> Recent History</h3>
+            <h3 style="font-size:15px; color:var(--p);"><i class="fas fa-history"></i> Recent History</h3>
             <div id="gallery-grid" class="gallery-grid"></div>
         </div>
-        
-        <footer style="margin-top:40px; text-align:center; padding:20px; font-size:10px; color:#94a3b8;">
-            &copy; 2026 DigitalKhata.pro | All Rights Reserved
-        </footer>
     </div>
 
-    <div class="floating-keypad">
-        <input type="text" id="itemName" placeholder="Item Name (Optional)" style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:10px; margin-bottom:8px; outline:none; font-size:14px;">
+    <div class="input-section">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)" style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px; margin-bottom:8px; outline:none; font-size:14px;">
         <div class="display-box">
             <div id="exp-view">0</div>
             <div id="total-view">₹ 0.00</div>
@@ -130,6 +144,12 @@ html, body {
             <button class="n-btn" onclick="addVal('3')">3</button>
             <button class="n-btn eq-btn" onclick="addItem()">ADD (=)</button>
         </div>
+
+        <div class="action-btns">
+            <button class="screenshot-btn" onclick="saveBill()" style="background: #059669;"><i class="fas fa-camera"></i> SAVE</button>
+            <button class="screenshot-btn" onclick="exportToCSV()" style="background: #2563eb;"><i class="fas fa-file-csv"></i> EXCEL</button>
+        </div>
+        <small class="backup-note" style="display:block; font-size:9px; margin-top:5px;">Backup images in Google Photos</small>
     </div>
 </div>
 

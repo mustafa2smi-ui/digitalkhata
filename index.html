@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Khata Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+   :root { --p: #2563eb; --bg: #f8fafc; --card: #ffffff; }
+* { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: 0.2s; margin: 0; padding: 0; }
+
+body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); position: fixed; }
+
+/* Desktop view fix: Layout ko center mein rakhne ke liye */
+#calc-page, #homepage { max-width: 500px; margin: auto; background: #fff; position: relative; }
+
+/* Homepage Style */
+#homepage { 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    height: 100dvh; text-align: center; padding: 20px; z-index: 5000; background: var(--bg);
+}
+
+/* Tool Layout */
+#calc-page { 
+    display: none; height: 100dvh; grid-template-rows: auto 1fr auto; 
+}
+
+/* 1. Header Bar */
+header { 
+    background: var(--p); padding: 15px 20px; display: flex; justify-content: space-between; 
+    align-items: center; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+}
+.logo { font-size: 20px; font-weight: 800; cursor: pointer; }
+
+/* 2. Scrollable Body */
+.app-body { 
+    grid-row: 2; overflow-y: auto; padding: 15px; background: var(--bg); 
+    -webkit-overflow-scrolling: touch; 
+}
+
+/* Customer & Date Box */
+.cust-card { 
+    background: #fff; padding: 15px; border-radius: 15px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #e2e8f0;
+}
+.cust-card input { 
+    border: none; border-bottom: 2px solid #f1f5f9; font-weight: bold; 
+    outline: none; width: 100%; font-size: 16px; padding: 5px 0;
+}
+
+/* Items List Design */
+.item-row { 
+    background: #fff; padding: 12px; border-radius: 10px; margin-bottom: 8px; 
+    border-left: 5px solid var(--p); box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
+}
+.row-main { display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; }
+.row-btns { display: none; gap: 15px; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; }
+.item-row.active .row-btns { display: flex; } /* Click karne par hi dikhega */
+
+/* Billing Box (Square Design) */
+.footer-billing { 
+    background: #fff; padding: 15px; border-radius: 15px; 
+    border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+}
+.bill-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+.square-box { 
+    border: 1.5px solid #e2e8f0; padding: 10px; border-radius: 10px; text-align: center;
+}
+.square-box label { font-size: 10px; font-weight: 800; color: #64748b; display: block; margin-bottom: 5px; }
+.square-box input { width: 100%; border: none; text-align: center; font-size: 16px; font-weight: bold; outline: none; }
+
+.final-total-box { 
+    background: #fee2e2; padding: 15px; border-radius: 10px; 
+    display: flex; justify-content: space-between; align-items: center;
+    border: 1px dashed #ef4444;
+}
+
+/* History area border */
+.history-section { 
+    margin-top: 25px; padding: 15px; border: 2px dashed #cbd5e1; border-radius: 15px; background: #fff;
+}
+
+/* 3. Fixed Bottom Keypad */
+.app-fixed-controls { 
+    grid-row: 3; background: #fff; padding: 10px 15px 25px; 
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.1); border-radius: 20px 20px 0 0; 
+}
+.display-box { background: #1e293b; color: #fff; padding: 10px; border-radius: 12px; text-align: right; margin-bottom: 10px; }
+.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.n-btn { padding: 15px 5px; font-size: 18px; border-radius: 10px; border: none; background: #f1f5f9; font-weight: 600; }
+.action-row { display: flex; gap: 8px; margin-top: 12px; }
+.action-btn { flex: 1; padding: 14px; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 14px; }
+
+</style>
+<header id="main-header">
+    <div class="logo" onclick="location.reload()">DigitalKhata Pro</div>
+    <div style="font-size: 12px;"><i class="fas fa-shield-alt"></i> Secure</div>
+</header>
+
+<div id="homepage">
+    <div style="background:var(--p); color:white; width:80px; height:80px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:40px; margin-bottom:20px; box-shadow: 0 10px 20px rgba(37,99,235,0.3);">
+        <i class="fas fa-calculator"></i>
+    </div>
+    <h1 style="font-size:28px; color:#1e293b;">Digital Khata</h1>
+    <p style="color:#64748b; margin-bottom:30px;">Professional Billing Solution</p>
+    <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:18px 40px; border-radius:50px; font-size:18px; font-weight:600; cursor:pointer; box-shadow: 0 10px 20px rgba(37,99,235,0.2);">
+        Start Digital Khata <i class="fas fa-arrow-right"></i>
+    </button>
+</div>
+
+<div id="calc-page">
+    <div class="app-body" id="bill-area">
+        <div class="cust-card">
+            <input type="text" id="custName" placeholder="Customer Name">
+            <div id="dateDisplay" style="font-size:11px; color:#94a3b8; margin-top:8px;"></div>
+        </div>
+
+        <div class="items-list" id="items-list">
+            <p style="text-align:center; color:#94a3b8; padding:20px;">No items added yet</p>
+        </div>
+
+        <div class="footer-billing">
+            <div class="bill-input-grid">
+                <div class="square-box">
+                    <label>OLD BAKI</label>
+                    <input type="number" id="oldBal" oninput="calculateFinal()" placeholder="0">
+                </div>
+                <div class="square-box">
+                    <label>RECEIVED</label>
+                    <input type="number" id="cashPaid" oninput="calculateFinal()" placeholder="0">
+                </div>
+            </div>
+            <div class="final-total-box">
+                <span style="font-weight:bold; color:#ef4444;">TOTAL BAKI</span>
+                <span id="final-baki" style="font-size:20px; font-weight:900; color:#ef4444;">₹ 0.00</span>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3 style="font-size:16px; color:var(--p); margin-bottom:15px;"><i class="fas fa-history"></i> Recent Bill History</h3>
+            <div id="gallery-grid" class="gallery-grid"></div>
+        </div>
+
+        <footer style="margin-top:40px; text-align:center; padding-bottom:30px;">
+            <p style="color:#94a3b8; font-size:12px;">Made with ❤️ for Shopkeepers</p>
+        </footer>
+    </div>
+
+    <div class="app-fixed-controls">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px; margin-bottom:10px; outline:none; font-size:14px;">
+        <div class="display-box">
+            <div id="exp-view" style="font-size:12px; color:#94a3b8;">0</div>
+            <div id="total-view">₹ 0.00</div>
+        </div>
+        <div class="numpad">
+            <button class="n-btn ac-btn" onclick="smartAC()">AC</button>
+            <button class="n-btn op-btn" onclick="addVal('/')">/</button>
+            <button class="n-btn op-btn" onclick="addVal('*')">×</button>
+            <button class="n-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="n-btn" onclick="addVal('7')">7</button>
+            <button class="n-btn" onclick="addVal('8')">8</button>
+            <button class="n-btn" onclick="addVal('9')">9</button>
+            <button class="n-btn op-btn" onclick="addVal('-')">-</button>
+            <button class="n-btn" onclick="addVal('4')">4</button>
+            <button class="n-btn" onclick="addVal('5')">5</button>
+            <button class="n-btn" onclick="addVal('6')">6</button>
+            <button class="n-btn op-btn" onclick="addVal('+')">+</button>
+            <button class="n-btn" onclick="addVal('1')">1</button>
+            <button class="n-btn" onclick="addVal('2')">2</button>
+            <button class="n-btn" onclick="addVal('3')">3</button>
+            <button class="n-btn eq-btn" style="background:var(--p); color:white; grid-column: span 2;" onclick="addItem()">ADD (=)</button>
+        </div>
+        <div class="action-row">
+            <button class="action-btn" onclick="saveBill()" style="background:#059669;"><i class="fas fa-camera"></i> SAVE BILL</button>
+            <button class="action-btn" onclick="exportToCSV()" style="background:#2563eb;"><i class="fas fa-file-csv"></i> CSV REPORT</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentExp = "";
+    let items = [];
+    let editingIndex = null;
+
+    function goToCalc() {
+        document.getElementById('homepage').style.display = 'none';
+        document.getElementById('calc-page').style.display = 'grid';
+      document.getElementById('main-header').style.display = 'none';
+        document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('hi-IN');
+        renderGallery();
+    }
+
+    function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }
+    function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
+
+    function smartAC() {
+        if(confirm("Naya bill banayein? Pura data clear ho jayega.")) {
+            items = [];
+            currentExp = "";
+            document.getElementById('custName').value = "";
+            document.getElementById('oldBal').value = "";
+            document.getElementById('cashPaid').value = "";
+            document.getElementById('exp-view').innerText = "0";
+            document.getElementById('total-view').innerText = "₹ 0.00";
+            updateList();
+        }
+    }
+/*
+    function addItem() {
+        try {
+            let res = eval(currentExp);
+            if(res == undefined) return;
+            let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
+            items.push({ name: name, price: parseFloat(res), detail: currentExp });
+            updateList();
+            currentExp = ""; document.getElementById('exp-view').innerText = "0";
+            document.getElementById('itemName').value = "";
+        } catch(e) { alert("Invalid Calculation"); }
+    }
+*/
+  function addItem() {
+    try {
+        // SECURITY FIX 1: Sirf Numbers aur Math operators (+,-,*,/,.) allow karein
+        let sanitizedExp = currentExp.replace(/[^-+*/.0-9]/g, ''); 
+        
+        let res = eval(sanitizedExp);
+        if(res == undefined) return;
+
+        // SECURITY FIX 2: Input box se < > tags ko remove karein (XSS Protection)
+        let nameInput = document.getElementById('itemName').value;
+        let safeName = nameInput.replace(/<[^>]*>?/gm, ''); 
+
+        let name = safeName || "Item " + (items.length + 1);
+        items.push({ name: name, price: parseFloat(res), detail: sanitizedExp });
+        
+        updateList();
+        currentExp = ""; 
+        document.getElementById('exp-view').innerText = "0";
+        document.getElementById('itemName').value = "";
+    } catch(e) { 
+        alert("Invalid Calculation! Kripya sahi number daalein."); 
+        currentExp = "";
+    }
+}
+
+    function updateList() {
+        const listDiv = document.getElementById('items-list');
+        listDiv.innerHTML = items.length === 0 ? "<p style='color:#999; text-align:center; font-size:13px;'>No items added yet.</p>" : "";
+        let subTotal = 0;
+        items.forEach((it, idx) => {
+            subTotal += it.price;
+            listDiv.innerHTML += `
+                <div class="item-row" onclick="this.classList.toggle('active')">
+                    <span class="row-data">${it.detail}</span>
+                    <div class="row-main"><span>${it.name}</span> <span>₹${it.price.toFixed(2)}</span></div>
+                    <div class="row-btns">
+                        <span onclick="event.stopPropagation(); openEdit(${idx})" style="color:var(--p)"><i class="fas fa-edit"></i> Edit</span>
+                        <span onclick="event.stopPropagation(); delItem(${idx})" style="color:red"><i class="fas fa-trash"></i> Del</span>
+                    </div>
+                </div>`;
+        });
+        document.getElementById('total-view').innerText = "₹ " + subTotal.toFixed(2);
+        calculateFinal();
+    }
+
+    function openEdit(idx) {
+        editingIndex = idx;
+        document.getElementById('editName').value = items[idx].name;
+        document.getElementById('editPrice').value = items[idx].detail;
+        document.getElementById('editModal').style.display = "flex";
+    }
+
+    function closeModal() { document.getElementById('editModal').style.display = "none"; }
+
+    function saveEdit() {
+        try {
+            let newExp = document.getElementById('editPrice').value;
+            items[editingIndex].name = document.getElementById('editName').value;
+            items[editingIndex].detail = newExp;
+            items[editingIndex].price = parseFloat(eval(newExp));
+            updateList();
+            closeModal();
+        } catch(e) { alert("Error in calculation"); }
+    }
+
+    function delItem(i) { items.splice(i, 1); updateList(); }
+
+    function calculateFinal() {
+        let subTotal = items.reduce((a, b) => a + b.price, 0);
+        let old = parseFloat(document.getElementById('oldBal').value) || 0;
+        let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
+        document.getElementById('final-baki').innerText = "₹ " + ((subTotal + old) - paid).toFixed(2);
+    }
+/*
+    function saveBill() {
+        const area = document.getElementById('bill-area');
+        const name = document.getElementById('custName').value || 'Grahak';
+        const total = document.getElementById('final-baki').innerText;
+        area.classList.add('screenshot-mode');
+        
+        html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
+            let base64Image = canvas.toDataURL('image/png');
+            let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
+            savedBills.unshift({
+                id: Date.now(),
+                name: name,
+                total: total,
+                date: new Date().toLocaleString('hi-IN', {timeStyle: 'short', dateStyle: 'short'}),
+                image: base64Image
+            });
+            localStorage.setItem('myBills', JSON.stringify(savedBills));
+            area.classList.remove('screenshot-mode');
+            renderGallery();
+            
+            // Auto-Download for backup
+            let link = document.createElement('a');
+            link.download = name + "_Bill.png";
+            link.href = base64Image;
+            link.click();
+        });
+    }
+  */
+  // 3. Updated SaveBill with Watermark
+function saveBill() {
+    const area = document.getElementById('bill-area');
+    const name = document.getElementById('custName').value || 'Grahak';
+    
+    // Add Watermark Temporarily
+    const watermark = document.createElement("div");
+    watermark.id = "temp-watermark";
+    watermark.innerHTML = `<p style="text-align:center; color:#94a3b8; font-size:12px; margin-top:10px; border-top:1px solid #eee; padding-top:10px;">Bill generated by <b>DigitalKhata.pro</b></p>`;
+    area.appendChild(watermark);
+
+    area.classList.add('screenshot-mode');
+    
+    html2canvas(area, { scale: 2 }).then(canvas => {
+        let base64Image = canvas.toDataURL('image/png');
+        
+        // Save to Local Storage
+        let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
+        savedBills.unshift({
+            id: Date.now(),
+            name: name,
+            total: document.getElementById('final-baki').innerText,
+            date: new Date().toLocaleString('hi-IN'),
+            image: base64Image
+        });
+        localStorage.setItem('myBills', JSON.stringify(savedBills));
+
+        // Remove watermark after screenshot
+        document.getElementById('temp-watermark').remove();
+        area.classList.remove('screenshot-mode');
+        
+        renderGallery();
+        
+        // Auto Download
+        let link = document.createElement('a');
+        link.download = name + "_Bill.png";
+        link.href = base64Image;
+        link.click();
+    });
+}
+/*
+    function renderGallery() {
+        const grid = document.getElementById('gallery-grid');
+        const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+        grid.innerHTML = bills.length === 0 ? "<p style='font-size:12px; color:#999;'>No history.</p>" : "";
+        bills.slice(0, 10).forEach(bill => {
+            grid.innerHTML += `
+                <div class="gallery-item">
+                    <img src="${bill.image}" onclick="viewFullImage('${bill.image}')">
+                    <div style="padding:5px; font-size:10px;">
+                        <b>${bill.name}</b><br><span style="color:green">${bill.total}</span>
+                        <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                            <i class="fas fa-trash" onclick="deleteBill(${bill.id})" style="color:red"></i>
+                            <i class="fas fa-download" onclick="downloadImage('${bill.image}','${bill.name}')"></i>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+*/
+  // 1. Gallery Render Function (With Share, Print, Delete)
+function renderGallery() {
+    const grid = document.getElementById('gallery-grid');
+    const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+    grid.innerHTML = bills.length === 0 ? "<p style='font-size:12px; color:#999; grid-column:span 2; text-align:center;'>No history.</p>" : "";
+    
+    bills.slice(0, 10).forEach(bill => {
+        grid.innerHTML += `
+            <div class="gallery-item" style="border:1px solid #ddd; border-radius:10px; overflow:hidden; background:#fff;">
+                <img src="${bill.image}" onclick="viewFullImage('${bill.image}')" style="width:100%; height:100px; object-fit:cover;">
+                <div style="padding:8px; font-size:11px;">
+                    <b style="color:#333;">${bill.name}</b><br>
+                    <span style="color:green; font-weight:bold;">${bill.total}</span>
+                    <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:14px;">
+                        <i class="fas fa-trash" onclick="deleteBill(${bill.id})" style="color:#ef4444; cursor:pointer;"></i>
+                        <i class="fas fa-print" onclick="printBill('${bill.image}')" style="color:#64748b; cursor:pointer;"></i>
+                        <i class="fab fa-whatsapp" onclick="shareBill('${bill.image}', '${bill.name}', '${bill.total}')" style="color:#25d366; cursor:pointer; font-size:16px;"></i>
+                    </div>
+                </div>
+            </div>`;
+    });
+}
+
+// 2. Print Specific Bill
+function printBill(imgUrl) {
+    const win = window.open('', '_blank');
+    win.document.write(`
+        <html>
+            <head><title>Print Bill</title></head>
+            <body style="margin:0; display:flex; justify-content:center;">
+                <img src="${imgUrl}" style="max-width:100%;" onload="window.print();window.close();">
+            </body>
+        </html>
+    `);
+}
+/*
+// 3. Smart Share Logic (Image or Text Message)
+async function shareBill(imgBase64, name, total) {
+    const msg = `*Namaste ${name} ji,*\nAapka naya bill taiyar hai.\n*Total Balance: ${total}*\nDate: ${new Date().toLocaleDateString('hi-IN')}\n\n_Generated by DigitalKhata_`;
+    
+    // Check if Web Share API supports files (Modern Browsers)
+    if (navigator.canShare && navigator.share) {
+        try {
+            // Convert Base64 to File
+            const blob = await (await fetch(imgBase64)).blob();
+            const file = new File([blob], `${name}_bill.png`, { type: 'image/png' });
+            
+            await navigator.share({
+                title: 'Digital Bill',
+                text: msg,
+                files: [file]
+            });
+        } catch (err) {
+            // Agar image share fail hui toh WhatsApp text par switch karein
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    } else {
+        // Purane browsers ke liye direct WhatsApp text
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+}
+*/
+  // 2. Updated Share Logic with Website Link
+async function shareBill(imgBase64, name, total) {
+    const siteLink = window.location.href; // Aapki website ka link
+    const msg = `*Namaste ${name} ji,*\n\nAapka bill taiyar hai.\n*Total Balance: ${total}*\n\nApna hisab yahan dekhein ya naya bill banayein:\n${siteLink}\n\n_Generated by DigitalKhata_`;
+    
+    if (navigator.canShare && navigator.share) {
+        try {
+            const blob = await (await fetch(imgBase64)).blob();
+            const file = new File([blob], `${name}_bill.png`, { type: 'image/png' });
+            await navigator.share({ title: 'Digital Bill', text: msg, files: [file] });
+        } catch (err) {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+}
+    function deleteBill(id) {
+        if(confirm("Delete history?")) {
+            let bills = JSON.parse(localStorage.getItem('myBills') || "[]").filter(b => b.id !== id);
+            localStorage.setItem('myBills', JSON.stringify(bills));
+            renderGallery();
+        }
+    }
+/*
+    function downloadImage(url, name) {
+        let link = document.createElement('a');
+        link.download = name + ".png";
+        link.href = url;
+        link.click();
+    }
+*/
+    function viewFullImage(img) {
+        let win = window.open();
+        win.document.write(`<img src="${img}" style="width:100%">`);
+    }
+  // 1. CSV Export Logic (4-inch printing compatible)
+function exportToCSV() {
+    if (items.length === 0) {
+        alert("Pehle kuch items add karein!");
+        return;
+    }
+
+    let name = document.getElementById('custName').value || 'Grahak';
+    let date = new Date().toLocaleDateString('hi-IN');
+    
+    // CSV Header and Data
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "DigitalKhata Report\n";
+    csvContent += `Customer: ${name}, Date: ${date}\n\n`;
+    csvContent += "Item Name,Calculation,Price\n";
+
+    items.forEach(it => {
+        csvContent += `${it.name},${it.detail},${it.price.toFixed(2)}\n`;
+    });
+
+    csvContent += `\nOld Balance,,${document.getElementById('oldBal').value || 0}`;
+    csvContent += `\nCash Received,,${document.getElementById('cashPaid').value || 0}`;
+    csvContent += `\nFINAL TOTAL,,${document.getElementById('final-baki').innerText.replace('₹ ', '')}`;
+
+    // Download Link
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${name}_Hisab_${date}.csv`);
+    document.body.appendChild(link);
+    link.click();
+}
+</script>
+    <!--
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Offline Mode Ready!'))
+        .catch(err => console.log('Registration failed', err));
+    });
+  }
+</script>
+    -->
+    <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    
+    // Prevent default install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      console.log('PWA installation available');
+    });
+  </script>
+  <footer style="background: #1e293b; color: #f8fafc; padding: 40px 20px; text-align: center; margin-top: 50px; border-top: 5px solid var(--p);">
+    <div style="max-width: 800px; margin: auto;">
+        <h2 style="color: var(--p); margin-bottom: 10px;">DigitalKhata</h2>
+        <p style="font-size: 14px; color: #94a3b8; line-height: 1.6;">
+            Dukandaron ke liye Bharat ka sabse saral aur surakshit digital hisab-kitab tool. 
+            Apna business digital banayein aur calculation ki galtiyon ko zero karein.
+        </p>
+        
+        <div style="margin: 20px 0; display: flex; justify-content: center; gap: 20px; font-size: 20px;">
+            <i class="fab fa-whatsapp" style="cursor:pointer; color: #25d366;"></i>
+            <i class="fas fa-envelope" style="cursor:pointer; color: #ea4335;"></i>
+            <i class="fas fa-globe" style="cursor:pointer; color: var(--p);"></i>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
+
+        <div style="font-size: 12px; color: #64748b;">
+            <a href="#" style="color: #94a3b8; text-decoration: none; margin: 0 10px;">Privacy Policy</a> | 
+            <a href="#" style="color: #94a3b8; text-decoration: none; margin: 0 10px;">Terms of Service</a> | 
+            <a href="#" style="color: #94a3b8; text-decoration: none; margin: 0 10px;">Contact Us</a>
+        </div>
+        
+        <p style="font-size: 12px; margin-top: 20px; color: #475569;">
+            &copy; 2026 <b>DigitalKhata.pro</b> - All Rights Reserved. <br>
+            <small>Made with ❤️ for Small Businesses</small>
+        </p>
+    </div>
+</footer>
+
+<style>
+    .n-btn, .op-btn, .eq-btn {
+        touch-action: manipulation; /* Double tap zoom ko rokne ke liye */
+        user-select: none; /* Text select na ho tap karte waqt */
+    }
+</style>
+
+  
+
+
+</body>
+</html>

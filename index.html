@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Khata Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+:root { --p: #2563eb; --bg: #f1f5f9; --card: #ffffff; }
+* { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: 0.2s; margin: 0; padding: 0; }
+
+body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); position: fixed; }
+
+#calc-page, #homepage { max-width: 500px; margin: auto; background: #fff; position: relative; }
+
+/* Homepage */
+#homepage { 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    height: 100dvh; text-align: center; padding: 20px; background: var(--bg);
+}
+
+/* App Layout */
+#calc-page { display: none; height: 100dvh; grid-template-rows: 1fr auto; }
+
+header { background: var(--p); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: white; }
+
+.app-body { 
+    grid-row: 1; overflow-y: auto; padding: 15px; background: var(--bg); 
+    scroll-behavior: smooth; -webkit-overflow-scrolling: touch; 
+}
+
+/* Cards UI */
+.cust-card, .footer-billing, .history-section { 
+    background: #fff; padding: 15px; border-radius: 15px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #e2e8f0;
+}
+
+.cust-card input { border: none; border-bottom: 2px solid #f1f5f9; width: 100%; font-size: 16px; font-weight: bold; padding: 5px 0; outline: none; }
+
+/* Item Row */
+.item-row { background: #fff; padding: 12px; border-radius: 10px; margin-bottom: 8px; border-left: 5px solid var(--p); box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer; }
+.row-main { display: flex; justify-content: space-between; font-weight: bold; }
+.row-btns { display: none; gap: 20px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; font-size: 14px; }
+.item-row.active .row-btns { display: flex; }
+
+/* Billing Inputs */
+.bill-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.square-box { border: 1.5px solid #e2e8f0; padding: 8px; border-radius: 10px; text-align: center; }
+.square-box label { font-size: 9px; font-weight: 900; color: #64748b; display: block; }
+.square-box input { width: 100%; border: none; text-align: center; font-weight: bold; font-size: 15px; outline: none; }
+.final-total-box { background: #fee2e2; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px dashed #ef4444; }
+
+/* Keypad Section */
+.app-fixed-controls { grid-row: 2; background: #fff; padding: 10px 12px 20px; box-shadow: 0 -8px 20px rgba(0,0,0,0.1); border-radius: 20px 20px 0 0; }
+.display-box { background: #1e293b; color: #fff; padding: 8px 12px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
+.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.n-btn { padding: 12px 0; font-size: 18px; border-radius: 8px; border: none; background: #f1f5f9; font-weight: 600; }
+.op-btn { background: #e2e8f0; color: var(--p); }
+.eq-btn { background: var(--p); color: white; }
+
+/* Action Buttons */
+.action-row { display: flex; gap: 8px; margin-top: 10px; }
+.action-btn { flex: 1; padding: 10px; border: none; border-radius: 50px; color: white; font-weight: bold; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+/* Modal */
+.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:9999; }
+.modal-content { background:#fff; padding:20px; border-radius:15px; width:85%; max-width:350px; }
+.modal-content input { width:100%; padding:10px; margin:10px 0; border:1px solid #ddd; border-radius:8px; }
+
+/* Gallery */
+.gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gallery-item { border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+
+/* Screenshot Helper */
+.screenshot-mode { height: auto !important; overflow: visible !important; width: 400px !important; position: relative !important; }
+</style>
+</head>
+<body>
+
+<header id="main-header">
+    <div class="logo" onclick="location.reload()">DigitalKhata Pro</div>
+    <div style="font-size: 12px;"><i class="fas fa-shield-alt"></i> Secure</div>
+</header>
+
+<div id="homepage">
+    <div style="background:var(--p); color:white; width:70px; height:70px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:35px; margin-bottom:15px; box-shadow: 0 8px 15px rgba(37,99,235,0.2);">
+        <i class="fas fa-calculator"></i>
+    </div>
+    <h1 style="font-size:26px; color:#1e293b;">Digital Khata</h1>
+    <p style="color:#64748b; margin-bottom:25px;">Professional Billing Solution</p>
+    <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:15px 35px; border-radius:50px; font-size:16px; font-weight:600; cursor:pointer;">
+        Start Digital Khata <i class="fas fa-arrow-right"></i>
+    </button>
+</div>
+
+<div id="calc-page">
+    <div class="app-body" id="bill-area">
+        <div class="cust-card">
+            <input type="text" id="custName" placeholder="Customer Name">
+            <div id="dateDisplay" style="font-size:11px; color:#94a3b8; margin-top:5px;"></div>
+        </div>
+
+        <div class="items-list" id="items-list">
+            <p style="text-align:center; color:#94a3b8; padding:20px;">No items added yet</p>
+        </div>
+
+        <div class="footer-billing">
+            <div class="bill-input-grid">
+                <div class="square-box"><label>OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" placeholder="0"></div>
+                <div class="square-box"><label>RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" placeholder="0"></div>
+            </div>
+            <div class="final-total-box">
+                <span style="font-weight:bold; color:#ef4444;">TOTAL BAKI</span>
+                <span id="final-baki" style="font-size:18px; font-weight:900; color:#ef4444;">₹ 0.00</span>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3 style="font-size:14px; color:var(--p); margin-bottom:10px;"><i class="fas fa-history"></i> Recent History</h3>
+            <div id="gallery-grid" class="gallery-grid"></div>
+        </div>
+
+        <footer style="text-align:center; padding:20px 0; color:#94a3b8; font-size:11px;">
+            &copy; 2026 DigitalKhata.pro
+        </footer>
+    </div>
+
+    <div class="app-fixed-controls">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:8px; outline:none; font-size:13px;">
+        <div class="display-box">
+            <div id="exp-view" style="font-size:11px; color:#94a3b8;">0</div>
+            <div id="total-view" style="font-size:18px; font-weight:bold; color:#10b981;">₹ 0.00</div>
+        </div>
+        <div class="numpad">
+            <button class="n-btn op-btn" onclick="smartAC()">AC</button>
+            <button class="n-btn op-btn" onclick="addVal('/')">/</button>
+            <button class="n-btn op-btn" onclick="addVal('*')">×</button>
+            <button class="n-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="n-btn" onclick="addVal('7')">7</button>
+            <button class="n-btn" onclick="addVal('8')">8</button>
+            <button class="n-btn" onclick="addVal('9')">9</button>
+            <button class="n-btn op-btn" onclick="addVal('-')">-</button>
+            <button class="n-btn" onclick="addVal('4')">4</button>
+            <button class="n-btn" onclick="addVal('5')">5</button>
+            <button class="n-btn" onclick="addVal('6')">6</button>
+            <button class="n-btn op-btn" onclick="addVal('+')">+</button>
+            <button class="n-btn" onclick="addVal('1')">1</button>
+            <button class="n-btn" onclick="addVal('2')">2</button>
+            <button class="n-btn" onclick="addVal('3')">3</button>
+            <button class="n-btn eq-btn" onclick="addItem()">ADD (=)</button>
+            <button class="n-btn" onclick="addVal('0')">0</button>
+            <button class="n-btn" onclick="addVal('.')">.</button>
+            <div style="grid-column: span 2; display: flex; gap: 5px;">
+                <button class="action-btn" onclick="saveBill()" style="background:#059669; flex:1;"><i class="fas fa-camera"></i> SAVE</button>
+                <button class="action-btn" onclick="exportToCSV()" style="background:#2563eb; flex:1;"><i class="fas fa-file-csv"></i> CSV</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3>Edit Item</h3>
+        <input type="text" id="editName" placeholder="Item Name">
+        <input type="text" id="editPrice" placeholder="Calculation (e.g. 10*2)">
+        <div style="display:flex; gap:10px;">
+            <button onclick="saveEdit()" style="flex:1; padding:10px; background:var(--p); color:#fff; border:none; border-radius:8px;">Save</button>
+            <button onclick="closeModal()" style="flex:1; padding:10px; background:#ddd; border:none; border-radius:8px;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentExp = "";
+    let items = [];
+    let editingIndex = null;
+
+    function goToCalc() {
+        document.getElementById('homepage').style.display = 'none';
+        document.getElementById('main-header').style.display = 'none';
+        document.getElementById('calc-page').style.display = 'grid';
+        document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('hi-IN');
+        renderGallery();
+    }
+
+    function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }
+    function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
+
+    function smartAC() {
+        if(confirm("Naya bill?")) {
+            items = []; currentExp = "";
+            document.getElementById('custName').value = "";
+            document.getElementById('oldBal').value = "";
+            document.getElementById('cashPaid').value = "";
+            document.getElementById('exp-view').innerText = "0";
+            updateList();
+        }
+    }
+
+    function addItem() {
+        try {
+            let res = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
+            if(res == undefined) return;
+            let name = document.getElementById('itemName').value.replace(/<[^>]*>?/gm, '') || "Item " + (items.length + 1);
+            items.push({ name: name, price: parseFloat(res), detail: currentExp });
+            updateList();
+            currentExp = ""; document.getElementById('exp-view').innerText = "0";
+            document.getElementById('itemName').value = "";
+            // Auto-scroll to bottom
+            const body = document.getElementById('bill-area');
+            body.scrollTop = body.scrollHeight;
+        } catch(e) { alert("Sahi calculation daalein"); }
+    }
+
+    function updateList() {
+        const listDiv = document.getElementById('items-list');
+        listDiv.innerHTML = items.length === 0 ? "<p style='color:#999; text-align:center;'>No items added yet.</p>" : "";
+        let subTotal = 0;
+        items.forEach((it, idx) => {
+            subTotal += it.price;
+            listDiv.innerHTML += `
+                <div class="item-row" onclick="this.classList.toggle('active')">
+                    <div class="row-main"><span>${it.name}</span> <span>₹${it.price.toFixed(2)}</span></div>
+                    <div style="font-size:11px; color:#64748b;">${it.detail}</div>
+                    <div class="row-btns">
+                        <span onclick="event.stopPropagation(); openEdit(${idx})" style="color:var(--p)"><i class="fas fa-edit"></i> Edit</span>
+                        <span onclick="event.stopPropagation(); delItem(${idx})" style="color:red"><i class="fas fa-trash"></i> Del</span>
+                    </div>
+                </div>`;
+        });
+        document.getElementById('total-view').innerText = "₹ " + subTotal.toFixed(2);
+        calculateFinal();
+    }
+
+    function openEdit(idx) {
+        editingIndex = idx;
+        document.getElementById('editName').value = items[idx].name;
+        document.getElementById('editPrice').value = items[idx].detail;
+        document.getElementById('editModal').style.display = "flex";
+    }
+
+    function closeModal() { document.getElementById('editModal').style.display = "none"; }
+
+    function saveEdit() {
+        try {
+            let newExp = document.getElementById('editPrice').value;
+            items[editingIndex].name = document.getElementById('editName').value;
+            items[editingIndex].detail = newExp;
+            items[editingIndex].price = parseFloat(eval(newExp));
+            updateList(); closeModal();
+        } catch(e) { alert("Calculation error"); }
+    }
+
+    function delItem(i) { items.splice(i, 1); updateList(); }
+
+    function calculateFinal() {
+        let subTotal = items.reduce((a, b) => a + b.price, 0);
+        let old = parseFloat(document.getElementById('oldBal').value) || 0;
+        let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
+        document.getElementById('final-baki').innerText = "₹ " + ((subTotal + old) - paid).toFixed(2);
+    }
+
+    async function saveBill() {
+        const area = document.getElementById('bill-area');
+        const name = document.getElementById('custName').value || 'Grahak';
+        
+        // Prepare area for screenshot (Temporary style)
+        const originalStyle = area.style.cssText;
+        area.style.height = 'auto';
+        area.style.overflow = 'visible';
+        
+        html2canvas(area, { scale: 2, backgroundColor: "#f1f5f9" }).then(canvas => {
+            area.style.cssText = originalStyle;
+            let base64Image = canvas.toDataURL('image/png');
+            let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
+            savedBills.unshift({
+                id: Date.now(),
+                name: name,
+                total: document.getElementById('final-baki').innerText,
+                date: new Date().toLocaleDateString('hi-IN'),
+                image: base64Image
+            });
+            localStorage.setItem('myBills', JSON.stringify(savedBills));
+            renderGallery();
+            let link = document.createElement('a');
+            link.download = name + "_Bill.png";
+            link.href = base64Image;
+            link.click();
+        });
+    }
+
+    function renderGallery() {
+        const grid = document.getElementById('gallery-grid');
+        const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+        grid.innerHTML = bills.length === 0 ? "<p style='font-size:11px; grid-column:span 2;'>No history.</p>" : "";
+        bills.slice(0, 6).forEach(bill => {
+            grid.innerHTML += `
+                <div class="gallery-item">
+                    <img src="${bill.image}" onclick="viewFullImage('${bill.image}')" style="width:100%; height:80px; object-fit:cover;">
+                    <div style="padding:5px; font-size:10px;">
+                        <b>${bill.name}</b><br><span style="color:green">${bill.total}</span>
+                        <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                            <i class="fas fa-trash" onclick="deleteBill(${bill.id})" style="color:red"></i>
+                            <i class="fab fa-whatsapp" onclick="shareBill('${bill.image}', '${bill.name}', '${bill.total}')" style="color:green"></i>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    async function shareBill(img, name, total) {
+        const msg = `Namaste ${name} ji, Aapka bill: ${total}.`;
+        if (navigator.share) {
+            const blob = await (await fetch(img)).blob();
+            const file = new File([blob], 'bill.png', {type: 'image/png'});
+            navigator.share({ files: [file], text: msg });
+        } else {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
+        }
+    }
+
+    function deleteBill(id) {
+        if(confirm("Delete?")) {
+            let bills = JSON.parse(localStorage.getItem('myBills') || "[]").filter(b => b.id !== id);
+            localStorage.setItem('myBills', JSON.stringify(bills));
+            renderGallery();
+        }
+    }
+
+    function viewFullImage(img) {
+        let win = window.open();
+        win.document.write(`<img src="${img}" style="width:100%">`);
+    }
+
+    function exportToCSV() {
+        let name = document.getElementById('custName').value || 'Grahak';
+        let csv = "Item,Calculation,Price\n";
+        items.forEach(it => csv += `${it.name},${it.detail},${it.price}\n`);
+        csv += `\nTotal,,${document.getElementById('final-baki').innerText}`;
+        let link = document.createElement("a");
+        link.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+        link.download = `${name}.csv`;
+        link.click();
+    }
+</script>
+</body>
+</html>

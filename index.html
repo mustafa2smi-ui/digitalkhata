@@ -8,59 +8,50 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-   /* Screen Reset */
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    overflow: hidden; /* Bahar ka scroll band */
-    background: var(--bg);
+   /* Screen Lock Logic */
+html, body {
+    margin: 0; padding: 0;
+    height: 100dvh; width: 100vw;
+    overflow: hidden; /* Screen ko hilne se rokna */
+    background: #f8fafc;
 }
 
 #calc-page {
-    display: none; /* JS isse flex kar dega */
-    height: 100vh;
-    width: 100%;
-    position: relative;
+    display: none; /* JS isse grid kar dega */
+    height: 100dvh;
+    display: grid;
+    grid-template-rows: 1fr auto; /* Upar flexible, Niche fixed */
 }
 
-/* 1. UPAR KA AREA (Scrollable) */
-.bill-capture-area {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    /* Niche se 330px jagah chhodi hai keypad ke liye */
-    bottom: 330px; 
+/* TOP SECTION: Sab kuch jo scroll hoga */
+.app-body {
+    grid-row: 1;
     overflow-y: auto;
     padding: 15px;
     background: #fff;
     -webkit-overflow-scrolling: touch;
 }
 
-/* 2. NICHE KA AREA (Fixed/Chipka hua) */
-.fixed-controls {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 330px; /* Iski height fix kar di */
+/* BOTTOM SECTION: Keypad aur Buttons jo fix rahenge */
+.app-fixed-controls {
+    grid-row: 2;
     background: #ffffff;
-    padding: 10px 15px;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
-    border-top: 1px solid #ddd;
-    z-index: 1000;
+    padding: 10px 15px 15px 15px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+    border-top: 1px solid #e2e8f0;
+    z-index: 2000;
 }
 
-/* Screenshot ke waqt keypad hatane ke liye */
-.screenshot-mode-active .fixed-controls { display: none !important; }
-.screenshot-mode-active .bill-capture-area { position: relative; height: auto; bottom: 0; overflow: visible; }
+/* UI Compact Tweaks */
+.numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.n-btn { padding: 12px; font-size: 18px; border-radius: 8px; font-weight: 600; border: none; background: #f1f5f9; }
+.eq-btn { background: #2563eb; color: white; grid-column: span 2; }
+.action-row { display: flex; gap: 8px; margin-top: 10px; }
+.action-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-/* Buttons compact karein */
-.n-btn { padding: 12px; font-size: 16px; border-radius: 8px; }
-.display-box { padding: 8px; margin-bottom: 8px; }
-#total-view { font-size: 20px; }
+/* Screenshot Mode Fix */
+.screenshot-mode-active #calc-page { display: block; height: auto; overflow: visible; }
+.screenshot-mode-active .app-fixed-controls { display: none !important; }
 
 </style>
 
@@ -73,41 +64,45 @@ body, html {
     <p>Modern billing for modern shops.</p>
     <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:18px 45px; border-radius:50px; font-size:18px; font-weight:600; cursor:pointer;">Start Billing <i class="fas fa-arrow-right"></i></button>
 </div>
-
-<div id="calc-page">
-    <div class="bill-capture-area" id="bill-area">
+    <div id="calc-page">
+    <div class="app-body" id="bill-area">
+        <h2 style="color:var(--p); margin:0 0 10px 0; font-size:18px;">DigitalKhata</h2>
+        
         <div class="bill-header">
             <input type="text" id="custName" placeholder="Customer Name">
             <span id="dateDisplay" style="font-size:11px; color:#94a3b8;"></span>
         </div>
 
-        <div class="items-list" id="items-list">
-            <p style='color:#999; text-align:center; font-size:13px; margin-top:20px;'>No items added yet.</p>
-        </div>
+        <div class="items-list" id="items-list"></div>
 
         <div class="footer-billing">
             <div style="display:flex; gap:10px;">
-                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" placeholder="0" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
-                <div style="flex:1;"><label style="font-size:9px;font-weight:bold;">RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" placeholder="0" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
+                <div style="flex:1;"><label style="font-size:10px;font-weight:bold;">OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
+                <div style="flex:1;"><label style="font-size:10px;font-weight:bold;">RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" style="width:100%; padding:5px; border:1px solid #ddd; border-radius:5px;"></div>
             </div>
             <div class="final-total">
-                <span style="font-size:12px;">TOTAL BAKI:</span> 
+                <span style="font-size:14px;">TOTAL BAKI:</span> 
                 <span id="final-baki">₹ 0.00</span>
             </div>
         </div>
 
-        <div class="history-section">
-            <h3 style="font-size:15px; color:var(--p);"><i class="fas fa-history"></i> Recent History</h3>
+        <div class="history-section" style="margin-top:25px;">
+            <h3 style="font-size:15px; color:var(--p);"><i class="fas fa-history"></i> Recent Bills</h3>
             <div id="gallery-grid" class="gallery-grid"></div>
         </div>
+
+        <footer style="margin-top:40px; text-align:center; padding-bottom:20px; color:#94a3b8; font-size:11px;">
+            &copy; 2026 DigitalKhata.pro | Secure & Offline
+        </footer>
     </div>
 
-    <div class="input-section">
-        <input type="text" id="itemName" placeholder="Item Name (Optional)" style="width:100%; padding:8px; border:1.5px solid #e2e8f0; border-radius:8px; margin-bottom:8px; outline:none; font-size:14px;">
-        <div class="display-box">
-            <div id="exp-view">0</div>
-            <div id="total-view">₹ 0.00</div>
+    <div class="app-fixed-controls">
+        <input type="text" id="itemName" placeholder="Item Name (Optional)" style="width:100%; padding:8px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:8px; outline:none;">
+        <div class="display-box" style="background:#1e293b; color:#fff; padding:8px; border-radius:10px; text-align:right; margin-bottom:8px;">
+            <div id="exp-view" style="font-size:12px; color:#94a3b8;">0</div>
+            <div id="total-view" style="font-size:20px; font-weight:bold; color:#10b981;">₹ 0.00</div>
         </div>
+
         <div class="numpad">
             <button class="n-btn ac-btn" onclick="smartAC()">AC</button>
             <button class="n-btn op-btn" onclick="addVal('/')">/</button>
@@ -127,13 +122,13 @@ body, html {
             <button class="n-btn eq-btn" onclick="addItem()">ADD (=)</button>
         </div>
 
-        <div class="action-btns">
-            <button class="screenshot-btn" onclick="saveBill()" style="background: #059669;"><i class="fas fa-camera"></i> SAVE</button>
-            <button class="screenshot-btn" onclick="exportToCSV()" style="background: #2563eb;"><i class="fas fa-file-csv"></i> EXCEL</button>
+        <div class="action-row">
+            <button class="action-btn" onclick="saveBill()" style="background:#059669;"><i class="fas fa-camera"></i> SAVE</button>
+            <button class="action-btn" onclick="exportToCSV()" style="background:#2563eb;"><i class="fas fa-file-csv"></i> CSV</button>
         </div>
-        <small class="backup-note" style="display:block; font-size:9px; margin-top:5px;">Backup images in Google Photos</small>
     </div>
 </div>
+
 
 <script>
     let currentExp = "";

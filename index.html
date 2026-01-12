@@ -33,11 +33,13 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
 /* Cards UI */
 .cust-card, .footer-billing, .history-section { 
     background: #fff; padding: 15px; border-radius: 15px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 10px; border: 1px solid #e2e8f0;
 }
 
 .cust-card input { border: none; border-bottom: 2px solid #f1f5f9; width: 100%; font-size: 16px; font-weight: bold; padding: 5px 0; outline: none; }
-
+/* 2. Customer Card ko chota karna *
+.cust-card { padding: 10px 15px; margin-bottom: 10px; }
+.cust-card input { font-size: 14px; }*/
 /* Item Row */
 .item-row { background: #fff; padding: 8px 12px; border-radius: 10px; margin-bottom: 5px; border-left: 5px solid var(--p); box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer; }
 .row-main { display: flex; justify-content: space-between; font-weight: bold;font-size: 14px; }
@@ -48,10 +50,10 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
 /*.row-main { font-size: 14px; }*/
 /* Billing Inputs */
 .bill-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.square-box { border: 1.5px solid #e2e8f0; padding: 8px; border-radius: 10px; text-align: center; }
-.square-box label { font-size: 9px; font-weight: 900; color: #64748b; display: block; }
+.square-box { border: 1.5px solid #e2e8f0; padding: 5px; border-radius: 10px; text-align: center; }
+.square-box label { font-size: 8px; font-weight: 900; color: #64748b; display: block; margin-bottom: 2px; }
 .square-box input { width: 100%; border: none; text-align: center; font-weight: bold; font-size: 15px; outline: none; }
-.final-total-box { background: #fee2e2; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px dashed #ef4444; }
+.final-total-box { background: #fee2e2; padding: 8px 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px dashed #ef4444; }
 /* 3. Billing Square Boxes ko compact karna 
 .square-box { padding: 5px; }
 .square-box label { font-size: 8px; margin-bottom: 2px; }
@@ -92,15 +94,13 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
     margin-bottom: 10px;
 }
 
-/* 2. Customer Card ko chota karna */
-.cust-card { padding: 10px 15px; margin-bottom: 10px; }
-.cust-card input { font-size: 14px; }
 
-/* 3. Billing Square Boxes ko compact karna */
+
+/* 3. Billing Square Boxes ko compact karna 
 .square-box { padding: 5px; }
 .square-box label { font-size: 8px; margin-bottom: 2px; }
 .square-box input { font-size: 14px; }
-.final-total-box { padding: 8px 12px; }
+.final-total-box { padding: 8px 12px; }*/
 
 /* 4. Screenshot ke waqt history chhupane ke liye */
 .screenshot-mode .history-section, 
@@ -230,10 +230,10 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
             updateList();
         }
     }
-
+/*
     function addItem() {
         try {
-            let res = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
+            let res = eval(currentExp.replace(/[^-+/.0-9]/g, ''));
             if(res == undefined) return;
             let name = document.getElementById('itemName').value.replace(/<[^>]*>?/gm, '') || "Item " + (items.length + 1);
             items.push({ name: name, price: parseFloat(res), detail: currentExp });
@@ -245,6 +245,74 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
             body.scrollTop = body.scrollHeight;
         } catch(e) { alert("Sahi calculation daalein"); }
     }
+    */
+// 1. ADD Item with specific box scroll
+function addItem() {
+    try {
+        let res = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
+        if(res == undefined) return;
+        let name = document.getElementById('itemName').value.replace(/<[^>]*>?/gm, '') || "Item " + (items.length + 1);
+        items.push({ name: name, price: parseFloat(res), detail: currentExp });
+        
+        updateList();
+        
+        currentExp = ""; 
+        document.getElementById('exp-view').innerText = "0";
+        document.getElementById('itemName').value = "";
+
+        // Pura page nahi, sirf items-list scroll hoga
+        const listDiv = document.getElementById('items-list');
+        listDiv.scrollTop = listDiv.scrollHeight;
+        
+    } catch(e) { alert("Sahi calculation daalein"); }
+}
+
+// 2. Save Bill (History images ko capture nahi karega)
+async function saveBill() {
+    const area = document.getElementById('bill-area'); // Main container
+    const name = document.getElementById('custName').value || 'Grahak';
+    
+    // Screenshot mode ON (CSS history ko hide kar dega)
+    area.classList.add('screenshot-mode');
+    
+    // Items list ko screenshot ke liye thoda kholna (taki 3-4 items dikhein)
+    const listDiv = document.getElementById('items-list');
+    const originalMaxHeight = listDiv.style.maxHeight;
+    listDiv.style.maxHeight = 'none'; 
+
+    html2canvas(area, { 
+        scale: 2, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        // Sirf itna hissa capture karein jo billing area hai
+        ignoreElements: (el) => el.classList.contains('history-section') || el.tagName === 'FOOTER'
+    }).then(canvas => {
+        // Reset styles
+        area.classList.remove('screenshot-mode');
+        listDiv.style.maxHeight = originalMaxHeight;
+
+        let base64Image = canvas.toDataURL('image/png');
+        
+        // Save to Gallery
+        let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
+        savedBills.unshift({
+            id: Date.now(),
+            name: name,
+            total: document.getElementById('final-baki').innerText,
+            date: new Date().toLocaleDateString('hi-IN'),
+            image: base64Image
+        });
+        localStorage.setItem('myBills', JSON.stringify(savedBills));
+        
+        renderGallery();
+
+        // Download image
+        let link = document.createElement('a');
+        link.download = name + "_Bill.png";
+        link.href = base64Image;
+        link.click();
+    });
+}
 
     function updateList() {
         const listDiv = document.getElementById('items-list');
@@ -293,7 +361,7 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
         let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
         document.getElementById('final-baki').innerText = "₹ " + ((subTotal + old) - paid).toFixed(2);
     }
-
+/*
     async function saveBill() {
         const area = document.getElementById('bill-area');
         const name = document.getElementById('custName').value || 'Grahak';
@@ -322,7 +390,7 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
             link.click();
         });
     }
-
+*/
     function renderGallery() {
         const grid = document.getElementById('gallery-grid');
         const bills = JSON.parse(localStorage.getItem('myBills') || "[]");

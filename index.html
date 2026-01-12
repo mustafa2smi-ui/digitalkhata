@@ -84,16 +84,25 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
 
 /* Screenshot Helper */
 .screenshot-mode { height: auto !important; overflow: visible !important; width: 400px !important; position: relative !important; }
-/* 1. Items List ko limited height dena */
+/* 1. Items List ko limited height dena *
 .items-list { 
-    max-height: 220px; /* 3-4 items ke baad scroll shuru */
+    max-height: 220px; /* 3-4 items ke baad scroll shuru *
     overflow-y: auto; 
     border: 1px solid #f1f5f9;
     border-radius: 10px;
     padding: 5px;
     margin-bottom: 10px;
 }
-
+    */
+/* 3. Items List Height (Sirf 3 rows dikhane ke liye) */
+.items-list { 
+    max-height: 165px; /* Height kam kar di gayi hai */
+    overflow-y: auto; 
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 8px;
+    background: #fff;
+}
 
 
 /* 3. Billing Square Boxes ko compact karna 
@@ -106,6 +115,36 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
 .screenshot-mode .history-section, 
 .screenshot-mode footer,
 .screenshot-mode .app-fixed-controls { display: none !important; }
+/* 1. Keypad Highlight Effect */
+.n-btn:active {
+    background: #cbd5e1 !important;
+    transform: scale(0.95);
+}
+
+/* 2. Display Colors & Sizes */
+#exp-view { 
+    font-size: 18px; 
+    font-weight: bold; 
+    color: #fbbf24; /* Bold Yellow */
+    margin-bottom: 2px;
+}
+#total-view { 
+    font-size: 15px; 
+    font-weight: bold; 
+    color: #60a5fa; /* Light/Bold Blue */
+}
+
+
+
+/* 4. Professional Footer wapas */
+.app-footer {
+    margin-top: 20px;
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 12px;
+}
 
 </style>
 </head>
@@ -153,6 +192,12 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
             <h3 style="font-size:14px; color:var(--p); margin-bottom:10px;"><i class="fas fa-history"></i> Recent History</h3>
             <div id="gallery-grid" class="gallery-grid"></div>
         </div>
+
+    <div class="app-footer">
+        <p>Made with ❤️ for Small Businesses 🇮🇳</p>
+        <p style="font-weight:bold; color:var(--p); margin-top:5px;">DigitalKhata.pro</p>
+        <small>100% Secure & Offline 🔒</small>
+    </div>
 
         <footer style="text-align:center; padding:20px 0; color:#94a3b8; font-size:11px;">
             &copy; 2026 DigitalKhata.pro
@@ -217,8 +262,36 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
         renderGallery();
     }
 
-    function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }
+  /*  function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }*/
     function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
+// 5. Smart Operator Logic (Prevent 56++)
+function addVal(v) {
+    const operators = ['+', '-', '*', '/'];
+    const lastChar = currentExp.slice(-1);
+
+    // Agar last character ek operator hai aur naya bhi operator hai, toh replace karein
+    if (operators.includes(lastChar) && operators.includes(v)) {
+        currentExp = currentExp.slice(0, -1) + v;
+    } 
+    // Pehla character operator nahi ho sakta (except minus)
+    else if (currentExp === "" && operators.includes(v) && v !== '-') {
+        return;
+    }
+    else {
+        currentExp += v;
+    }
+    document.getElementById('exp-view').innerText = currentExp;
+}
+
+// Footer HTML update (Isse bill-area ke andar sabse niche rakhein)
+function updateFooterHTML() {
+    return `
+    <div class="app-footer">
+        <p>Made with ❤️ in India 🇮🇳</p>
+        <p style="font-weight:bold; color:var(--p);">DigitalKhata Pro v2.0</p>
+        <small>100% Safe • Offline • Secure 🔒</small>
+    </div>`;
+}
 
     function smartAC() {
         if(confirm("Naya bill?")) {

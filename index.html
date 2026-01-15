@@ -145,19 +145,19 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
     color: #64748b;
     font-size: 12px;
 }
-/* Display Color Fix */
+/* Display Color Fix *
 #exp-view { 
     font-size: 22px !important; 
     font-weight: 800 !important; 
-    color: #ffca28 !important; /* Premium Yellow */
+    color: #ffca28 !important; /* Premium Yellow *
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 #total-view { 
     font-size: 16px !important; 
     font-weight: 600 !important; 
-    color: #64b5f6 !important; /* Sky Blue */
+    color: #64b5f6 !important; /* Sky Blue *
 }
-
+*/
 /* Printer & Gallery Icon Style */
 .gallery-controls {
     display: flex;
@@ -176,6 +176,42 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
     color: white !important;
     font-size: 11px !important;
     padding: 10px !important;
+}
+.display-box {
+    background: #000;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: right;
+    margin-bottom: 10px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Extra space handle karne ke liye */
+    overflow: hidden; 
+}
+
+#exp-view { 
+    font-size: 24px !important; 
+    font-weight: 800 !important; 
+    color: #ffca28 !important; 
+    white-space: nowrap; /* Text ko niche nahi girne dega */
+    overflow-x: auto;    /* Side scroll chalu karega */
+    scrollbar-width: none; /* Firefox ke liye scrollbar chhupayega */
+    display: block;
+    direction: ltr;      /* Normal typing direction */
+}
+
+/* Chrome/Safari ke liye scrollbar chhupane ka tarika */
+#exp-view::-webkit-scrollbar {
+    display: none;
+}
+
+#total-view { 
+    font-size: 16px !important; 
+    font-weight: 600 !important; 
+    color: #64b5f6 !important; 
+    margin-top: 5px;
 }
 
 </style>
@@ -334,7 +370,7 @@ function vibrate() {
         navigator.vibrate(40); // 40ms ka chota vibration
     }
 }
-
+/*
 // 2. Updated addVal with Vibration
 function addVal(v) {
     vibrate(); // Har click par vibrate karega
@@ -348,6 +384,26 @@ function addVal(v) {
         currentExp += v;
     }
     document.getElementById('exp-view').innerText = currentExp;
+}
+    */
+function addVal(v) {
+    vibrate();
+    const operators = ['+', '-', '*', '/'];
+    const lastChar = currentExp.slice(-1);
+
+    if (operators.includes(lastChar) && operators.includes(v)) {
+        currentExp = currentExp.slice(0, -1) + v;
+    } else if (currentExp === "" && operators.includes(v) && v !== '-') {
+        return;
+    } else {
+        currentExp += v;
+    }
+
+    const expDisplay = document.getElementById('exp-view');
+    expDisplay.innerText = currentExp;
+
+    // --- YE LINE ADD KAREIN (Auto-Scroll to Right) ---
+    expDisplay.scrollLeft = expDisplay.scrollWidth;
 }
 
 // 3. Gallery Render with Printer Button

@@ -622,10 +622,11 @@ function addItem() {
     } catch(e) { alert("Sahi calculation daalein"); }
   }
 */
+    /*
     // 2. Updated ADD/UPDATE Item Function
 function addItem() {
     try {
-        let rawPrice = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
+        let rawPrice = eval(currentExp.replace(/[^-+/.0-9]/g, ''));
         if(rawPrice == undefined) return;
 
         let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
@@ -660,6 +661,54 @@ function addItem() {
         resetInputs();
         
     } catch(e) { alert("Calculation error!"); }
+}
+    */
+        function addItem() {
+    try {
+        // Agar currentExp khali hai toh error na dikhaye, bas ruk jaye
+        if (!currentExp || currentExp.trim() === "") {
+            return; 
+        }
+
+        let rawPrice = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
+        
+        let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
+        let dP = parseFloat(document.getElementById('itemDisc').value) || 0;
+        let gP = parseFloat(document.getElementById('itemGst').value) || 0;
+
+        let afterDisc = rawPrice - (rawPrice * dP / 100);
+        let finalPrice = afterDisc + (afterDisc * gP / 100);
+
+        let itemData = { 
+            name: name, 
+            price: finalPrice, 
+            detail: currentExp,
+            dP: dP, 
+            gP: gP,
+            taxInfo: `G:${gP}% | D:${dP}%` 
+        };
+
+        if (editIndex > -1) {
+            // UPDATE LOGIC: Purane item ko replace karein
+            items[editIndex] = itemData;
+            editIndex = -1; // Reset mode
+            
+            // Button wapas normal karein
+            const addBtn = document.querySelector('.n-btn-p');
+            addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+            addBtn.style.background = ""; 
+        } else {
+            // ADD LOGIC: Naya item jodein
+            items.push(itemData);
+        }
+
+        updateList(); // List refresh
+        resetInputs(); // Inputs saaf karein
+        
+    } catch(e) { 
+        console.error(e);
+        alert("Calculation sahi nahi hai. Dubara check karein."); 
+    }
 }
 /*
 // 2. Save Bill (History images ko capture nahi karega)
@@ -853,6 +902,7 @@ function updateList() {
     }
 
     */
+    /*
 // 1. EDIT Function (Item par click karne par data wapas boxes mein)
 function editItem(idx) {
     vibrate();
@@ -872,15 +922,50 @@ function editItem(idx) {
     addBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
     addBtn.style.background = "#f59e0b"; // Orange color for update
 }
-
+    */
+/*
 function resetInputs() {
     currentExp = ""; 
     document.getElementById('exp-view').innerText = "0";
     document.getElementById('itemName').value = "";
     // Hum GST/Disc ko reset nahi kar rahe taki default wahi rahe
 }
+*/
+// 1. Edit Mode Setup
+function editItem(idx) {
+    vibrate();
+    editIndex = idx;
+    let item = items[idx];
+    
+    // Inputs mein purana data bharna
+    document.getElementById('itemName').value = item.name;
+    document.getElementById('itemDisc').value = item.dP;
+    document.getElementById('itemGst').value = item.gP;
+    
+    // Sabse important: currentExp ko update karna taaki eval() khali na rahe
+    currentExp = item.detail.toString(); 
+    document.getElementById('exp-view').innerText = currentExp;
+    
+    // Button ko "Update" look dena
+    const addBtn = document.querySelector('.n-btn-p');
+    addBtn.innerHTML = '<i class="fas fa-check-double"></i>'; // Icon badla
+    addBtn.style.background = "#f59e0b"; // Orange color
+    
+    // Screen ko thoda upar le jana taaki user ko dikhe ki edit ho raha hai
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 2. Add/Update Function (The Fix)
 
 
+// 3. Reset Inputs Function
+function resetInputs() {
+    currentExp = ""; 
+    document.getElementById('exp-view').innerText = "0";
+    document.getElementById('itemName').value = "";
+    // GST/Disc ko user ki marzi par choda hai (reset nahi kiya)
+    editIndex = -1; 
+}
 
     function closeModal() { document.getElementById('editModal').style.display = "none"; }
 

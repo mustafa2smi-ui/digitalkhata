@@ -325,8 +325,8 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
           -->
       <div class="footer-billing">
     <div class="bill-input-grid">
-        <div class="square-box"><label>DISCOUNT (%)</label><input type="number" id="discPercent" oninput="calculateFinal()" placeholder="0"></div>
-        <div class="square-box"><label>GST (%)</label><input type="number" id="gstPercent" oninput="calculateFinal()" placeholder="0"></div>
+       <!-- <div class="square-box"><label>DISCOUNT (%)</label><input type="number" id="discPercent" oninput="calculateFinal()" placeholder="0"></div>
+        <div class="square-box"><label>GST (%)</label><input type="number" id="gstPercent" oninput="calculateFinal()" placeholder="0"></div>-->
         <div class="square-box"><label>OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()" placeholder="0"></div>
         <div class="square-box"><label>RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()" placeholder="0"></div>
     </div>
@@ -426,7 +426,8 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
 <script>
     let currentExp = "";
     let items = [];
-    let editingIndex = null;
+    /*let editingIndex = null;*/
+let editIndex = -1; // Track kar rha hai ki edit ho rha hai ya naya add
 
     function goToCalc() {
         document.getElementById('homepage').style.display = 'none';
@@ -585,6 +586,7 @@ function addItem() {
     } catch(e) { alert("Sahi calculation daalein"); }
 }
   */
+    /*
   // 1. ADD Item with Tax & Discount Logic
 function addItem() {
     try {
@@ -619,7 +621,46 @@ function addItem() {
         
     } catch(e) { alert("Sahi calculation daalein"); }
   }
+*/
+    // 2. Updated ADD/UPDATE Item Function
+function addItem() {
+    try {
+        let rawPrice = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
+        if(rawPrice == undefined) return;
 
+        let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
+        let dP = parseFloat(document.getElementById('itemDisc').value) || 0;
+        let gP = parseFloat(document.getElementById('itemGst').value) || 0;
+
+        let afterDisc = rawPrice - (rawPrice * dP / 100);
+        let finalPrice = afterDisc + (afterDisc * gP / 100);
+
+        let itemData = { 
+            name: name, 
+            price: finalPrice, 
+            detail: currentExp,
+            dP: dP, // Percentages save kar rahe hain taaki edit mein kaam aaye
+            gP: gP,
+            taxInfo: `G:${gP}% | D:${dP}%` 
+        };
+
+        if (editIndex > -1) {
+            // Agar edit mode hai toh purane ko replace karein
+            items[editIndex] = itemData;
+            editIndex = -1; // Reset edit mode
+            const addBtn = document.querySelector('.n-btn-p');
+            addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+            addBtn.style.background = ""; // Original color
+        } else {
+            // Naya item add karein
+            items.push(itemData);
+        }
+
+        updateList();
+        resetInputs();
+        
+    } catch(e) { alert("Calculation error!"); }
+}
 /*
 // 2. Save Bill (History images ko capture nahi karega)
 async function saveBill() {
@@ -755,6 +796,7 @@ async function saveBill() {
         calculateFinal();
     }
 */
+    /*
   // 2. Update List UI
 function updateList() {
     const listDiv = document.getElementById('items-list');
@@ -781,12 +823,63 @@ function updateList() {
     document.getElementById('total-view').innerText = "₹ " + subTotal.toFixed(2);
     calculateFinal();
 }
+    */
+    // 3. Updated updateList UI (Ab row par click karne se Edit hoga)
+function updateList() {
+    const listDiv = document.getElementById('items-list');
+    listDiv.innerHTML = items.length === 0 ? "<p style='color:#999; text-align:center;'>Khali hai.</p>" : "";
+    
+    items.forEach((it, idx) => {
+        listDiv.innerHTML += `
+            <div class="item-row" onclick="editItem(${idx})">
+                <div class="row-main">
+                    <span>${it.name}</span> 
+                    <span>₹${it.price.toFixed(2)}</span>
+                </div>
+                <div style="font-size:10px; display:flex; justify-content:space-between; margin-top:3px;">
+                    <span class="tax-badge">${it.taxInfo} (${it.detail})</span>
+                    <span onclick="event.stopPropagation(); delItem(${idx})" style="color:#ef4444; font-size:12px; cursor:pointer;"><i class="fas fa-trash"></i></span>
+                </div>
+            </div>`;
+    });
+    calculateFinal();
+}
     function openEdit(idx) {
         editingIndex = idx;
         document.getElementById('editName').value = items[idx].name;
         document.getElementById('editPrice').value = items[idx].detail;
         document.getElementById('editModal').style.display = "flex";
     }
+
+    
+// 1. EDIT Function (Item par click karne par data wapas boxes mein)
+function editItem(idx) {
+    vibrate();
+    editIndex = idx;
+    let item = items[idx];
+    
+    // Data ko wapas inputs mein bharna
+    document.getElementById('itemName').value = item.name;
+    document.getElementById('itemDisc').value = item.dP; // Humne item object mein dP aur gP save kiya hai
+    document.getElementById('itemGst').value = item.gP;
+    
+    currentExp = item.detail; // Purana calculation wapas
+    document.getElementById('exp-view').innerText = currentExp;
+    
+    // "ADD" button ko "UPDATE" button mein badalna
+    const addBtn = document.querySelector('.n-btn-p'); // Blue add button
+    addBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+    addBtn.style.background = "#f59e0b"; // Orange color for update
+}
+
+function resetInputs() {
+    currentExp = ""; 
+    document.getElementById('exp-view').innerText = "0";
+    document.getElementById('itemName').value = "";
+    // Hum GST/Disc ko reset nahi kar rahe taki default wahi rahe
+}
+
+
 
     function closeModal() { document.getElementById('editModal').style.display = "none"; }
 

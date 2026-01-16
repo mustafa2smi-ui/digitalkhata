@@ -45,7 +45,7 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
 .row-main { display: flex; justify-content: space-between; font-weight: bold;font-size: 14px; }
 .row-btns { display: none; gap: 20px; margin-top: 10px; border-top: 1px solid #eee; padding-top: 8px; font-size: 14px; }
 .item-row.active .row-btns { display: flex; }
-  .item-row { position: relative; }
+/*  .item-row { position: relative; }
 .tax-badge { 
     font-size: 9px; 
     background: #f1f5f9; 
@@ -54,7 +54,7 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
     color: #64748b;
     margin-right: 5px;
 }
-  
+ */
 /* 5. Item Row ko thoda aur patla karna */
 /*.item-row { padding: 8px 12px; margin-bottom: 5px; }*/
 /*.row-main { font-size: 14px; }*/
@@ -590,7 +590,7 @@ function addItem() {
   // 1. ADD Item with Tax & Discount Logic
 function addItem() {
     try {
-        let rawPrice = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
+        let rawPrice = eval(currentExp.replace(/[^-+/.0-9]/g, ''));
         if(rawPrice == undefined) return;
 
         let name = document.getElementById('itemName').value || "Item " + (items.length + 1);

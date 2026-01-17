@@ -482,6 +482,62 @@ window.onload = function() {
     loadInventory();
     renderGallery(); // Purana history function
 };
+// LocalStorage se data load karein ya khali list shuru karein
+let myInventory = JSON.parse(localStorage.getItem('myInventory')) || [
+    { name: "Sample Item", price: "100", gst: 18, disc: 5 }
+];
+
+// 1. Naya item Inventory mein pakka joddna
+function addToInventory() {
+    vibrate();
+    let name = document.getElementById('itemName').value;
+    let price = currentExp;
+    let gst = document.getElementById('itemGst').value || 0;
+    let disc = document.getElementById('itemDisc').value || 0;
+
+    if(!name || !price) {
+        alert("Pehle Item ka Naam aur Rate bharein!");
+        return;
+    }
+
+    // Check agar item pehle se hai toh update karein, nahi toh naya jodein
+    const index = myInventory.findIndex(i => i.name === name);
+    if(index > -1) {
+        myInventory[index] = { name, price, gst, disc };
+    } else {
+        myInventory.push({ name, price, gst, disc });
+    }
+
+    localStorage.setItem('myInventory', JSON.stringify(myInventory));
+    loadInventory(); // Datalist refresh karein
+    alert(name + " List mein save ho gaya!");
+}
+
+// 2. Backup File Download (Safety for User)
+function exportInventory() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(myInventory));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "My_Rate_List.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+// 3. Restore from File (Data wapas laane ke liye)
+function importInventory(input) {
+    const reader = new FileReader();
+    reader.onload = function(){
+        const importedData = JSON.parse(reader.result);
+        if(Array.isArray(importedData)) {
+            myInventory = importedData;
+            localStorage.setItem('myInventory', JSON.stringify(myInventory));
+            loadInventory();
+            alert("Rate List Restore ho gayi!");
+        }
+    };
+    reader.readAsText(input.files[0]);
+}
 
     // 1. App Navigation
     function goToCalc() {

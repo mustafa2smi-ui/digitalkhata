@@ -426,9 +426,9 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
 <script>
     let currentExp = "";
     let items = [];
-    /*let editingIndex = null;*/
-let editIndex = -1; // Track kar rha hai ki edit ho rha hai ya naya add
+    let editIndex = -1; // -1 matlab naya item, 0 ya usse bada matlab Edit mode
 
+    // 1. App Navigation
     function goToCalc() {
         document.getElementById('homepage').style.display = 'none';
         document.getElementById('main-header').style.display = 'none';
@@ -437,110 +437,227 @@ let editIndex = -1; // Track kar rha hai ki edit ho rha hai ya naya add
         renderGallery();
     }
 
-  /*  function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }*/
-    function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
-// 5. Smart Operator Logic (Prevent 56++)
-/*
+    // 2. Calculator Logic
+    function vibrate() { if (navigator.vibrate) navigator.vibrate(40); }
+
     function addVal(v) {
-    const operators = ['+', '-', '*', '/'];
-    const lastChar = currentExp.slice(-1);
-
-    // Agar last character ek operator hai aur naya bhi operator hai, toh replace karein
-    if (operators.includes(lastChar) && operators.includes(v)) {
-        currentExp = currentExp.slice(0, -1) + v;
-    } 
-    // Pehla character operator nahi ho sakta (except minus)
-    else if (currentExp === "" && operators.includes(v) && v !== '-') {
-        return;
-    }
-    else {
-        currentExp += v;
-    }
-    document.getElementById('exp-view').innerText = currentExp;
-}
-*/
-// Footer HTML update (Isse bill-area ke andar sabse niche rakhein)
-function updateFooterHTML() {
-    return `
-    <div class="app-footer">
-        <p>Made with ❤️ in India 🇮🇳</p>
-        <p style="font-weight:bold; color:var(--p);">DigitalKhata Pro v2.0</p>
-        <small>100% Safe • Offline • Secure 🔒</small>
-    </div>`;
-}
-// 1. Vibration Function (Attraction Feature)
-function vibrate() {
-    if (navigator.vibrate) {
-        navigator.vibrate(40); // 40ms ka chota vibration
-    }
-}
-/*
-// 2. Updated addVal with Vibration
-function addVal(v) {
-    vibrate(); // Har click par vibrate karega
-    const operators = ['+', '-', '*', '/'];
-    const lastChar = currentExp.slice(-1);
-    if (operators.includes(lastChar) && operators.includes(v)) {
-        currentExp = currentExp.slice(0, -1) + v;
-    } else if (currentExp === "" && operators.includes(v) && v !== '-') {
-        return;
-    } else {
-        currentExp += v;
-    }
-    document.getElementById('exp-view').innerText = currentExp;
-}
-    */
-function addVal(v) {
-    vibrate();
-    const operators = ['+', '-', '*', '/'];
-    const lastChar = currentExp.slice(-1);
-
-    if (operators.includes(lastChar) && operators.includes(v)) {
-        currentExp = currentExp.slice(0, -1) + v;
-    } else if (currentExp === "" && operators.includes(v) && v !== '-') {
-        return;
-    } else {
-        currentExp += v;
+        vibrate();
+        const operators = ['+', '-', '*', '/'];
+        const lastChar = currentExp.slice(-1);
+        if (operators.includes(lastChar) && operators.includes(v)) {
+            currentExp = currentExp.slice(0, -1) + v;
+        } else if (currentExp === "" && operators.includes(v) && v !== '-') {
+            return;
+        } else {
+            currentExp += v;
+        }
+        const expDisplay = document.getElementById('exp-view');
+        expDisplay.innerText = currentExp;
+        expDisplay.scrollLeft = expDisplay.scrollWidth;
     }
 
-    const expDisplay = document.getElementById('exp-view');
-    expDisplay.innerText = currentExp;
+    function back() { 
+        currentExp = currentExp.slice(0, -1); 
+        document.getElementById('exp-view').innerText = currentExp || "0"; 
+    }
 
-    // --- YE LINE ADD KAREIN (Auto-Scroll to Right) ---
-    expDisplay.scrollLeft = expDisplay.scrollWidth;
-}
+    // 3. Add & Update Logic (THE FIXED PART)
+    function addItem() {
+        vibrate();
+        try {
+            if (!currentExp || currentExp.toString().trim() === "") return;
 
-// 3. Gallery Render with Printer Button
-function renderGallery() {
-    const grid = document.getElementById('gallery-grid');
-    const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
-    grid.innerHTML = bills.length === 0 ? "<p style='font-size:11px; grid-column:span 2;'>No history.</p>" : "";
-    
-    bills.slice(0, 6).forEach(bill => {
-        grid.innerHTML += `
-            <div class="gallery-item" style="background:#fff; border-radius:10px; padding:5px; border:1px solid #ddd;">
-                <img src="${bill.image}" onclick="viewFullImage('${bill.image}')" style="width:100%; height:70px; object-fit:cover; border-radius:5px;">
-                <div style="padding:5px; font-size:10px;">
-                    <b>${bill.name}</b><br><span style="color:#059669; font-weight:bold;">${bill.total}</span>
-                    <div class="gallery-controls">
-                        <i class="fas fa-trash" onclick="deleteBill(${bill.id})" style="color:#ef4444;"></i>
-                        <i class="fas fa-print" onclick="printBill('${bill.image}')" style="color:#64748b;"></i>
-                        <i class="fab fa-whatsapp" onclick="shareBill('${bill.image}', '${bill.name}', '${bill.total}')" style="color:#25d366;"></i>
+            // Calculation solve karna
+            let cleanExp = currentExp.replace(/[^-+*/.0-9]/g, '');
+            let rawPrice = eval(cleanExp);
+            
+            if (rawPrice === undefined || isNaN(rawPrice)) throw new Error("Invalid");
+
+            let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
+            let dP = parseFloat(document.getElementById('itemDisc').value) || 0;
+            let gP = parseFloat(document.getElementById('itemGst').value) || 0;
+
+            let afterDisc = rawPrice - (rawPrice * dP / 100);
+            let finalPrice = afterDisc + (afterDisc * gP / 100);
+
+            let itemData = { 
+                name: name, 
+                price: finalPrice, 
+                detail: currentExp.toString(),
+                dP: dP, gP: gP,
+                taxInfo: `G:${gP}% | D:${dP}%` 
+            };
+
+            if (editIndex > -1) {
+                // Agar Edit Mode hai toh replace karo
+                items[editIndex] = itemData;
+                editIndex = -1; // Reset mode
+                // Button wapas normal karo
+                const addBtn = document.querySelector('.n-btn-p');
+                addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                addBtn.style.background = ""; 
+            } else {
+                // Naya item add karo
+                items.push(itemData);
+            }
+
+            updateList();
+            resetInputs();
+            
+        } catch(e) { 
+            alert("Calculation sahi nahi hai. Check karein."); 
+        }
+    }
+
+    function editItem(idx) {
+        vibrate();
+        editIndex = idx;
+        let item = items[idx];
+        
+        document.getElementById('itemName').value = item.name;
+        document.getElementById('itemDisc').value = item.dP;
+        document.getElementById('itemGst').value = item.gP;
+        
+        currentExp = item.detail.toString(); 
+        document.getElementById('exp-view').innerText = currentExp;
+        
+        // Update Button Style
+        const addBtn = document.querySelector('.n-btn-p');
+        addBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+        addBtn.style.background = "#f59e0b"; 
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetInputs() {
+        currentExp = ""; 
+        document.getElementById('exp-view').innerText = "0";
+        document.getElementById('itemName').value = "";
+        editIndex = -1;
+    }
+
+    function delItem(i) { 
+        vibrate();
+        if(confirm("Delete karein?")) {
+            items.splice(i, 1); 
+            editIndex = -1;
+            resetInputs();
+            updateList(); 
+        }
+    }
+
+    // 4. UI Rendering
+    function updateList() {
+        const listDiv = document.getElementById('items-list');
+        listDiv.innerHTML = items.length === 0 ? "<p style='color:#999; text-align:center;'>Khali hai.</p>" : "";
+        
+        items.forEach((it, idx) => {
+            listDiv.innerHTML += `
+                <div class="item-row" onclick="editItem(${idx})">
+                    <div class="row-main">
+                        <span>${it.name}</span> 
+                        <span>₹${it.price.toFixed(2)}</span>
                     </div>
-                </div>
-            </div>`;
-    });
-}
+                    <div style="font-size:10px; display:flex; justify-content:space-between; margin-top:3px;">
+                        <span class="tax-badge">${it.taxInfo} (${it.detail})</span>
+                        <span onclick="event.stopPropagation(); delItem(${idx})" style="color:#ef4444; font-size:12px; cursor:pointer;"><i class="fas fa-trash"></i></span>
+                    </div>
+                </div>`;
+        });
+        calculateFinal();
+    }
 
-// 4. Print Function
-function printBill(imgUrl) {
-    const win = window.open('', '_blank');
-    win.document.write(`<html><body style="margin:0;display:flex;justify-content:center;"><img src="${imgUrl}" style="max-width:100%;" onload="window.print();window.close();"></body></html>`);
-}
+    function calculateFinal() {
+        let subTotal = items.reduce((a, b) => a + b.price, 0);
+        let old = parseFloat(document.getElementById('oldBal').value) || 0;
+        let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
+        let finalAmount = subTotal + old - paid;
+        document.getElementById('final-baki').innerText = "₹ " + finalAmount.toFixed(2);
+        
+        let subTotalDisplay = document.getElementById('total-view');
+        if(subTotalDisplay) subTotalDisplay.innerText = "₹ " + subTotal.toFixed(2);
+    }
+
+    // 5. History & Sharing
+    function renderGallery() {
+        const grid = document.getElementById('gallery-grid');
+        const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+        grid.innerHTML = bills.length === 0 ? "<p style='font-size:11px; grid-column:span 2;'>No history.</p>" : "";
+        
+        bills.slice(0, 6).forEach(bill => {
+            grid.innerHTML += `
+                <div class="gallery-item" style="background:#fff; border-radius:10px; padding:5px; border:1px solid #ddd;">
+                    <img src="${bill.image}" onclick="viewFullImage('${bill.image}')" style="width:100%; height:70px; object-fit:cover; border-radius:5px;">
+                    <div style="padding:5px; font-size:10px;">
+                        <b>${bill.name}</b><br><span style="color:#059669; font-weight:bold;">${bill.total}</span>
+                        <div class="gallery-controls" style="display:flex; justify-content:space-between; margin-top:5px;">
+                            <i class="fas fa-trash" onclick="deleteBill(${bill.id})" style="color:#ef4444;"></i>
+                            <i class="fas fa-print" onclick="printBill('${bill.image}')" style="color:#64748b;"></i>
+                            <i class="fab fa-whatsapp" onclick="shareBill('${bill.image}', '${bill.name}', '${bill.total}')" style="color:#25d366;"></i>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    async function saveBill() {
+        vibrate();
+        const area = document.getElementById('bill-area');
+        const name = document.getElementById('custName').value || 'Grahak';
+        area.classList.add('screenshot-mode');
+
+        html2canvas(area, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
+            area.classList.remove('screenshot-mode');
+            let base64Image = canvas.toDataURL('image/png');
+            let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
+            savedBills.unshift({ id: Date.now(), name: name, total: document.getElementById('final-baki').innerText, date: new Date().toLocaleDateString('hi-IN'), image: base64Image });
+            localStorage.setItem('myBills', JSON.stringify(savedBills));
+            renderGallery();
+            let link = document.createElement('a');
+            link.download = name + "_Bill.png"; link.href = base64Image; link.click();
+        });
+    }
+
+    function deleteBill(id) {
+        if(confirm("History se delete karein?")) {
+            let bills = JSON.parse(localStorage.getItem('myBills') || "[]").filter(b => b.id !== id);
+            localStorage.setItem('myBills', JSON.stringify(bills));
+            renderGallery();
+        }
+    }
+
+    function shareWebsite() {
+        const msg = "DigitalKhata Pro: Best billing tool! " + window.location.href;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
+    }
+
+    async function shareBill(imgBase64, name, total) {
+        vibrate();
+        const msg = `*Digital Bill for ${name}*\nTotal: ${total}`;
+        try {
+            const response = await fetch(imgBase64);
+            const blob = await response.blob();
+            const file = new File([blob], `${name}_bill.png`, { type: 'image/png' });
+            if (navigator.canShare && navigator.share) {
+                await navigator.share({ title: 'Bill', text: msg, files: [file] });
+            } else {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
+            }
+        } catch (err) { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`); }
+    }
+
+    function quickTextShare() {
+        vibrate();
+        const name = document.getElementById('custName').value || 'Grahak';
+        const total = document.getElementById('final-baki').innerText;
+        let itemDetails = items.map(it => `• ${it.name}: ₹${it.price.toFixed(2)}`).join('\n');
+        const msg = `*Digital Khata*\nGrahak: ${name}\n\n${itemDetails}\n\n*Total: ${total}*`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
+    }
 
     function smartAC() {
-        if(confirm("Naya bill?")) {
-            items = []; currentExp = "";
+        if(confirm("Naya bill shuru karein? Sab clear ho jayega.")) {
+            items = []; currentExp = ""; editIndex = -1;
             document.getElementById('custName').value = "";
             document.getElementById('oldBal').value = "";
             document.getElementById('cashPaid').value = "";
@@ -548,514 +665,10 @@ function printBill(imgUrl) {
             updateList();
         }
     }
-/*
-    function addItem() {
-        try {
-            let res = eval(currentExp.replace(/[^-+/.0-9]/g, ''));
-            if(res == undefined) return;
-            let name = document.getElementById('itemName').value.replace(/<[^>]*>?/gm, '') || "Item " + (items.length + 1);
-            items.push({ name: name, price: parseFloat(res), detail: currentExp });
-            updateList();
-            currentExp = ""; document.getElementById('exp-view').innerText = "0";
-            document.getElementById('itemName').value = "";
-            // Auto-scroll to bottom
-            const body = document.getElementById('bill-area');
-            body.scrollTop = body.scrollHeight;
-        } catch(e) { alert("Sahi calculation daalein"); }
-    }
-    */
-  /*
-// 1. ADD Item with specific box scroll
-function addItem() {
-    try {
-        let res = eval(currentExp.replace(/[^-+*.0-9]/g, ''));
-        if(res == undefined) return;
-        let name = document.getElementById('itemName').value.replace(/<[^>]*>?/gm, '') || "Item " + (items.length + 1);
-        items.push({ name: name, price: parseFloat(res), detail: currentExp });
-        
-        updateList();
-        
-        currentExp = ""; 
-        document.getElementById('exp-view').innerText = "0";
-        document.getElementById('itemName').value = "";
 
-        // Pura page nahi, sirf items-list scroll hoga
-        const listDiv = document.getElementById('items-list');
-        listDiv.scrollTop = listDiv.scrollHeight;
-        
-    } catch(e) { alert("Sahi calculation daalein"); }
-}
-  */
-    /*
-  // 1. ADD Item with Tax & Discount Logic
-function addItem() {
-    try {
-        let rawPrice = eval(currentExp.replace(/[^-+/.0-9]/g, ''));
-        if(rawPrice == undefined) return;
-
-        let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
-        let dP = parseFloat(document.getElementById('itemDisc').value) || 0;
-        let gP = parseFloat(document.getElementById('itemGst').value) || 0;
-
-        // Step 1: Discount minus karein
-        let afterDisc = rawPrice - (rawPrice * dP / 100);
-        // Step 2: GST plus karein
-        let finalPrice = afterDisc + (afterDisc * gP / 100);
-
-        items.push({ 
-            name: name, 
-            price: finalPrice, 
-            detail: currentExp,
-            taxInfo: `GST ${gP}% | Disc ${dP}%` 
-        });
-
-        updateList();
-        
-        // Inputs reset karein (GST/Disc ko 0 nahi kar rahe taki baar baar na bharna pade)
-        currentExp = ""; 
-        document.getElementById('exp-view').innerText = "0";
-        document.getElementById('itemName').value = "";
-        
-        const listDiv = document.getElementById('items-list');
-        listDiv.scrollTop = listDiv.scrollHeight;
-        
-    } catch(e) { alert("Sahi calculation daalein"); }
-  }
-*/
-    /*
-    // 2. Updated ADD/UPDATE Item Function
-function addItem() {
-    try {
-        let rawPrice = eval(currentExp.replace(/[^-+/.0-9]/g, ''));
-        if(rawPrice == undefined) return;
-
-        let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
-        let dP = parseFloat(document.getElementById('itemDisc').value) || 0;
-        let gP = parseFloat(document.getElementById('itemGst').value) || 0;
-
-        let afterDisc = rawPrice - (rawPrice * dP / 100);
-        let finalPrice = afterDisc + (afterDisc * gP / 100);
-
-        let itemData = { 
-            name: name, 
-            price: finalPrice, 
-            detail: currentExp,
-            dP: dP, // Percentages save kar rahe hain taaki edit mein kaam aaye
-            gP: gP,
-            taxInfo: `G:${gP}% | D:${dP}%` 
-        };
-
-        if (editIndex > -1) {
-            // Agar edit mode hai toh purane ko replace karein
-            items[editIndex] = itemData;
-            editIndex = -1; // Reset edit mode
-            const addBtn = document.querySelector('.n-btn-p');
-            addBtn.innerHTML = '<i class="fas fa-plus"></i>';
-            addBtn.style.background = ""; // Original color
-        } else {
-            // Naya item add karein
-            items.push(itemData);
-        }
-
-        updateList();
-        resetInputs();
-        
-    } catch(e) { alert("Calculation error!"); }
-}
-    */
-        function addItem() {
-    try {
-        // Agar currentExp khali hai toh error na dikhaye, bas ruk jaye
-        if (!currentExp || currentExp.trim() === "") {
-            return; 
-        }
-
-        let rawPrice = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
-        
-        let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
-        let dP = parseFloat(document.getElementById('itemDisc').value) || 0;
-        let gP = parseFloat(document.getElementById('itemGst').value) || 0;
-
-        let afterDisc = rawPrice - (rawPrice * dP / 100);
-        let finalPrice = afterDisc + (afterDisc * gP / 100);
-
-        let itemData = { 
-            name: name, 
-            price: finalPrice, 
-            detail: currentExp,
-            dP: dP, 
-            gP: gP,
-            taxInfo: `G:${gP}% | D:${dP}%` 
-        };
-
-        if (editIndex > -1) {
-            // UPDATE LOGIC: Purane item ko replace karein
-            items[editIndex] = itemData;
-            editIndex = -1; // Reset mode
-            
-            // Button wapas normal karein
-            const addBtn = document.querySelector('.n-btn-p');
-            addBtn.innerHTML = '<i class="fas fa-plus"></i>';
-            addBtn.style.background = ""; 
-        } else {
-            // ADD LOGIC: Naya item jodein
-            items.push(itemData);
-        }
-
-        updateList(); // List refresh
-        resetInputs(); // Inputs saaf karein
-        
-    } catch(e) { 
-        console.error(e);
-        alert("Calculation sahi nahi hai. Dubara check karein."); 
-    }
-}
-/*
-// 2. Save Bill (History images ko capture nahi karega)
-async function saveBill() {
-    const area = document.getElementById('bill-area'); // Main container
-    const name = document.getElementById('custName').value || 'Grahak';
-    
-    // Screenshot mode ON (CSS history ko hide kar dega)
-    area.classList.add('screenshot-mode');
-    
-    // Items list ko screenshot ke liye thoda kholna (taki 3-4 items dikhein)
-    const listDiv = document.getElementById('items-list');
-    const originalMaxHeight = listDiv.style.maxHeight;
-    listDiv.style.maxHeight = 'none'; 
-
-    html2canvas(area, { 
-        scale: 2, 
-        backgroundColor: "#ffffff",
-        logging: false,
-        // Sirf itna hissa capture karein jo billing area hai
-        ignoreElements: (el) => el.classList.contains('history-section') || el.tagName === 'FOOTER'
-    }).then(canvas => {
-        // Reset styles
-        area.classList.remove('screenshot-mode');
-        listDiv.style.maxHeight = originalMaxHeight;
-
-        let base64Image = canvas.toDataURL('image/png');
-        
-        // Save to Gallery
-        let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
-        savedBills.unshift({
-            id: Date.now(),
-            name: name,
-            total: document.getElementById('final-baki').innerText,
-            date: new Date().toLocaleDateString('hi-IN'),
-            image: base64Image
-        });
-        localStorage.setItem('myBills', JSON.stringify(savedBills));
-        
-        renderGallery();
-
-        // Download image
-        let link = document.createElement('a');
-        link.download = name + "_Bill.png";
-        link.href = base64Image;
-        link.click();
-    });
-}
-  */
-// 1. Website Share Function
-function shareWebsite() {
-    const shareData = {
-        title: 'DigitalKhata Pro',
-        text: 'Dukandaron ke liye best billing tool! 100% Secure aur Free.',
-        url: window.location.href
-    };
-    if (navigator.share) { navigator.share(shareData); } 
-    else { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`); }
-}
-/*
-// 2. Updated Calculation Logic (Phase 2)
-function calculateFinal() {
-    let subTotal = items.reduce((a, b) => a + b.price, 0);
-    
-    // Discount Calculation
-    let discP = parseFloat(document.getElementById('discPercent').value) || 0;
-    let discAmt = (subTotal * discP) / 100;
-    
-    // GST Calculation (After Discount)
-    let gstP = parseFloat(document.getElementById('gstPercent').value) || 0;
-    let gstAmt = ((subTotal - discAmt) * gstP) / 100;
-    
-    let old = parseFloat(document.getElementById('oldBal').value) || 0;
-    let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
-    
-    let finalAmount = (subTotal - discAmt) + gstAmt + old - paid;
-    
-    document.getElementById('tax-info').innerText = `Disc: -₹${discAmt.toFixed(1)} | GST: +₹${gstAmt.toFixed(1)}`;
-    document.getElementById('final-baki').innerText = "₹ " + finalAmount.toFixed(2);
-}
-*/
-  // 3. Final Total (Old Baki & Cash Paid)
-function calculateFinal() {
-    let subTotal = items.reduce((a, b) => a + b.price, 0);
-    let old = parseFloat(document.getElementById('oldBal').value) || 0;
-    let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
-    let finalAmount = subTotal + old - paid;
-    document.getElementById('final-baki').innerText = "₹ " + finalAmount.toFixed(2);
-}
-// 3. Screenshot Fix (Short Screenshot)
-async function saveBill() {
-    vibrate();
-    const area = document.getElementById('bill-area');
-    const name = document.getElementById('custName').value || 'Grahak';
-    
-    // Is bar hum scroll ko unlock nahi karenge, taki sirf dikhne wala hissa aaye
-    area.classList.add('screenshot-mode');
-
-    html2canvas(area, { 
-        scale: 2, 
-        backgroundColor: "#ffffff",
-        useCORS: true 
-    }).then(canvas => {
-        area.classList.remove('screenshot-mode');
-        let base64Image = canvas.toDataURL('image/png');
-        
-        // Save & Download logic same rahega...
-        let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
-        savedBills.unshift({ id: Date.now(), name: name, total: document.getElementById('final-baki').innerText, date: new Date().toLocaleDateString('hi-IN'), image: base64Image });
-        localStorage.setItem('myBills', JSON.stringify(savedBills));
-        renderGallery();
-        let link = document.createElement('a');
-        link.download = name + "_Bill.png"; link.href = base64Image; link.click();
-    });
-}
-/*
-    function updateList() {
-        const listDiv = document.getElementById('items-list');
-        listDiv.innerHTML = items.length === 0 ? "<p style='color:#999; text-align:center;'>No items added yet.</p>" : "";
-        let subTotal = 0;
-        items.forEach((it, idx) => {
-            subTotal += it.price;
-            listDiv.innerHTML += `
-                <div class="item-row" onclick="this.classList.toggle('active')">
-                    <div class="row-main"><span>${it.name}</span> <span>₹${it.price.toFixed(2)}</span></div>
-                    <div style="font-size:11px; color:#64748b;">${it.detail}</div>
-                    <div class="row-btns">
-                        <span onclick="event.stopPropagation(); openEdit(${idx})" style="color:var(--p)"><i class="fas fa-edit"></i> Edit</span>
-                        <span onclick="event.stopPropagation(); delItem(${idx})" style="color:red"><i class="fas fa-trash"></i> Del</span>
-                    </div>
-                </div>`;
-        });
-        document.getElementById('total-view').innerText = "₹ " + subTotal.toFixed(2);
-        calculateFinal();
-    }
-*/
-    /*
-  // 2. Update List UI
-function updateList() {
-    const listDiv = document.getElementById('items-list');
-    listDiv.innerHTML = items.length === 0 ? "<p style='color:#999; text-align:center;'>No items.</p>" : "";
-    
-    let subTotal = 0;
-    items.forEach((it, idx) => {
-        subTotal += it.price;
-        listDiv.innerHTML += `
-            <div class="item-row" onclick="this.classList.toggle('active')">
-                <div class="row-main">
-                    <span>${it.name}</span> 
-                    <span>₹${it.price.toFixed(2)}</span>
-                </div>
-                <div style="font-size:10px; margin-top:3px;">
-                    <span class="tax-badge">${it.taxInfo}</span>
-                    <span style="color:#94a3b8;">(${it.detail})</span>
-                </div>
-                <div class="row-btns">
-                    <span onclick="event.stopPropagation(); delItem(${idx})" style="color:red"><i class="fas fa-trash"></i> Delete</span>
-                </div>
-            </div>`;
-    });
-    document.getElementById('total-view').innerText = "₹ " + subTotal.toFixed(2);
-    calculateFinal();
-}
-    */
-    // 3. Updated updateList UI (Ab row par click karne se Edit hoga)
-function updateList() {
-    const listDiv = document.getElementById('items-list');
-    listDiv.innerHTML = items.length === 0 ? "<p style='color:#999; text-align:center;'>Khali hai.</p>" : "";
-    
-    items.forEach((it, idx) => {
-        listDiv.innerHTML += `
-            <div class="item-row" onclick="editItem(${idx})">
-                <div class="row-main">
-                    <span>${it.name}</span> 
-                    <span>₹${it.price.toFixed(2)}</span>
-                </div>
-                <div style="font-size:10px; display:flex; justify-content:space-between; margin-top:3px;">
-                    <span class="tax-badge">${it.taxInfo} (${it.detail})</span>
-                    <span onclick="event.stopPropagation(); delItem(${idx})" style="color:#ef4444; font-size:12px; cursor:pointer;"><i class="fas fa-trash"></i></span>
-                </div>
-            </div>`;
-    });
-    calculateFinal();
-}
-    /*
-    function openEdit(idx) {
-        editingIndex = idx;
-        document.getElementById('editName').value = items[idx].name;
-        document.getElementById('editPrice').value = items[idx].detail;
-        document.getElementById('editModal').style.display = "flex";
-    }
-
-    */
-    /*
-// 1. EDIT Function (Item par click karne par data wapas boxes mein)
-function editItem(idx) {
-    vibrate();
-    editIndex = idx;
-    let item = items[idx];
-    
-    // Data ko wapas inputs mein bharna
-    document.getElementById('itemName').value = item.name;
-    document.getElementById('itemDisc').value = item.dP; // Humne item object mein dP aur gP save kiya hai
-    document.getElementById('itemGst').value = item.gP;
-    
-    currentExp = item.detail; // Purana calculation wapas
-    document.getElementById('exp-view').innerText = currentExp;
-    
-    // "ADD" button ko "UPDATE" button mein badalna
-    const addBtn = document.querySelector('.n-btn-p'); // Blue add button
-    addBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
-    addBtn.style.background = "#f59e0b"; // Orange color for update
-}
-    */
-/*
-function resetInputs() {
-    currentExp = ""; 
-    document.getElementById('exp-view').innerText = "0";
-    document.getElementById('itemName').value = "";
-    // Hum GST/Disc ko reset nahi kar rahe taki default wahi rahe
-}
-*/
-// 1. Edit Mode Setup
-function editItem(idx) {
-    vibrate();
-    editIndex = idx;
-    let item = items[idx];
-    
-    // Inputs mein purana data bharna
-    document.getElementById('itemName').value = item.name;
-    document.getElementById('itemDisc').value = item.dP;
-    document.getElementById('itemGst').value = item.gP;
-    
-    // Sabse important: currentExp ko update karna taaki eval() khali na rahe
-    currentExp = item.detail.toString(); 
-    document.getElementById('exp-view').innerText = currentExp;
-    
-    // Button ko "Update" look dena
-    const addBtn = document.querySelector('.n-btn-p');
-    addBtn.innerHTML = '<i class="fas fa-check-double"></i>'; // Icon badla
-    addBtn.style.background = "#f59e0b"; // Orange color
-    
-    // Screen ko thoda upar le jana taaki user ko dikhe ki edit ho raha hai
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// 2. Add/Update Function (The Fix)
-
-
-// 3. Reset Inputs Function
-function resetInputs() {
-    currentExp = ""; 
-    document.getElementById('exp-view').innerText = "0";
-    document.getElementById('itemName').value = "";
-    // GST/Disc ko user ki marzi par choda hai (reset nahi kiya)
-    editIndex = -1; 
-}
-
-    function closeModal() { document.getElementById('editModal').style.display = "none"; }
-
-    function saveEdit() {
-        try {
-            let newExp = document.getElementById('editPrice').value;
-            items[editingIndex].name = document.getElementById('editName').value;
-            items[editingIndex].detail = newExp;
-            items[editingIndex].price = parseFloat(eval(newExp));
-            updateList(); closeModal();
-        } catch(e) { alert("Calculation error"); }
-    }
-
-    function delItem(i) { items.splice(i, 1); updateList(); }
-/*
-    function calculateFinal() {
-        let subTotal = items.reduce((a, b) => a + b.price, 0);
-        let old = parseFloat(document.getElementById('oldBal').value) || 0;
-        let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
-        document.getElementById('final-baki').innerText = "₹ " + ((subTotal + old) - paid).toFixed(2);
-    }
-  */
-/*
-    async function saveBill() {
-        const area = document.getElementById('bill-area');
-        const name = document.getElementById('custName').value || 'Grahak';
-        
-        // Prepare area for screenshot (Temporary style)
-        const originalStyle = area.style.cssText;
-        area.style.height = 'auto';
-        area.style.overflow = 'visible';
-        
-        html2canvas(area, { scale: 2, backgroundColor: "#f1f5f9" }).then(canvas => {
-            area.style.cssText = originalStyle;
-            let base64Image = canvas.toDataURL('image/png');
-            let savedBills = JSON.parse(localStorage.getItem('myBills') || "[]");
-            savedBills.unshift({
-                id: Date.now(),
-                name: name,
-                total: document.getElementById('final-baki').innerText,
-                date: new Date().toLocaleDateString('hi-IN'),
-                image: base64Image
-            });
-            localStorage.setItem('myBills', JSON.stringify(savedBills));
-            renderGallery();
-            let link = document.createElement('a');
-            link.download = name + "_Bill.png";
-            link.href = base64Image;
-            link.click();
-        });
-    }
-*/
-    /*
-    function renderGallery() {
-        const grid = document.getElementById('gallery-grid');
-        const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
-        grid.innerHTML = bills.length === 0 ? "<p style='font-size:11px; grid-column:span 2;'>No history.</p>" : "";
-        bills.slice(0, 6).forEach(bill => {
-            grid.innerHTML += `
-                <div class="gallery-item">
-                    <img src="${bill.image}" onclick="viewFullImage('${bill.image}')" style="width:100%; height:80px; object-fit:cover;">
-                    <div style="padding:5px; font-size:10px;">
-                        <b>${bill.name}</b><br><span style="color:green">${bill.total}</span>
-                        <div style="display:flex; justify-content:space-between; margin-top:5px;">
-                            <i class="fas fa-trash" onclick="deleteBill(${bill.id})" style="color:red"></i>
-                            <i class="fab fa-whatsapp" onclick="shareBill('${bill.image}', '${bill.name}', '${bill.total}')" style="color:green"></i>
-                        </div>
-                    </div>
-                </div>`;
-        });
-    }
-*/
-    /*
-    async function shareBill(img, name, total) {
-        const msg = `Namaste ${name} ji, Aapka bill: ${total}.`;
-        if (navigator.share) {
-            const blob = await (await fetch(img)).blob();
-            const file = new File([blob], 'bill.png', {type: 'image/png'});
-            navigator.share({ files: [file], text: msg });
-        } else {
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`);
-        }
-    }
-*/
-    function deleteBill(id) {
-        if(confirm("Delete?")) {
-            let bills = JSON.parse(localStorage.getItem('myBills') || "[]").filter(b => b.id !== id);
-            localStorage.setItem('myBills', JSON.stringify(bills));
-            renderGallery();
-        }
+    function printBill(imgUrl) {
+        const win = window.open('', '_blank');
+        win.document.write(`<html><body style="margin:0;display:flex;justify-content:center;"><img src="${imgUrl}" style="max-width:100%;" onload="window.print();window.close();"></body></html>`);
     }
 
     function viewFullImage(img) {
@@ -1066,60 +679,13 @@ function resetInputs() {
     function exportToCSV() {
         let name = document.getElementById('custName').value || 'Grahak';
         let csv = "Item,Calculation,Price\n";
-        items.forEach(it => csv += `${it.name},${it.detail},${it.price}\n`);
+        items.forEach(it => csv += `${it.name},${it.detail},${it.price.toFixed(2)}\n`);
         csv += `\nTotal,,${document.getElementById('final-baki').innerText}`;
         let link = document.createElement("a");
         link.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
         link.download = `${name}.csv`;
         link.click();
     }
-    // 1. Quick Text Share (Bina Image ke, Sirf Hisab)
-function quickTextShare() {
-    vibrate();
-    const name = document.getElementById('custName').value || 'Grahak';
-    const total = document.getElementById('final-baki').innerText;
-    const itemsCount = items.length;
-    
-    if(itemsCount === 0) {
-        alert("Pehle kuch items add karein!");
-        return;
-    }
-
-    let itemDetails = items.map(it => `• ${it.name}: ₹${it.price}`).join('\n');
-    
-    const msg = `*Digital Khata Report* 📝\n\n*Grahak:* ${name}\n*Items:* ${itemsCount}\n\n${itemDetails}\n\n*Total Baki: ${total}*\n\n_Banaye apna digital bill yahan:_ \n${window.location.href}`;
-
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
-    window.open(whatsappUrl, '_blank');
-}
-
-// 2. Updated Image Share with stronger Caption
-async function shareBill(imgBase64, name, total) {
-    vibrate();
-    const siteLink = window.location.href; 
-    const msg = `*Digital Bill for ${name}*\nTotal: ${total}\n\nCheck online: ${siteLink}`;
-    
-    try {
-        const response = await fetch(imgBase64);
-        const blob = await response.blob();
-        const file = new File([blob], `${name}_bill.png`, { type: 'image/png' });
-
-        if (navigator.canShare && navigator.share) {
-            await navigator.share({
-                title: 'Digital Bill',
-                text: msg, // Ye caption hai jo image ke niche jana chahiye
-                files: [file]
-            });
-        } else {
-            // Fallback for older browsers
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-    } catch (err) {
-        console.error("Share failed:", err);
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-    }
-}
-
 </script>
 </body>
 </html>

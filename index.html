@@ -460,7 +460,7 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
         currentExp = currentExp.slice(0, -1); 
         document.getElementById('exp-view').innerText = currentExp || "0"; 
     }
-
+/*
     // 3. Add & Update Logic (THE FIXED PART)
     function addItem() {
         vibrate();
@@ -468,7 +468,7 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
             if (!currentExp || currentExp.toString().trim() === "") return;
 
             // Calculation solve karna
-            let cleanExp = currentExp.replace(/[^-+*/.0-9]/g, '');
+            let cleanExp = currentExp.replace(/[^-+*.0-9]/g, '');
             let rawPrice = eval(cleanExp);
             
             if (rawPrice === undefined || isNaN(rawPrice)) throw new Error("Invalid");
@@ -508,6 +508,76 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
             alert("Calculation sahi nahi hai. Check karein."); 
         }
     }
+*/
+    function addItem() {
+    vibrate();
+    
+    // 1. Pehle ye check karo ki calculator mein kuch hai ya nahi
+    if (!currentExp || currentExp.toString().trim() === "" || currentExp === "0") {
+        return; 
+    }
+
+    try {
+        // 2. Calculation ko solve karna (Sahi tarike se)
+        let cleanExp = currentExp.toString().replace(/[^-+*/.0-9]/g, '');
+        let rawPrice = eval(cleanExp);
+        
+        if (rawPrice === undefined || isNaN(rawPrice) || rawPrice === Infinity) {
+            alert("Calculation sahi nahi hai. Check karein.");
+            return;
+        }
+
+        // 3. Data ikathha karna
+        let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
+        let dP = parseFloat(document.getElementById('itemDisc').value) || 0;
+        let gP = parseFloat(document.getElementById('itemGst').value) || 0;
+
+        let afterDisc = rawPrice - (rawPrice * dP / 100);
+        let finalPrice = afterDisc + (afterDisc * gP / 100);
+
+        let itemData = { 
+            name: name, 
+            price: finalPrice, 
+            detail: currentExp.toString(),
+            dP: dP, 
+            gP: gP,
+            taxInfo: `G:${gP}% | D:${dP}%` 
+        };
+
+        // 4. SABSE ZAROORI: Edit vs Add Logic
+        if (editIndex !== -1) {
+            // Hum purane item ko overwrite kar rahe hain
+            items[editIndex] = itemData;
+            console.log("Item Updated at index: " + editIndex);
+            
+            // Mode reset karna turant zaroori hai
+            editIndex = -1; 
+            
+            // Button wapas normal (+) karein
+            const addBtn = document.querySelector('.n-btn-p');
+            if(addBtn) {
+                addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                addBtn.style.background = ""; 
+            }
+        } else {
+            // Naya item jodein
+            items.push(itemData);
+            console.log("New Item Added");
+        }
+
+        // 5. Final Touch: List update aur Inputs saaf
+        updateList();
+        
+        // Reset inputs directly yahan taaki galti na ho
+        currentExp = ""; 
+        document.getElementById('exp-view').innerText = "0";
+        document.getElementById('itemName').value = "";
+        
+    } catch(e) { 
+        console.error("addItem Error: ", e);
+        alert("Calculation mein galti hai!"); 
+    }
+}
 
     function editItem(idx) {
         vibrate();

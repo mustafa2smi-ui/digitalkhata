@@ -278,10 +278,32 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
     margin-bottom: 10px; 
 }
 .square-box input { font-size: 14px; padding: 2px; }
+.settings-drawer {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Shuru mein screen ke bahar */
+    width: 80%;
+    max-width: 350px;
+    height: 100dvh;
+    background: #fff;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+    z-index: 10000;
+    transition: 0.3s ease-in-out;
+}
+.settings-drawer.open {
+    right: 0;
+}
+.setting-item label {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
 
 </style>
 </head>
 <body>
+    <!--
 <header id="main-header">
     <div class="logo" onclick="location.reload()">DigitalKhata Pro</div>
     <div style="display:flex; gap:15px; align-items:center;">
@@ -289,6 +311,42 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
         <i class="fas fa-shield-alt" style="font-size:12px;"></i>
     </div>
 </header>
+    -->
+    <header id="main-header">
+    <div class="logo" onclick="location.reload()">DigitalKhata Pro</div>
+    <div style="display:flex; gap:18px; align-items:center;">
+        <i class="fas fa-cog header-share" onclick="toggleSettings()"></i>
+        <i class="fas fa-share-nodes header-share" onclick="shareWebsite()"></i>
+    </div>
+</header>
+
+<div id="settingsDrawer" class="settings-drawer">
+    <div style="padding: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="font-size:18px; color:var(--p);">Inventory & Settings</h2>
+            <i class="fas fa-times" onclick="toggleSettings()" style="font-size:20px; color:#64748b;"></i>
+        </div>
+        
+        <div class="setting-item">
+            <label><i class="fas fa-plus-circle"></i> Item Management</label>
+            <p style="font-size:11px; color:#64748b; margin-bottom:10px;">Current input ko rate list mein jodne ke liye:</p>
+            <button class="action-btn" onclick="addToInventory()" style="background:var(--p); width:100%; border-radius:8px;">Save Current to List</button>
+        </div>
+
+        <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+
+        <div class="setting-item">
+            <label><i class="fas fa-database"></i> Backup & Restore</label>
+            <p style="font-size:11px; color:#64748b; margin-bottom:10px;">Phone badalne ya data safe rakhne ke liye:</p>
+            <div style="display:flex; gap:10px;">
+                <button class="action-btn" onclick="exportInventory()" style="background:#475569; border-radius:8px;">Backup File</button>
+                <button class="action-btn" onclick="document.getElementById('importFile').click()" style="background:#475569; border-radius:8px;">Restore</button>
+            </div>
+            <input type="file" id="importFile" style="display:none" onchange="importInventory(this)">
+        </div>
+    </div>
+</div>
+
 <!--
 <header id="main-header">
     <div class="logo" onclick="location.reload()">DigitalKhata Pro</div>
@@ -486,7 +544,7 @@ window.onload = function() {
 let myInventory = JSON.parse(localStorage.getItem('myInventory')) || [
     { name: "Sample Item", price: "100", gst: 18, disc: 5 }
 ];
-
+/*
 // 1. Naya item Inventory mein pakka joddna
 function addToInventory() {
     vibrate();
@@ -512,7 +570,7 @@ function addToInventory() {
     loadInventory(); // Datalist refresh karein
     alert(name + " List mein save ho gaya!");
 }
-
+*/
 // 2. Backup File Download (Safety for User)
 function exportInventory() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(myInventory));
@@ -538,6 +596,40 @@ function importInventory(input) {
     };
     reader.readAsText(input.files[0]);
 }
+// Settings Toggle
+function toggleSettings() {
+    vibrate();
+    document.getElementById('settingsDrawer').classList.toggle('open');
+}
+
+// 1. ADD Current Item to Inventory (From Main Screen Inputs)
+function addToInventory() {
+    let name = document.getElementById('itemName').value;
+    let price = currentExp; // Calculation area se price uthayega
+    let gst = document.getElementById('itemGst').value || 0;
+    let disc = document.getElementById('itemDisc').value || 0;
+
+    if(!name || !price || price === "0") {
+        alert("Pehle Calculator mein Naam aur Amount likhein!");
+        return;
+    }
+
+    const index = myInventory.findIndex(i => i.name.toLowerCase() === name.toLowerCase());
+    if(index > -1) {
+        if(confirm("Ye item pehle se list mein hai. Kya price/tax update karein?")) {
+            myInventory[index] = { name, price, gst, disc };
+        } else { return; }
+    } else {
+        myInventory.push({ name, price, gst, disc });
+    }
+
+    localStorage.setItem('myInventory', JSON.stringify(myInventory));
+    loadInventory(); // Datalist update karega
+    alert("Success: " + name + " ab aapki list mein hai! ✅");
+    toggleSettings(); // Menu band kar do
+}
+
+// Export/Import functions pehle wale hi rahenge...
 
     // 1. App Navigation
     function goToCalc() {

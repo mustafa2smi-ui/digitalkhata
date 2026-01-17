@@ -392,6 +392,7 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
             <div id="total-view" style="font-size:18px; font-weight:bold; color:#10b981;">₹ 0.00</div>
         </div>
       -->
+
         <div class="numpad">
             <button class="n-btn op-btn" onclick="smartAC()">AC</button>
             <button class="n-btn op-btn" onclick="addVal('/')">/</button>
@@ -416,7 +417,12 @@ header { background: var(--p); padding: 12px 20px; display: flex; justify-conten
                 <button class="action-btn" onclick="exportToCSV()" style="background:#2563eb; flex:1;"><i class="fas fa-file-csv"></i> CSV</button>
     <button class="action-btn quick-share-btn" onclick="quickTextShare()"><i class="fab fa-whatsapp"></i> QUICK MSG</button>
 </div>
-
+<div style="display: flex; gap: 5px; margin-top: 5px;">
+    <button onclick="addToInventory()" style="flex:1; font-size:11px; padding:5px; background:#6366f1; color:white; border:none; border-radius:5px;"><i class="fas fa-plus-circle"></i> Save to List</button>
+    <button onclick="exportInventory()" style="flex:1; font-size:11px; padding:5px; background:#475569; color:white; border:none; border-radius:5px;"><i class="fas fa-file-export"></i> Backup List</button>
+    <button onclick="document.getElementById('importFile').click()" style="flex:1; font-size:11px; padding:5px; background:#475569; color:white; border:none; border-radius:5px;"><i class="fas fa-file-import"></i> Restore</button>
+    <input type="file" id="importFile" style="display:none" onchange="importInventory(this)">
+</div>
             </div>
         </div>
     </div>

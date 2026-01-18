@@ -242,7 +242,7 @@ function smartAC() {
         updateList();
     }
 }
-
+/*
 async function saveBill() {
     const area = document.getElementById('bill-area');
     area.classList.add('screenshot-mode');
@@ -251,6 +251,39 @@ async function saveBill() {
         let img = canvas.toDataURL();
         let l = document.createElement('a'); l.download = "Bill.png"; l.href = img; l.click();
     });
+}
+*/
+    async function saveBill() {
+    const area = document.getElementById('bill-area');
+    const controls = document.querySelector('.app-fixed-controls');
+    const header = document.querySelector('.calc-header');
+
+    // 1. Chhupane wali cheezein
+    controls.style.display = 'none';
+    header.style.display = 'none';
+    area.style.height = 'auto'; // Area ko pura kholne ke liye
+    area.style.overflow = 'visible';
+
+    // Thoda intezar taaki UI update ho jaye
+    setTimeout(() => {
+        html2canvas(area, { 
+            scale: 2,
+            backgroundColor: "#f1f5f9", // Body bg color
+            useCORS: true 
+        }).then(canvas => {
+            // 2. Sab wapas normal karein
+            controls.style.display = 'block';
+            header.style.display = 'flex';
+            area.style.height = ''; 
+            area.style.overflow = 'auto';
+
+            let img = canvas.toDataURL('image/png');
+            let l = document.createElement('a');
+            l.download = `Bill_${Date.now()}.png`;
+            l.href = img;
+            l.click();
+        });
+    }, 100);
 }
 
 function exportToCSV() {

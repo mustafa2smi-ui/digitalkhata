@@ -40,12 +40,27 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
 
 .app-fixed-controls { background: #fff; padding: 8px 10px 15px; border-radius: 15px 15px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.08); }
 .display-box { background: #000; padding: 10px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
-#exp-view { font-size: 22px; font-weight: 800; color: #ffca28; overflow-x: auto; white-space: nowrap; scrollbar-width: none;
-    /* ... baki purana code ... */
-    scroll-behavior: smooth; /* Isse scroll smooth hoga */
+/* #exp-view { font-size: 22px; font-weight: 800; color: #ffca28; overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+    /* ... baki purana code ... *
+    scroll-behavior: smooth; /* Isse scroll smooth hoga *
     display: block; 
-    direction: ltr; /* Text left to right chalega */
+    direction: ltr; /* Text left to right chalega *
 }
+    */
+    #exp-view {
+    font-size: 24px; 
+    font-weight: 800; 
+    color: #ffca28; 
+    overflow-x: auto; /* Scroll enable karne ke liye */
+    white-space: nowrap; 
+    display: block; /* Iske bina scrollLeft kaam nahi karta */
+    width: 100%;
+    text-align: right;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Scrollbar chhupane ke liye */
+}
+#exp-view::-webkit-scrollbar { display: none; }
+
 #total-view { font-size: 14px; color: #64b5f6; }
 
 .numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
@@ -175,9 +190,9 @@ function checkAutoFill(val) {
         document.getElementById('itemDisc').value = found.disc;
     }
 }
-
+/*
 function toggleSettings() { document.getElementById('settingsDrawer').classList.toggle('open'); }
-
+*/
     /*
     function toggleSettings() {
     vibrate();
@@ -223,16 +238,16 @@ function goToCalc() {
     loadInventory();
 }
 
-function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }
+/*function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }*/
 function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
-/*
+
     function addVal(v) {
-    vibrate();
+    // Operator handle karne ka logic
     const ops = ['+', '-', '*', '/'];
-    const last = currentExp.slice(-1);
+    const last = currentExp.toString().slice(-1);
     
     if (ops.includes(last) && ops.includes(v)) {
-        currentExp = currentExp.slice(0, -1) + v;
+        currentExp = currentExp.toString().slice(0, -1) + v;
     } else {
         currentExp += v;
     }
@@ -240,10 +255,12 @@ function back() { currentExp = currentExp.slice(0, -1); document.getElementById(
     const display = document.getElementById('exp-view');
     display.innerText = currentExp;
 
-    // Yeh line screen ko auto-scroll karegi right side mein
-    display.scrollLeft = display.scrollWidth; 
+    // Sabse important: Display ko aakhri digit par le jane ke liye
+    setTimeout(() => {
+        display.scrollLeft = display.scrollWidth;
+    }, 10);
 }
-*/
+
 function addItem() {
     try {
         let rawPrice = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
@@ -375,15 +392,48 @@ function shareWebsite() { window.open(`https://api.whatsapp.com/send?text=${wind
     });
 }
 
-function deleteFromInventory(index) {
-    if(confirm(`Kya aap "${myInventory[index].name}" ko list se hatana chahte hain?`)) {
-        myInventory.splice(index, 1);
-        localStorage.setItem('myInventory', JSON.stringify(myInventory));
-        renderFullInventory(); // List refresh
-        loadInventory(); // Datalist refresh
-        vibrate();
+// Settings Drawer ko kholne aur band karne ke liye
+function toggleSettings() {
+    const drawer = document.getElementById('settingsDrawer');
+    drawer.classList.toggle('open');
+    
+    // Agar drawer khul raha hai to list dikhao
+    if(drawer.classList.contains('open')) {
+        renderFullInventory(); 
     }
 }
+
+// LocalStorage se list nikaal kar drawer mein dikhane ke liye
+function renderFullInventory() {
+    const container = document.getElementById('full-inventory-list');
+    // Check karein ki myInventory mein data hai ya nahi
+    if (!myInventory || myInventory.length === 0) {
+        container.innerHTML = "<p style='font-size:12px; color:#94a3b8; padding:10px;'>Koi item save nahi hai</p>";
+        return;
+    }
+    
+    let html = "";
+    myInventory.forEach((item, index) => {
+        html += `
+            <div class="manage-item-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 5px;">
+                <span style="font-size:13px;"><b>${item.name}</b> <br> <small>Rate: ₹${item.price} | D:${item.disc}%</small></span>
+                <i class="fas fa-trash-alt" onclick="deleteFromInventory(${index})" style="color: #ef4444; padding: 10px; cursor: pointer;"></i>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// Item delete karne ke liye
+function deleteFromInventory(index) {
+    if(confirm(`Kya aap "${myInventory[index].name}" ko delete karna chahte hain?`)) {
+        myInventory.splice(index, 1);
+        localStorage.setItem('myInventory', JSON.stringify(myInventory));
+        renderFullInventory(); // Drawer wali list refresh karein
+        loadInventory();       // Keyboard ke upar wali datalist refresh karein
+    }
+}
+
 
 </script>
 </body>

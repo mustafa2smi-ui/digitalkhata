@@ -84,11 +84,13 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
 </style>
 </head>
 <body>
+    
 <div class="inventory-manager">
     <label style="font-size:12px; font-weight:bold; color:var(--p);"><i class="fas fa-list"></i> Manage Saved Items</label>
     <div id="full-inventory-list" style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
         </div>
     </div>
+    
 <div id="settingsDrawer" class="settings-drawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h2 style="font-size:16px; color:var(--p);">Inventory</h2>
@@ -174,9 +176,10 @@ function checkAutoFill(val) {
         document.getElementById('itemDisc').value = found.disc;
     }
 }
-/*
+
 function toggleSettings() { document.getElementById('settingsDrawer').classList.toggle('open'); }
-*/
+
+    /*
     function toggleSettings() {
     vibrate();
     const drawer = document.getElementById('settingsDrawer');
@@ -185,7 +188,7 @@ function toggleSettings() { document.getElementById('settingsDrawer').classList.
         renderFullInventory(); // Drawer khulte hi list load hogi
     }
 }
-
+*/
 function addToInventory() {
     let name = document.getElementById('itemName').value;
     let price = currentExp;

@@ -75,6 +75,8 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
 .settings-drawer.open { right: 0; }
 
 .screenshot-mode .app-fixed-controls, .screenshot-mode .calc-header { display: none !important; }
+   
+
 /* Manage Inventory Section */
 .inventory-manager {
     margin-top: 15px;
@@ -96,6 +98,29 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
     padding: 5px 10px;
     cursor: pointer;
 }
+    .gallery-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.gallery-controls {
+    display: flex;
+    justify-content: space-around;
+    padding: 5px;
+    background: #f8fafc;
+    border-top: 1px solid #eee;
+}
+.gallery-controls i {
+    cursor: pointer;
+    font-size: 14px;
+    padding: 5px;
+    color: #64748b;
+}
+.gallery-controls i:hover { color: var(--p); }
+
 </style>
 </head>
 <body>
@@ -143,7 +168,11 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
         </div>
         <div id="gallery-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
     </div>
-
+<div class="app-footer" style="text-align:center; padding:20px; color:#94a3b8; font-size:11px; border-top:1px solid #eee; margin-top:10px;">
+    <p>Made with ❤️ for Small Businesses 🇮🇳</p>
+    <p style="font-weight:bold; color:var(--p); margin-top:5px;">DigitalKhata.pro</p>
+    <small>100% Secure & Offline 🔒</small>
+</div>
     <div class="app-fixed-controls">
         <div class="input-row-container">
             <input type="text" id="itemName" list="inventory-list" oninput="checkAutoFill(this.value)" placeholder="Item Name">
@@ -433,7 +462,42 @@ function deleteFromInventory(index) {
         loadInventory();       // Keyboard ke upar wali datalist refresh karein
     }
 }
+function renderGallery() {
+    const grid = document.getElementById('gallery-grid');
+    const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+    
+    if (bills.length === 0) {
+        grid.innerHTML = "<p style='font-size:11px; color:#94a3b8; padding:10px;'>No history available</p>";
+        return;
+    }
 
+    grid.innerHTML = ""; // Clear current grid
+    
+    bills.forEach((b, index) => {
+        grid.innerHTML += `
+            <div class="gallery-item">
+                <img src="${b.image}" onclick="viewFullImage('${b.image}')" style="width:100%; height:60px; object-fit:cover;">
+                <div style="padding:5px; font-size:10px;">
+                    <b>${b.name}</b><br>
+                    <span style="color:var(--p);">${b.total}</span>
+                </div>
+                <div class="gallery-controls">
+                    <i class="fas fa-print" title="Print" onclick="viewFullImage('${b.image}')"></i>
+                    <i class="fas fa-trash-alt" title="Delete" onclick="deleteBill(${index})" style="color:#ef4444;"></i>
+                </div>
+            </div>`;
+    });
+}
+
+// History se bill delete karne ke liye
+function deleteBill(index) {
+    if(confirm("Kya aap is bill ko history se hatana chahte hain?")) {
+        let saved = JSON.parse(localStorage.getItem('myBills') || "[]");
+        saved.splice(index, 1);
+        localStorage.setItem('myBills', JSON.stringify(saved));
+        renderGallery(); // Refresh history
+    }
+}
 
 </script>
 </body>

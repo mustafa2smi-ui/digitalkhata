@@ -41,8 +41,8 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
 .app-fixed-controls { background: #fff; padding: 8px 10px 15px; border-radius: 15px 15px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.08); }
 .display-box { background: #000; padding: 10px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
 #exp-view { font-size: 22px; font-weight: 800; color: #ffca28; overflow-x: auto; white-space: nowrap; scrollbar-width: none;
-    /* ... baki purana code ... *
-    scroll-behavior: smooth; /* Isse scroll smooth hoga *
+    /* ... baki purana code ... */
+    scroll-behavior: smooth; /* Isse scroll smooth hoga */
     display: block; 
     direction: ltr; /* Text left to right chalega */
 }
@@ -60,6 +60,27 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
 .settings-drawer.open { right: 0; }
 
 .screenshot-mode .app-fixed-controls, .screenshot-mode .calc-header { display: none !important; }
+/* Manage Inventory Section */
+.inventory-manager {
+    margin-top: 15px;
+    border-top: 2px dashed #e2e8f0;
+    padding-top: 15px;
+}
+.manage-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+.del-btn {
+    color: #ef4444;
+    padding: 5px 10px;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -72,6 +93,11 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
     <button class="action-btn" onclick="addToInventory()" style="background:var(--p); width:100%; margin-bottom:10px;">Save Current to List</button>
     <button class="action-btn" onclick="exportInventory()" style="background:#475569; width:100%; margin-bottom:10px;">Backup List</button>
     <button class="action-btn" onclick="document.getElementById('importFile').click()" style="background:#475569; width:100%;">Restore List</button>
+    <div class="inventory-manager">
+    <label style="font-size:12px; font-weight:bold; color:var(--p);"><i class="fas fa-list"></i> Manage Saved Items</label>
+    <div id="full-inventory-list" style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+        </div>
+    </div>
     <input type="file" id="importFile" style="display:none" onchange="importInventory(this)">
 </div>
 
@@ -149,8 +175,17 @@ function checkAutoFill(val) {
         document.getElementById('itemDisc').value = found.disc;
     }
 }
-
+/*
 function toggleSettings() { document.getElementById('settingsDrawer').classList.toggle('open'); }
+*/
+    function toggleSettings() {
+    vibrate();
+    const drawer = document.getElementById('settingsDrawer');
+    drawer.classList.toggle('open');
+    if(drawer.classList.contains('open')) {
+        renderFullInventory(); // Drawer khulte hi list load hogi
+    }
+}
 
 function addToInventory() {
     let name = document.getElementById('itemName').value;
@@ -187,9 +222,10 @@ function goToCalc() {
     loadInventory();
 }
 
-/*function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }*/
+function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }
 function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
-function addVal(v) {
+/*
+    function addVal(v) {
     vibrate();
     const ops = ['+', '-', '*', '/'];
     const last = currentExp.slice(-1);
@@ -206,7 +242,7 @@ function addVal(v) {
     // Yeh line screen ko auto-scroll karegi right side mein
     display.scrollLeft = display.scrollWidth; 
 }
-
+*/
 function addItem() {
     try {
         let rawPrice = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
@@ -324,6 +360,30 @@ function quickTextShare() {
 }
 
 function shareWebsite() { window.open(`https://api.whatsapp.com/send?text=${window.location.href}`); }
+    function renderFullInventory() {
+    const container = document.getElementById('full-inventory-list');
+    container.innerHTML = myInventory.length === 0 ? "<p style='font-size:11px; color:#94a3b8;'>Koi item save nahi hai</p>" : "";
+    
+    myInventory.forEach((item, index) => {
+        container.innerHTML += `
+            <div class="manage-item-row">
+                <span><b>${item.name}</b> (₹${item.price})</span>
+                <i class="fas fa-trash-alt del-btn" onclick="deleteFromInventory(${index})"></i>
+            </div>
+        `;
+    });
+}
+
+function deleteFromInventory(index) {
+    if(confirm(`Kya aap "${myInventory[index].name}" ko list se hatana chahte hain?`)) {
+        myInventory.splice(index, 1);
+        localStorage.setItem('myInventory', JSON.stringify(myInventory));
+        renderFullInventory(); // List refresh
+        loadInventory(); // Datalist refresh
+        vibrate();
+    }
+}
+
 </script>
 </body>
 </html>

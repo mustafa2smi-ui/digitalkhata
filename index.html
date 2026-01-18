@@ -207,6 +207,9 @@ function updateList() {
             <div style="font-size:9px;color:#666;">G:${it.gP}% D:${it.dP}% (${it.detail}) <i class="fas fa-trash" onclick="event.stopPropagation();delItem(${idx})" style="float:right;color:red;"></i></div>
         </div>`;
     });
+      // Auto-scroll logic niche add karein
+    const listDiv = document.getElementById('items-list');
+    listDiv.scrollTop = listDiv.scrollHeight; 
     calculateFinal();
 }
 

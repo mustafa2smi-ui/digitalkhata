@@ -84,7 +84,11 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
 </style>
 </head>
 <body>
-
+<div class="inventory-manager">
+    <label style="font-size:12px; font-weight:bold; color:var(--p);"><i class="fas fa-list"></i> Manage Saved Items</label>
+    <div id="full-inventory-list" style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+        </div>
+    </div>
 <div id="settingsDrawer" class="settings-drawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h2 style="font-size:16px; color:var(--p);">Inventory</h2>
@@ -93,11 +97,6 @@ body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--b
     <button class="action-btn" onclick="addToInventory()" style="background:var(--p); width:100%; margin-bottom:10px;">Save Current to List</button>
     <button class="action-btn" onclick="exportInventory()" style="background:#475569; width:100%; margin-bottom:10px;">Backup List</button>
     <button class="action-btn" onclick="document.getElementById('importFile').click()" style="background:#475569; width:100%;">Restore List</button>
-    <div class="inventory-manager">
-    <label style="font-size:12px; font-weight:bold; color:var(--p);"><i class="fas fa-list"></i> Manage Saved Items</label>
-    <div id="full-inventory-list" style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
-        </div>
-    </div>
     <input type="file" id="importFile" style="display:none" onchange="importInventory(this)">
 </div>
 

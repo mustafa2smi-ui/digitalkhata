@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Khata Pro - Thermal Print Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --p: #2563eb; --bg: #f1f5f9; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); position: fixed; }
+        
+        #calc-page, #homepage { max-width: 500px; margin: auto; background: #fff; position: relative; height: 100dvh; display: flex; flex-direction: column; }
+        #homepage { justify-content: center; align-items: center; text-align: center; padding: 20px; display: flex; }
+        #calc-page { display: none; }
+
+        .calc-header { background: var(--p); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 10; }
+        .app-body { flex: 1; overflow-y: auto; padding: 10px; background: var(--bg); padding-bottom: 20px; }
+
+        .items-list { max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px; background: #fff; margin-bottom: 8px; }
+        .item-row { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid var(--p); cursor: pointer; }
+        .item-main { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; pointer-events: none; }
+        .item-details { font-size: 10px; color: #64748b; margin-top: 2px; pointer-events: none; }
+
+        .cust-card, .footer-billing, .history-section { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 8px; border: 1px solid #e2e8f0; }
+        .cust-card input { border: none; border-bottom: 2px solid #f1f5f9; width: 100%; font-size: 15px; font-weight: bold; outline: none; }
+
+        .bill-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .square-box { border: 1px solid #e2e8f0; padding: 4px; border-radius: 8px; text-align: center; background: #fff; }
+        .square-box label { font-size: 9px; font-weight: bold; color: #64748b; display: block; }
+        .square-box input { width: 100%; border: none; text-align: center; font-weight: bold; font-size: 14px; outline: none; }
+        .final-total-box { background: #fee2e2; padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px dashed #ef4444; }
+
+        .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .gallery-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+        .gallery-controls { display: flex; justify-content: space-around; padding: 8px; background: #f8fafc; border-top: 1px solid #eee; }
+        
+        /* Modals */
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:20000; justify-content:center; align-items:center; }
+        .modal-content { background:#fff; padding:20px; border-radius:15px; width:90%; max-width:350px; }
+
+        .app-fixed-controls { background: #fff; padding: 8px 10px 15px; border-radius: 15px 15px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.08); }
+        .display-box { background: #000; padding: 10px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
+        #exp-view { font-size: 22px; font-weight: 800; color: #ffca28; white-space: nowrap; overflow-x: auto; display: block; }
+        #total-view { font-size: 14px; color: #64b5f6; }
+
+        .numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .n-btn { height: 42px; font-size: 16px; border-radius: 8px; border: none; background: #f1f5f9; font-weight: 600; }
+        .op-btn { background: #e2e8f0; color: var(--p); }
+        .eq-btn { background: var(--p); color: white; }
+
+        .settings-drawer { position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100dvh; background: #fff; z-index: 10001; transition: 0.3s; padding: 20px; overflow-y: auto; }
+        .settings-drawer.open { right: 0; }
+
+        .screenshot-mode .app-fixed-controls, .screenshot-mode .calc-header, .screenshot-mode .history-section { display: none !important; }
+        .screenshot-mode { height: auto !important; width: 500px !important; }
+    </style>
+</head>
+<body>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-bottom:15px; color:var(--p);">Edit Item</h3>
+        <input type="text" id="editName" placeholder="Name" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ddd; border-radius:8px;">
+        <input type="number" id="editPrice" placeholder="Price" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
+        <div style="display:flex; gap:10px;">
+            <button onclick="saveEdit()" style="flex:1; padding:10px; background:var(--p); color:white; border:none; border-radius:8px;">Save</button>
+            <button onclick="closeModal()" style="flex:1; padding:10px; background:#64748b; color:white; border:none; border-radius:8px;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="settingsDrawer" class="settings-drawer">
+    <h2 style="color:var(--p);">Settings</h2>
+    <button class="n-btn op-btn" style="width:100%; margin:20px 0;" onclick="addToInventory()">Save Current to List</button>
+    <div id="full-inventory-list"></div>
+    <button onclick="toggleSettings()" style="margin-top:20px; width:100%; padding:10px; background:#ef4444; color:white; border:none; border-radius:8px;">Close</button>
+</div>
+
+<div id="homepage">
+    <div style="background:var(--p); color:white; width:70px; height:70px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:35px;"><i class="fas fa-calculator"></i></div>
+    <h1 style="font-size:24px; margin-top:15px;">Digital Khata Pro</h1>
+    <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:15px 35px; border-radius:50px; font-size:15px; font-weight:bold; margin-top:20px;">Start Billing <i class="fas fa-arrow-right"></i></button>
+</div>
+
+<div id="calc-page">
+    <div class="calc-header">
+        <div onclick="location.reload()"><i class="fas fa-arrow-left"></i> <b>Billing</b></div>
+        <div><i class="fas fa-cog" onclick="toggleSettings()" style="margin-right:15px;"></i><i class="fas fa-share-nodes" onclick="shareWebsite()"></i></div>
+    </div>
+
+    <div class="app-body" id="bill-area">
+        <div class="cust-card">
+            <input type="text" id="custName" placeholder="Customer Name">
+            <div id="dateDisplay" style="font-size:10px; color:#94a3b8; margin-top:3px;"></div>
+        </div>
+        <div class="items-list" id="items-list"></div>
+        <div class="footer-billing">
+            <div class="bill-input-grid">
+                <div class="square-box"><label>OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()"></div>
+                <div class="square-box"><label>RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()"></div>
+            </div>
+            <div class="final-total-box"><b>TOTAL BAKI</b><span id="final-baki" style="font-size:18px; font-weight:900;">₹ 0.00</span></div>
+        </div>
+        <div class="history-section">
+            <h3 style="font-size:13px; color:var(--p);">Recent History</h3>
+            <div id="gallery-grid" class="gallery-grid"></div>
+        </div>
+        <div class="app-footer" style="text-align:center; padding:20px 0; color:#94a3b8; font-size:11px;">
+            <p>Made with ❤️ for SHREYANS SRS588</p>
+            <p style="font-weight:bold; color:var(--p);">DigitalKhata.pro</p>
+        </div>
+    </div>
+
+    <div class="app-fixed-controls">
+        <div style="display:flex; gap:4px; margin-bottom:8px;">
+            <input type="text" id="itemName" list="inventory-list" oninput="checkAutoFill(this.value)" placeholder="Item Name" style="flex:2.5; padding:8px; border:1px solid #ddd; border-radius:8px;">
+            <datalist id="inventory-list"></datalist>
+            <input type="number" id="itemDisc" placeholder="D%" style="width:45px; text-align:center; border:1px solid #ddd; border-radius:8px;">
+            <input type="number" id="itemGst" placeholder="G%" style="width:45px; text-align:center; border:1px solid #ddd; border-radius:8px;">
+        </div>
+        <div class="display-box"><div id="exp-view">0</div><div id="total-view">₹ 0.00</div></div>
+        <div class="numpad">
+            <button class="n-btn op-btn" onclick="smartAC()">AC</button>
+            <button class="n-btn op-btn" onclick="addVal('/')">/</button>
+            <button class="n-btn op-btn" onclick="addVal('*')">×</button>
+            <button class="n-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="n-btn" onclick="addVal('7')">7</button><button class="n-btn" onclick="addVal('8')">8</button><button class="n-btn" onclick="addVal('9')">9</button><button class="n-btn op-btn" onclick="addVal('-')">-</button>
+            <button class="n-btn" onclick="addVal('1')">1</button><button class="n-btn" onclick="addVal('2')">2</button><button class="n-btn" onclick="addVal('3')">3</button>
+            <button class="n-btn eq-btn" onclick="addItem()">ADD (=)</button>
+            <button class="n-btn op-btn" onclick="saveBill()" style="background:#059669; color:white; font-size:12px;"><i class="fas fa-camera"></i> SAVE</button>
+            <button class="n-btn op-btn" onclick="printThermal()" style="background:#000; color:white; font-size:12px;"><i class="fas fa-print"></i> PRINT</button>
+            <button class="n-btn op-btn" onclick="exportToCSV()" style="background:#2563eb; color:white; font-size:12px;"><i class="fas fa-file-csv"></i> CSV</button>
+            <button class="n-btn" onclick="addVal('0')">0</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentExp = "", items = [], myInventory = JSON.parse(localStorage.getItem('myInventory')) || [];
+let editIndex = -1;
+let printerDevice = null;
+
+function goToCalc() {
+    document.getElementById('homepage').style.display = 'none';
+    document.getElementById('calc-page').style.display = 'flex';
+    document.getElementById('dateDisplay').innerText = new Date().toLocaleString();
+    loadInventory(); renderGallery();
+}
+
+function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }
+function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
+function smartAC() { if(confirm("Clear All?")) { items = []; currentExp = ""; clearInputs(); updateList(); } }
+function clearInputs() { document.getElementById('itemName').value = ""; document.getElementById('itemDisc').value = ""; document.getElementById('itemGst').value = ""; }
+
+function addItem() {
+    try {
+        let rawPrice = eval(currentExp.replace(/[^-+*/.0-9]/g, ''));
+        let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
+        let dP = parseFloat(document.getElementById('itemDisc').value) || 0;
+        let gP = parseFloat(document.getElementById('itemGst').value) || 0;
+        let finalPrice = (rawPrice - (rawPrice * dP / 100)) * (1 + gP / 100);
+        items.push({ name, price: finalPrice, detail: currentExp, dP, gP });
+        updateList(); currentExp = ""; document.getElementById('exp-view').innerText = "0"; clearInputs();
+    } catch(e) { alert("Invalid!"); }
+}
+
+function updateList() {
+    const list = document.getElementById('items-list');
+    list.innerHTML = items.map((it, i) => `
+        <div class="item-row" onclick="openEdit(${i})">
+            <div class="item-main"><span>${it.name}</span><span>₹${it.price.toFixed(2)}</span></div>
+            <div class="item-details">(${it.detail}) | D:${it.dP}% | G:${it.gP}%</div>
+        </div>`).join('');
+    calculateFinal();
+}
+
+function openEdit(i) { editIndex = i; document.getElementById('editName').value = items[i].name; document.getElementById('editPrice').value = items[i].price.toFixed(2); document.getElementById('editModal').style.display = 'flex'; }
+function saveEdit() { items[editIndex].name = document.getElementById('editName').value; items[editIndex].price = parseFloat(document.getElementById('editPrice').value); closeModal(); updateList(); }
+function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+
+function calculateFinal() {
+    let sub = items.reduce((a, b) => a + b.price, 0);
+    let old = parseFloat(document.getElementById('oldBal').value) || 0;
+    let paid = parseFloat(document.getElementById('cashPaid').value) || 0;
+    document.getElementById('final-baki').innerText = "₹ " + (sub + old - paid).toFixed(2);
+    document.getElementById('total-view').innerText = "Total: ₹ " + sub.toFixed(2);
+}
+
+// Thermal Printer Logic for SHREYANS SRS588
+async function printThermal() {
+    if (items.length === 0) return alert("Pehle item add karein!");
+
+    try {
+        if (!printerDevice) {
+            printerDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }, { namePrefix: 'SRS' }, { namePrefix: 'Bluetooth' }],
+                optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+            });
+        }
+
+        const server = await printerDevice.gatt.connect();
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+        let name = document.getElementById('custName').value || "Customer";
+        let date = new Date().toLocaleString();
+        
+        // ESC/POS Commands
+        let esc = '\x1B\x40'; // Initialize
+        esc += '\x1B\x61\x01' + 'DIGITAL KHATA PRO\n'; // Center Align
+        esc += '--------------------------------\n';
+        esc += '\x1B\x61\x00' + `Cust: ${name}\n`;
+        esc += `Date: ${date}\n`;
+        esc += '--------------------------------\n';
+        esc += 'Item            Qty       Price \n';
+        esc += '--------------------------------\n';
+        
+        items.forEach(it => {
+            let itemName = it.name.substring(0, 14).padEnd(15);
+            let itemPrice = "Rs." + it.price.toFixed(2).padStart(10);
+            esc += itemName + itemPrice + '\n';
+        });
+
+        esc += '--------------------------------\n';
+        esc += `GRAND TOTAL: ${document.getElementById('final-baki').innerText}\n`;
+        esc += '\x1B\x61\x01' + '\nTHANK YOU! VISIT AGAIN\n\n\n\n';
+
+        const encoder = new TextEncoder();
+        await characteristic.writeValue(encoder.encode(esc));
+        alert("Printing...");
+    } catch (error) {
+        console.log(error);
+        alert("Printer connect nahi hua. Bluetooth on karein.");
+    }
+}
+
+async function saveBill() {
+    const area = document.getElementById('bill-area');
+    area.classList.add('screenshot-mode');
+    html2canvas(area, { scale: 2 }).then(canvas => {
+        area.classList.remove('screenshot-mode');
+        let imgData = canvas.toDataURL('image/png');
+        let bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+        bills.unshift({ image: imgData, name: document.getElementById('custName').value || "Guest", total: document.getElementById('final-baki').innerText });
+        localStorage.setItem('myBills', JSON.stringify(bills.slice(0, 10)));
+        renderGallery();
+        let link = document.createElement('a'); link.download = "Bill.png"; link.href = imgData; link.click();
+    });
+}
+
+function renderGallery() {
+    const grid = document.getElementById('gallery-grid');
+    const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+    grid.innerHTML = bills.map((b, i) => `
+        <div class="gallery-item">
+            <img src="${b.image}" style="width:100%; height:70px; object-fit:cover;">
+            <div class="gallery-controls">
+                <i class="fab fa-whatsapp" style="color:#25d366;" onclick="window.open('https://api.whatsapp.com/send?text=Bill for ${b.name}: ${b.total}')"></i>
+                <i class="fas fa-trash-alt" style="color:red;" onclick="deleteHistory(${i})"></i>
+            </div>
+        </div>`).join('');
+}
+
+function deleteHistory(i) { if(confirm("Delete?")) { let b = JSON.parse(localStorage.getItem('myBills')); b.splice(i,1); localStorage.setItem('myBills', JSON.stringify(b)); renderGallery(); } }
+function toggleSettings() { document.getElementById('settingsDrawer').classList.toggle('open'); if(document.getElementById('settingsDrawer').classList.contains('open')) renderFullInventory(); }
+function renderFullInventory() { document.getElementById('full-inventory-list').innerHTML = myInventory.map((it, i) => `<div style="display:flex; justify-content:space-between; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:5px;"><span>${it.name}</span><i class="fas fa-trash" style="color:red;" onclick="removeInv(${i})"></i></div>`).join(''); }
+function removeInv(i) { myInventory.splice(i,1); localStorage.setItem('myInventory', JSON.stringify(myInventory)); renderFullInventory(); loadInventory(); }
+function loadInventory() { document.getElementById('inventory-list').innerHTML = myInventory.map(it => `<option value="${it.name}">`).join(''); }
+function checkAutoFill(val) { const it = myInventory.find(i => i.name.toLowerCase() === val.toLowerCase()); if(it) { currentExp = it.price.toString(); document.getElementById('exp-view').innerText = currentExp; document.getElementById('itemGst').value = it.gst; document.getElementById('itemDisc').value = it.disc; } }
+function addToInventory() { let name = document.getElementById('itemName').value; if(!name || !currentExp) return alert("Info missing"); myInventory.push({ name, price: currentExp, gst: document.getElementById('itemGst').value || 0, disc: document.getElementById('itemDisc').value || 0 }); localStorage.setItem('myInventory', JSON.stringify(myInventory)); loadInventory(); alert("Saved!"); }
+function shareWebsite() { window.open(`https://api.whatsapp.com/send?text=${window.location.href}`); }
+function exportToCSV() { let c = "Item,Price\n" + items.map(i => `${i.name},${i.price}`).join("\n"); let l = document.createElement('a'); l.href = 'data:text/csv;charset=utf-8,' + encodeURI(c); l.download = 'Bill.csv'; l.click(); }
+</script>
+</body>
+</html>

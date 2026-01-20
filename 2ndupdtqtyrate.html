@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Khata Pro - Smart Scan</title>
+    <script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@latest/dist/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --p: #2563eb; --bg: #f1f5f9; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        body, html { height: 100dvh; width: 100vw; overflow: hidden; background: var(--bg); position: fixed; }
+        
+        #calc-page, #homepage { max-width: 500px; margin: auto; background: #fff; position: relative; height: 100dvh; display: flex; flex-direction: column; }
+        #homepage { justify-content: center; align-items: center; text-align: center; padding: 20px; display: flex; }
+        #calc-page { display: none; }
+
+        .calc-header { background: var(--p); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 10; }
+        .app-body { flex: 1; overflow-y: auto; padding: 10px; background: var(--bg); padding-bottom: 20px; }
+
+        .items-list { max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px; background: #fff; margin-bottom: 8px; }
+        .item-row { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 6px; border-left: 4px solid var(--p); display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; }
+        .item-info { font-size: 10px; color: #64748b; font-weight: normal; }
+
+        .cust-card, .footer-billing { background: #fff; padding: 10px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 8px; border: 1px solid #e2e8f0; }
+        .cust-card input { border: none; border-bottom: 2px solid #f1f5f9; width: 100%; font-size: 14px; font-weight: bold; outline: none; }
+
+        .final-total-box { background: #fee2e2; padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px dashed #ef4444; }
+
+        .app-fixed-controls { background: #fff; padding: 10px; border-radius: 15px 15px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.08); }
+        
+        /* Chote Inputs ka Grid */
+        .input-grid { display: flex; gap: 4px; margin-bottom: 8px; }
+        .input-grid input { padding: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; outline: none; }
+        .inp-name { flex: 2; }
+        .inp-small { width: 55px; text-align: center; } /* Qty Box Chota */
+        .inp-rate { width: 85px; text-align: center; } /* Rate Box Chota */
+
+        .display-box { background: #000; padding: 8px; border-radius: 10px; text-align: right; margin-bottom: 8px; }
+        #exp-view { font-size: 20px; font-weight: 800; color: #ffca28; }
+        #total-view { font-size: 12px; color: #64b5f6; }
+
+        .numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .n-btn { height: 40px; font-size: 15px; border-radius: 8px; border: none; background: #f1f5f9; font-weight: 600; }
+        .op-btn { background: #e2e8f0; color: var(--p); }
+        .eq-btn { background: var(--p); color: white; }
+
+        #scanner-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:99999; flex-direction:column; align-items:center; justify-content:center; }
+        #video { width: 90%; max-width: 400px; border: 2px solid #2563eb; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="scanner-overlay">
+    <div style="color:white; margin-bottom:10px;"><i class="fas fa-expand"></i> Align Barcode in Frame</div>
+    <video id="video" autoplay playsinline></video>
+    <button onclick="stopScanner()" style="margin-top:20px; padding:12px 40px; background:#ef4444; color:white; border:none; border-radius:50px; font-weight:bold;">Close Camera</button>
+</div>
+
+<div id="homepage">
+    <div style="background:var(--p); color:white; width:70px; height:70px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:35px;"><i class="fas fa-calculator"></i></div>
+    <h1 style="font-size:24px; margin-top:15px;">Digital Khata Pro</h1>
+    <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:15px 35px; border-radius:50px; font-size:15px; font-weight:bold; margin-top:20px;">Open Billing App</button>
+</div>
+
+<div id="calc-page">
+    <div class="calc-header">
+        <div onclick="location.reload()"><i class="fas fa-arrow-left"></i> <b>Billing</b></div>
+        <div>
+            <i class="fas fa-barcode" onclick="startScanner()" style="margin-right:20px; font-size:22px;"></i>
+            <i class="fas fa-cog"></i>
+        </div>
+    </div>
+
+    <div class="app-body" id="bill-area">
+        <div class="cust-card">
+            <input type="text" id="custName" placeholder="Customer Name">
+            <div id="dateDisplay" style="font-size:10px; color:#94a3b8; margin-top:2px;"></div>
+        </div>
+        <div class="items-list" id="items-list"></div>
+        <div class="footer-billing">
+            <div class="final-total-box"><b>Total Baki</b><span id="final-baki" style="font-size:17px; font-weight:900;">₹ 0.00</span></div>
+        </div>
+    </div>
+
+    <div class="app-fixed-controls">
+        <div class="input-grid">
+            <input type="text" id="itemName" class="inp-name" placeholder="Item Name">
+            <input type="number" id="itemQty" class="inp-small" value="1" placeholder="Qty">
+            <input type="number" id="itemRate" class="inp-rate" placeholder="Rate">
+        </div>
+        <div class="display-box"><div id="exp-view">0</div><div id="total-view">₹ 0.00</div></div>
+        <div class="numpad">
+            <button class="n-btn op-btn" onclick="smartAC()">AC</button>
+            <button class="n-btn op-btn" onclick="addVal('/')">/</button>
+            <button class="n-btn op-btn" onclick="addVal('*')">×</button>
+            <button class="n-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="n-btn" onclick="addVal('7')">7</button><button class="n-btn" onclick="addVal('8')">8</button><button class="n-btn" onclick="addVal('9')">9</button><button class="n-btn op-btn" onclick="addVal('-')">-</button>
+            <button class="n-btn" onclick="addVal('4')">4</button><button class="n-btn" onclick="addVal('5')">5</button><button class="n-btn" onclick="addVal('6')">6</button><button class="n-btn op-btn" onclick="addVal('+')">+</button>
+            <button class="n-btn" onclick="addVal('1')">1</button><button class="n-btn" onclick="addVal('2')">2</button><button class="n-btn" onclick="addVal('3')">3</button>
+            <button class="n-btn eq-btn" onclick="addItem()">ADD (=)</button>
+            <button class="n-btn" onclick="addVal('0')">0</button><button class="n-btn" onclick="addVal('.')">.</button>
+            <button class="n-btn op-btn" onclick="saveBill()" style="background:#059669; color:white;"><i class="fas fa-camera"></i> SAVE</button>
+            <button class="n-btn op-btn" onclick="printThermal()" style="background:#000; color:white;"><i class="fas fa-print"></i> PRINT</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let items = [], currentExp = "", myInventory = JSON.parse(localStorage.getItem('myInventory')) || [];
+let scannerActive = false;
+
+// Browser support check for Barcode
+if (!window.BarcodeDetector) {
+    window.BarcodeDetector = barcodeDetectorPolyfill.BarcodeDetector;
+}
+
+function goToCalc() {
+    document.getElementById('homepage').style.display = 'none';
+    document.getElementById('calc-page').style.display = 'flex';
+    document.getElementById('dateDisplay').innerText = new Date().toLocaleString();
+}
+
+function addVal(v) { currentExp += v; document.getElementById('exp-view').innerText = currentExp; }
+function back() { currentExp = currentExp.slice(0, -1); document.getElementById('exp-view').innerText = currentExp || "0"; }
+function smartAC() { if(confirm("Clear All?")) { items = []; updateList(); } }
+
+function addItem() {
+    let name = document.getElementById('itemName').value || "Item " + (items.length + 1);
+    let qty = parseFloat(document.getElementById('itemQty').value) || 1;
+    let rate = parseFloat(document.getElementById('itemRate').value);
+
+    if (isNaN(rate)) {
+        try { rate = eval(currentExp.replace(/[^-+*/.0-9]/g, '')) || 0; } catch(e) { rate = 0; }
+    }
+
+    let total = qty * rate;
+    if (total > 0) {
+        items.push({ name, qty, rate, total });
+        updateList();
+        document.getElementById('itemName').value = "";
+        document.getElementById('itemQty').value = "1";
+        document.getElementById('itemRate').value = "";
+        currentExp = ""; document.getElementById('exp-view').innerText = "0";
+    }
+}
+
+function updateList() {
+    const list = document.getElementById('items-list');
+    list.innerHTML = items.map(it => `
+        <div class="item-row">
+            <div>${it.name} <span class="item-info">(${it.qty} x ${it.rate})</span></div>
+            <div>₹${it.total.toFixed(2)}</div>
+        </div>`).join('');
+    let grand = items.reduce((a, b) => a + b.total, 0);
+    document.getElementById('final-baki').innerText = "₹ " + grand.toFixed(2);
+    document.getElementById('total-view').innerText = "Total: ₹ " + grand.toFixed(2);
+}
+
+// --- Barcode Scanner Logic with Fast Detection ---
+async function startScanner() {
+    const video = document.getElementById('video');
+    document.getElementById('scanner-overlay').style.display = 'flex';
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
+        scannerActive = true;
+        
+        const detector = new BarcodeDetector();
+        const scan = async () => {
+            if (!scannerActive) return;
+            try {
+                const barcodes = await detector.detect(video);
+                if (barcodes.length > 0) {
+                    processBarcode(barcodes[0].rawValue);
+                    return;
+                }
+            } catch (err) { console.error(err); }
+            requestAnimationFrame(scan);
+        };
+        requestAnimationFrame(scan);
+    } catch (e) { alert("Camera Permission Required!"); stopScanner(); }
+}
+
+function stopScanner() {
+    const video = document.getElementById('video');
+    if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+    document.getElementById('scanner-overlay').style.display = 'none';
+    scannerActive = false;
+}
+
+function processBarcode(code) {
+    stopScanner();
+    let match = myInventory.find(it => it.barcode === code);
+    if (match) {
+        document.getElementById('itemName').value = match.name;
+        document.getElementById('itemRate').value = match.price;
+        // Focus on Qty to change for wholesale
+        document.getElementById('itemQty').focus();
+    } else {
+        let n = prompt("New Item Name?");
+        let p = prompt("Price/Rate?");
+        if(n && p) {
+            myInventory.push({ name: n, price: p, barcode: code });
+            localStorage.setItem('myInventory', JSON.stringify(myInventory));
+            document.getElementById('itemName').value = n;
+            document.getElementById('itemRate').value = p;
+        }
+    }
+}
+
+async function printThermal() { /* Wahi Bluetooth Code */ }
+function saveBill() { /* Wahi Screenshot Code */ }
+</script>
+</body>
+</html>

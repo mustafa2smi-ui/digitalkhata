@@ -48,8 +48,9 @@
 
 <div id="calc-page">
     <div class="calc-header">
-        <div onclick="location.reload()"><i class="fas fa-store"></i> <b>Billing</b></div>
-        <div><i class="fas fa-barcode" onclick="startScanner()" style="font-size:22px;"></i></div>
+    <div onclick="location.reload()"><i class="fas fa-store"></i> <b>Billing</b></div>
+    <div id="liveClock" style="font-size: 11px; text-align: right; line-height: 1.2;"></div>
+    <div><i class="fas fa-barcode" onclick="startScanner()" style="font-size:22px;"></i></div>
     </div>
 
     <div class="app-body" id="bill-area">
@@ -95,6 +96,7 @@
 </div>
 
 <script>
+    let editIndex = null; // Track karne ke liye ki kaunsa item edit ho raha hai
 let items = [], myInventory = JSON.parse(localStorage.getItem('myInventory')) || [];
 let currentFocus = "itemQty"; // Default focus is Qty
 
@@ -164,7 +166,17 @@ function addItemToList() {
     const r = parseFloat(document.getElementById('itemRate').value) || 0;
 
     if (r > 0) {
-        items.push({ name: n, qty: q, rate: r, total: q * r });
+        let newItem = { name: n, qty: q, rate: r, total: q * r };
+        
+        if (editIndex !== null) {
+            // Agar edit mode tha, toh usi position par update karo
+            items[editIndex] = newItem;
+            editIndex = null; // Reset edit mode
+        } else {
+            // Naya item hai toh niche jodo
+            items.push(newItem);
+        }
+        
         updateDisplay();
         resetInputs();
     }
@@ -189,13 +201,13 @@ function editItem(index) {
     document.getElementById('itemQty').value = it.qty;
     document.getElementById('itemRate').value = it.rate;
     
-    // Remove from list so it can be re-added after edit
-    items.splice(index, 1);
-    updateDisplay();
+    editIndex = index; // Index ko save kar liya
     
     currentFocus = "itemQty";
     document.getElementById('itemQty').focus();
+    // Is baar hum splice nahi karenge, sirf UI mein highlight kar sakte hain
 }
+
 
 // Scanner Logic
 async function startScanner() {
@@ -233,6 +245,18 @@ function stopScanner() {
 
 function saveBill() { alert("Bill Saved!"); /* Previous screenshot code */ }
 function printThermal() { alert("Printing..."); /* Previous Bluetooth code */ }
+function startClock() {
+    setInterval(() => {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('liveClock').innerHTML = `${dateStr}<br>${timeStr}`;
+    }, 1000);
+}
+
+// Ise window load ya goToCalc ke andar call karein
+startClock();
+
 </script>
 </body>
 </html>

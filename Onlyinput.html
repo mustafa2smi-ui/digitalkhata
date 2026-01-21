@@ -53,6 +53,14 @@
     <div><i class="fas fa-barcode" onclick="startScanner()" style="font-size:22px;"></i></div>
     </div>
 
+    <div class="app-body" id="bill-area">
+        <input type="text" id="custName" placeholder="Customer Name (Touch for keyboard)" style="width:100%; padding:8px; margin-bottom:10px; border:none; border-bottom:1px solid #ddd; outline:none; font-weight:bold;">
+        <div class="items-list" id="items-list"></div>
+        <div class="final-total-box">
+            <span>TOTAL AMOUNT</span>
+            <b id="final-total" style="font-size:20px;">₹ 0.00</b>
+        </div>
+    </div>
 <div class="history-section" style="padding: 15px; background: #fff; margin-top: 10px; border-top: 5px solid #f1f5f9;">
     <h3 style="font-size: 16px; margin-bottom: 10px; color: var(--p);">
         <i class="fas fa-history"></i> Recent Bills (CSV Saved)
@@ -65,15 +73,6 @@
     <p><b>Digital Khata Pro</b> v2.0</p>
     <p>Developed for Fast Wholesale & Retail Billing</p>
 </footer>
-    <div class="app-body" id="bill-area">
-        <input type="text" id="custName" placeholder="Customer Name (Touch for keyboard)" style="width:100%; padding:8px; margin-bottom:10px; border:none; border-bottom:1px solid #ddd; outline:none; font-weight:bold;">
-        <div class="items-list" id="items-list"></div>
-        <div class="final-total-box">
-            <span>TOTAL AMOUNT</span>
-            <b id="final-total" style="font-size:20px;">₹ 0.00</b>
-        </div>
-    </div>
-
     <div class="app-fixed-controls">
         <div class="entry-grid">
             <input type="text" id="itemName" placeholder="Item Name" style="flex:2;">

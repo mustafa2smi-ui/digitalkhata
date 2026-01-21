@@ -99,10 +99,11 @@
             <button class="n-btn" onclick="press('1')">1</button>
             <button class="n-btn" onclick="press('2')">2</button>
             <button class="n-btn" onclick="press('3')">3</button>
+            <button class="n-btn op-btn" onclick="saveBill()"><b>Save</b></button>
+     
+            <button class="n-btn" onclick="press('0')" style="grid-column: span 2;">0</button>
             <button class="n-btn op-btn" onclick="press('.')">.</button>
 
-            <button class="n-btn" onclick="press('0')" style="grid-column: span 2;">0</button>
-            <button class="n-btn op-btn" onclick="location.reload()"><i class="fas fa-sync"></i></button>
         </div>
     </div>
 </div>
@@ -255,7 +256,7 @@ function stopScanner() {
     document.getElementById('scanner-overlay').style.display = 'none';
 }
 
-function saveBill() { alert("Bill Saved!"); /* Previous screenshot code */ }
+/*function saveBill() { alert("Bill Saved!"); /* Previous screenshot code */ }*/
 function printThermal() { alert("Printing..."); /* Previous Bluetooth code */ }
 function startClock() {
     setInterval(() => {

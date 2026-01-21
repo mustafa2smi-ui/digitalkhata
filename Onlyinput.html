@@ -437,6 +437,186 @@ window.onload = () => {
 
 // Ise window load ya goToCalc ke andar call karein
 /* startClock();*/
+function addToInventory() {
+    let name = document.getElementById('itemName').value;
+    if(!name || !currentExp) return alert("Fill item name and rate first!");
+    myInventory.push({ name, price: currentExp, gst: document.getElementById('itemGst').value, disc: document.getElementById('itemDisc').value });
+    localStorage.setItem('myInventory', JSON.stringify(myInventory));
+    loadInventory(); alert("Saved to List!");
+}
+
+// External Features
+function quickTextShare() {
+    let t = `*Digital Bill*\nName: ${document.getElementById('custName').value}\nItems: ${items.length}\n*Total: ${document.getElementById('final-baki').innerText}*`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(t)}`);
+}
+function shareWebsite() { window.open(`https://api.whatsapp.com/send?text=${window.location.href}`); }
+function exportToCSV() {
+    let c = "Item,Price\n" + items.map(i => `${i.name},${i.price}`).join("\n");
+    let l = document.createElement('a'); l.href = 'data:text/csv;charset=utf-8,' + encodeURI(c); l.download = 'Bill.csv'; l.click();
+}
+function exportInventory() {
+    let d = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(myInventory));
+    let l = document.createElement('a'); l.href = d; l.download = "Inventory_Backup.json"; l.click();
+}
+function importInventory(input) {
+    let r = new FileReader();
+    r.onload = () => { myInventory = JSON.parse(r.result); localStorage.setItem('myInventory', JSON.stringify(myInventory)); loadInventory(); alert("Restored!"); };
+    r.readAsText(input.files[0]);
+}
+
+// Click outside to close drawer
+document.addEventListener('click', (e) => {
+    const d = document.getElementById('settingsDrawer');
+    if(!d.contains(e.target) && !e.target.classList.contains('fa-cog') && d.classList.contains('open')) d.classList.remove('open');
+});
+    function renderGallery() {
+    const grid = document.getElementById('gallery-grid');
+    const bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+    grid.innerHTML = bills.length === 0 ? "<p style='grid-column:span 2; text-align:center; font-size:12px; color:#999;'>No history</p>" : "";
+    
+    bills.forEach((b, i) => {
+        grid.innerHTML += `
+            <div class="gallery-item">
+                <img src="${b.image}" style="width:100%; height:70px; object-fit:cover;">
+                <div style="padding:5px; font-size:10px;"><b>${b.name}</b><br>${b.total}</div>
+                <div class="gallery-controls">
+                    <i class="fas fa-print" onclick="window.open('${b.image}')"></i>
+                    <i class="fas fa-trash-alt" style="color:red;" onclick="deleteHistory(${i})"></i>
+                </div>
+            </div>`;
+    });
+}
+
+function deleteHistory(i) {
+    let bills = JSON.parse(localStorage.getItem('myBills') || "[]");
+    bills.splice(i, 1);
+    localStorage.setItem('myBills', JSON.stringify(bills));
+    renderGallery();
+}
+
+// Inventory Logic
+function toggleSettings() {
+    const d = document.getElementById('settingsDrawer');
+    d.classList.toggle('open');
+    if(d.classList.contains('open')) renderFullInventory();
+}
+
+function renderFullInventory() {
+    const container = document.getElementById('full-inventory-list');
+    container.innerHTML = myInventory.length === 0 ? "<p style='font-size:12px;'>Empty</p>" : "";
+    myInventory.forEach((it, i) => {
+        container.innerHTML += `<div class="manage-item-row">
+            <span><b>${it.name}</b> (₹${it.price})</span>
+            <i class="fas fa-trash" style="color:red;" onclick="myInventory.splice(${i},1);localStorage.setItem('myInventory', JSON.stringify(myInventory));renderFullInventory();loadInventory();"></i>
+        </div>`;
+    });
+}
+    // --- Smart Barcode Offline Scanner ---
+async function startScanner() {
+    document.getElementById('scanner-overlay').style.display = 'flex';
+    const video = document.getElementById('video');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
+        video.play();
+        scannerActive = true;
+        scanFrame();
+    } catch (err) { alert("Camera Error!"); stopScanner(); }
+}
+
+function stopScanner() {
+    const video = document.getElementById('video');
+    if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+    document.getElementById('scanner-overlay').style.display = 'none';
+    scannerActive = false;
+}
+
+async function scanFrame() {
+    if (!scannerActive) return;
+    const video = document.getElementById('video');
+    
+    // Web Barcode Detector (Offline Native API)
+    if ('BarcodeDetector' in window) {
+        const detector = new BarcodeDetector();
+        try {
+            const barcodes = await detector.detect(video);
+            if (barcodes.length > 0) {
+                processCode(barcodes[0].rawValue);
+                return;
+            }
+        } catch (e) {}
+    }
+    requestAnimationFrame(scanFrame);
+}
+
+function processCode(code) {
+    stopScanner();
+    // Offline database check
+    const match = myInventory.find(it => it.barcode === code);
+    if (match) {
+        document.getElementById('itemName').value = match.name;
+        currentExp = match.price.toString();
+        document.getElementById('exp-view').innerText = currentExp;
+        addItem(); // Auto add
+        alert("Scanned: " + match.name);
+    } else {
+        if(confirm("New Barcode: " + code + "\nRegister this item?")) {
+            let n = prompt("Item Name?");
+            let p = prompt("Price?");
+            myInventory.push({ name: n, price: p, barcode: code });
+            localStorage.setItem('myInventory', JSON.stringify(myInventory));
+            loadInventory();
+        }
+    }
+}
+    // Thermal Printer Logic for SHREYANS SRS588
+async function printThermal() {
+    if (items.length === 0) return alert("Pehle item add karein!");
+
+    try {
+        if (!printerDevice) {
+            printerDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }, { namePrefix: 'SRS' }, { namePrefix: 'Bluetooth' }],
+                optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+            });
+        }
+
+        const server = await printerDevice.gatt.connect();
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+        let name = document.getElementById('custName').value || "Customer";
+        let date = new Date().toLocaleString();
+        
+        // ESC/POS Commands
+        let esc = '\x1B\x40'; // Initialize
+        esc += '\x1B\x61\x01' + 'DIGITAL KHATA PRO\n'; // Center Align
+        esc += '--------------------------------\n';
+        esc += '\x1B\x61\x00' + `Cust: ${name}\n`;
+        esc += `Date: ${date}\n`;
+        esc += '--------------------------------\n';
+        esc += 'Item            Qty       Price \n';
+        esc += '--------------------------------\n';
+        
+        items.forEach(it => {
+            let itemName = it.name.substring(0, 14).padEnd(15);
+            let itemPrice = "Rs." + it.price.toFixed(2).padStart(10);
+            esc += itemName + itemPrice + '\n';
+        });
+
+        esc += '--------------------------------\n';
+        esc += `GRAND TOTAL: ${document.getElementById('final-baki').innerText}\n`;
+        esc += '\x1B\x61\x01' + '\nTHANK YOU! VISIT AGAIN\n\n\n\n';
+
+        const encoder = new TextEncoder();
+        await characteristic.writeValue(encoder.encode(esc));
+        alert("Printing...");
+    } catch (error) {
+        console.log(error);
+        alert("Printer connect nahi hua. Bluetooth on karein.");
+    }
+}
 
 </script>
 </body>

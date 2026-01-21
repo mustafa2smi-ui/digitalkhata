@@ -37,10 +37,17 @@
 
         #scanner-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:999; flex-direction:column; align-items:center; justify-content:center; }
         video { width: 90%; border-radius: 10px; border: 2px solid var(--p); }
+    /* Drawer */
+        .settings-drawer { position: fixed; top: 0; right: -100%; width: 85%; max-width: 320px; height: 100dvh; background: #fff; z-index: 10001; transition: 0.3s; padding: 20px; box-shadow: -5px 0 20px rgba(0,0,0,0.1); overflow-y: auto; }
+        .settings-drawer.open { right: 0; }
+        .manage-item-row { display: flex; justify-content: space-between; padding: 10px; background: #f8fafc; margin-bottom: 5px; border-radius: 8px; border: 1px solid #eee; }
+
+       
+    
     </style>
 </head>
 <body>
-
+<!--
 <div id="scanner-overlay">
     <video id="video" autoplay playsinline></video>
     <button onclick="stopScanner()" style="margin-top:20px; padding:10px 40px; background:red; color:white; border:none; border-radius:50px;">Cancel</button>
@@ -107,8 +114,8 @@
         </div>
     </div>
 </div>
-
-    <!--
+-->
+   
     <div id="scanner-overlay">
     <video id="video" autoplay playsinline></video>
     <button onclick="stopScanner()" style="margin-top:20px; padding:10px 40px; background:red; color:white; border:none; border-radius:50px;">Cancel</button>
@@ -213,7 +220,7 @@
         <button class="n-btn" onclick="quickTextShare()" style="width:100%; margin-top:5px; background:#25d366; color:white;"><i class="fab fa-whatsapp"></i> QUICK WHATSAPP</button>
     </div>
 </div>
--->
+
 <script>
     let editIndex = null; // Track karne ke liye ki kaunsa item edit ho raha hai
 let items = [], myInventory = JSON.parse(localStorage.getItem('myInventory')) || [];

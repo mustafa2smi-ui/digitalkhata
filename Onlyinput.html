@@ -51,17 +51,7 @@
     <div onclick="location.reload()"><i class="fas fa-store"></i> <b>Billing</b></div>
     <div id="liveClock" style="font-size: 11px; text-align: right; line-height: 1.2;"></div>
     <div><i class="fas fa-barcode" onclick="startScanner()" style="font-size:22px;"></i></div>
-    </div>
-
-    <div class="app-body" id="bill-area">
-        <input type="text" id="custName" placeholder="Customer Name (Touch for keyboard)" style="width:100%; padding:8px; margin-bottom:10px; border:none; border-bottom:1px solid #ddd; outline:none; font-weight:bold;">
-        <div class="items-list" id="items-list"></div>
-        <div class="final-total-box">
-            <span>TOTAL AMOUNT</span>
-            <b id="final-total" style="font-size:20px;">₹ 0.00</b>
-        </div>
-    </div>
-<div class="history-section" style="padding: 15px; background: #fff; margin-top: 10px; border-top: 5px solid #f1f5f9;">
+    <div class="history-section" style="padding: 15px; background: #fff; margin-top: 10px; border-top: 5px solid #f1f5f9;">
     <h3 style="font-size: 16px; margin-bottom: 10px; color: var(--p);">
         <i class="fas fa-history"></i> Recent Bills (CSV Saved)
     </h3>
@@ -73,6 +63,16 @@
     <p><b>Digital Khata Pro</b> v2.0</p>
     <p>Developed for Fast Wholesale & Retail Billing</p>
 </footer>
+    </div>
+
+    <div class="app-body" id="bill-area">
+        <input type="text" id="custName" placeholder="Customer Name (Touch for keyboard)" style="width:100%; padding:8px; margin-bottom:10px; border:none; border-bottom:1px solid #ddd; outline:none; font-weight:bold;">
+        <div class="items-list" id="items-list"></div>
+        <div class="final-total-box">
+            <span>TOTAL AMOUNT</span>
+            <b id="final-total" style="font-size:20px;">₹ 0.00</b>
+        </div>
+    </div>
     <div class="app-fixed-controls">
         <div class="entry-grid">
             <input type="text" id="itemName" placeholder="Item Name" style="flex:2;">
@@ -264,9 +264,71 @@ function startClock() {
         document.getElementById('liveClock').innerHTML = `${dateStr}<br>${timeStr}`;
     }, 1000);
 }
+let savedBillsHistory = JSON.parse(localStorage.getItem('savedBillsHistory')) || [];
+
+function saveBill() {
+    if (items.length === 0) return alert("Bill khali hai!");
+
+    const custName = document.getElementById('custName').value || "Cash_Customer";
+    const date = new Date().toLocaleDateString().replace(/\//g, '-');
+    const fileName = `Bill_${custName}_${date}.csv`;
+
+    // 1. CSV Data Taiyar karna
+    let csvContent = "Item Name,Quantity,Rate,Total\n"; // Header
+    items.forEach(it => {
+        csvContent += `${it.name},${it.qty},${it.rate},${it.total}\n`;
+    });
+    
+    let grandTotal = items.reduce((a, b) => a + b.total, 0);
+    csvContent += `\n,,,GRAND TOTAL,${grandTotal}`;
+
+    // 2. CSV File Download karna
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", fileName);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // 3. History mein save karna (sirf record ke liye)
+    const billRecord = {
+        name: custName,
+        total: grandTotal,
+        date: new Date().toLocaleString(),
+        itemCount: items.length
+    };
+    savedBillsHistory.unshift(billRecord); // Naya bill upar dikhega
+    if(savedBillsHistory.length > 10) savedBillsHistory.pop(); // Sirf last 10 bills rakhein
+    localStorage.setItem('savedBillsHistory', JSON.stringify(savedBillsHistory));
+    
+    updateGallery();
+    alert("CSV File Saved & Downloaded!");
+}
+
+function updateGallery() {
+    const gallery = document.getElementById('billGallery');
+    gallery.innerHTML = savedBillsHistory.map(bill => `
+        <div style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <div>
+                <b style="font-size: 13px;">${bill.name}</b><br>
+                <small style="color: #64748b;">${bill.date} | ${bill.itemCount} Items</small>
+            </div>
+            <b style="color: #059669;">₹${bill.total.toFixed(2)}</b>
+        </div>
+    `).join('');
+}
+
+// Window load par gallery refresh karein
+window.onload = () => {
+    updateGallery();
+    startClock();
+};
 
 // Ise window load ya goToCalc ke andar call karein
-startClock();
+/* startClock();*/
 
 </script>
 </body>

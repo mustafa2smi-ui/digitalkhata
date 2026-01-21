@@ -40,7 +40,7 @@
     </style>
 </head>
 <body>
-
+<!--
 <div id="scanner-overlay">
     <video id="video" autoplay playsinline></video>
     <button onclick="stopScanner()" style="margin-top:20px; padding:10px 40px; background:red; color:white; border:none; border-radius:50px;">Cancel</button>
@@ -105,6 +105,111 @@
             <button class="n-btn op-btn" onclick="press('.')">.</button>
 
         </div>
+    </div>
+</div>
+-->
+    <div id="scanner-overlay">
+    <video id="video" autoplay playsinline></video>
+    <button onclick="stopScanner()" style="margin-top:20px; padding:10px 40px; background:red; color:white; border:none; border-radius:50px;">Cancel</button>
+</div>
+    <div id="settingsDrawer" class="settings-drawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="font-size:18px; color:var(--p);"><i class="fas fa-cog"></i> Settings</h2>
+        <i class="fas fa-times" onclick="toggleSettings()" style="font-size:22px;"></i>
+    </div>
+    
+    <button class="n-btn op-btn" style="width:100%; margin-bottom:10px;" onclick="addToInventory()"><i class="fas fa-plus"></i> Save Current to List</button>
+    
+    <div style="display:flex; gap:5px; margin-bottom:20px;">
+        <button class="n-btn op-btn" style="flex:1; font-size:12px;" onclick="exportInventory()">Backup</button>
+        <button class="n-btn op-btn" style="flex:1; font-size:12px;" onclick="document.getElementById('importFile').click()">Restore</button>
+    </div>
+    <input type="file" id="importFile" style="display:none" onchange="importInventory(this)">
+
+    <h3 style="font-size:14px; margin-bottom:10px; color:#64748b;">Manage Saved Items</h3>
+    <div id="full-inventory-list"></div>
+</div>
+
+<div id="homepage">
+    <div style="background:var(--p); color:white; width:70px; height:70px; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:35px; margin-bottom:15px;"><i class="fas fa-calculator"></i></div>
+    <h1 style="font-size:24px;">Digital Khata</h1>
+    <p style="color:#64748b; margin-bottom:20px;">Professional Billing</p>
+    <button onclick="goToCalc()" style="background:var(--p); color:white; border:none; padding:15px 35px; border-radius:50px; font-size:15px; font-weight:bold;">Start Billing <i class="fas fa-arrow-right"></i></button>
+</div>
+
+<div id="calc-page">
+    <div class="calc-header">
+        <div onclick="location.reload()"><i class="fas fa-arrow-left"></i> <b>Billing</b></div>
+        <div>
+            <i class="fas fa-barcode" onclick="startScanner()" style="font-size:22px;"></i>
+            <i class="fas fa-cog" onclick="toggleSettings()" style="margin-right:15px;"></i>
+            <i class="fas fa-share-nodes" onclick="shareWebsite()"></i>
+        </div>
+    </div>
+
+    <div class="app-body" id="bill-area">
+        <div class="cust-card">
+            <input type="text" id="custName" placeholder="Customer Name">
+            <div id="dateDisplay" style="font-size:10px; color:#94a3b8; margin-top:3px;"></div>
+        </div>
+
+        <div class="items-list" id="items-list"></div>
+
+        <div class="footer-billing">
+            <div class="bill-input-grid">
+                <div class="square-box"><label>OLD BAKI</label><input type="number" id="oldBal" oninput="calculateFinal()"></div>
+                <div class="square-box"><label>RECEIVED</label><input type="number" id="cashPaid" oninput="calculateFinal()"></div>
+            </div>
+            <div class="final-total-box"><b>TOTAL BAKI</b><span id="final-baki" style="font-size:18px; font-weight:900;">₹ 0.00</span></div>
+        </div>
+
+        <div class="history-section">
+            <h3 style="font-size:13px; color:var(--p); margin-bottom:10px;"><i class="fas fa-history"></i> Recent History</h3>
+            <div id="gallery-grid" class="gallery-grid"></div>
+        </div>
+
+        <div class="app-footer" style="text-align:center; padding:20px 0; color:#94a3b8; font-size:11px; border-top:1px solid #eee;">
+            <p>Made with ❤️ for Small Businesses 🇮🇳</p>
+            <p style="font-weight:bold; color:var(--p); margin-top:5px;">DigitalKhata.pro</p>
+            <small>100% Secure & Offline 🔒</small>
+        </div>
+    </div>
+
+    <div class="app-fixed-controls">
+        <div class="input-row-container">
+            <input type="text" id="itemName" list="inventory-list" oninput="checkAutoFill(this.value)" placeholder="Item Name">
+            <datalist id="inventory-list"></datalist>
+            <input type="number" id="itemDisc" placeholder="D%">
+            <input type="number" id="itemGst" placeholder="G%">
+        </div>
+        <div class="display-box">
+            <div id="exp-view">0</div>
+            <div id="total-view">₹ 0.00</div>
+        </div>
+        <div class="numpad">
+            <button class="n-btn op-btn" onclick="clearAll()">AC</button>
+            <button class="n-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="n-btn op-btn" onclick="saveBill()"><i class="fas fa-camera"></i></button>
+            <button class="n-btn op-btn" onclick="printThermal()"><i class="fas fa-print"></i></button>
+            
+            <button class="n-btn" onclick="press('7')">7</button>
+            <button class="n-btn" onclick="press('8')">8</button>
+            <button class="n-btn" onclick="press('9')">9</button>
+            <button class="n-btn star-btn" onclick="handleStar()">*<br><small style="font-size:10px;">NEXT</small></button>
+            
+            <button class="n-btn" onclick="press('4')">4</button>
+            <button class="n-btn" onclick="press('5')">5</button>
+            <button class="n-btn" onclick="press('6')">6</button>
+
+            <button class="n-btn" onclick="press('1')">1</button>
+            <button class="n-btn" onclick="press('2')">2</button>
+            <button class="n-btn" onclick="press('3')">3</button>
+            <button class="n-btn op-btn" onclick="saveBill()"><b>Save</b></button>
+     
+            <button class="n-btn" onclick="press('0')" style="grid-column: span 2;">0</button>
+            <button class="n-btn op-btn" onclick="press('.')">.</button>
+        </div>
+        <button class="n-btn" onclick="quickTextShare()" style="width:100%; margin-top:5px; background:#25d366; color:white;"><i class="fab fa-whatsapp"></i> QUICK WHATSAPP</button>
     </div>
 </div>
 

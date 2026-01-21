@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Khata - Pro POS v2.5</title>
+    <script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@latest/dist/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --p: #2563eb; --bg: #f1f5f9; --dark: #1e293b; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); overflow: hidden; position: fixed; width: 100vw; height: 100dvh; }
+        
+        #calc-page { max-width: 500px; margin: auto; background: #fff; height: 100dvh; display: flex; flex-direction: column; }
+        
+        /* Header Fix */
+        .calc-header { background: var(--p); padding: 12px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 100; }
+        
+        /* Body Scrollable Area */
+        .app-body { flex: 1; overflow-y: auto; padding: 10px; background: #f1f5f9; padding-bottom: 20px; }
+        
+        .items-list { border: 1px solid #e2e8f0; border-radius: 12px; min-height: 120px; margin-bottom: 10px; background: #fff; padding: 5px; }
+        .item-row { padding: 10px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; border-radius: 8px; margin-bottom: 5px; }
+        .item-row:active { background: #e0e7ff; }
+        .item-row b { font-size: 14px; color: #1e293b; }
+        .item-row small { color: #64748b; font-size: 11px; }
+
+        .final-total-box { background: var(--dark); color: #ffca28; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin: 10px 0; }
+
+        /* Fixed Controls at Bottom */
+        .app-fixed-controls { background: #fff; padding: 10px; border-top: 1px solid #e2e8f0; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); }
+        .entry-grid { display: flex; gap: 5px; margin-bottom: 10px; }
+        .entry-grid input { padding: 12px 8px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; font-weight: bold; width: 100%; }
+        .entry-grid input:focus { border-color: var(--p); background: #f0f9ff; }
+        
+        .numpad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .n-btn { height: 46px; font-size: 18px; border-radius: 8px; border: none; background: #f1f5f9; font-weight: bold; color: #334155; }
+        .n-btn:active { background: #cbd5e1; }
+        .star-btn { background: var(--p) !important; color: white !important; grid-row: span 2; height: 96px; }
+        .op-btn { background: #e2e8f0; }
+
+        .history-section { background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 15px; }
+        .bill-card { padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+
+        #scanner-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:999; flex-direction:column; align-items:center; justify-content:center; }
+        video { width: 90%; border-radius: 10px; border: 2px solid var(--p); }
+    </style>
+</head>
+<body>
+
+<div id="scanner-overlay">
+    <video id="video" autoplay playsinline></video>
+    <button onclick="stopScanner()" style="margin-top:20px; padding:10px 40px; background:red; color:white; border:none; border-radius:50px;">Cancel</button>
+</div>
+
+<div id="calc-page">
+    <div class="calc-header">
+        <div onclick="location.reload()"><i class="fas fa-store"></i> <b>Billing</b></div>
+        <div id="liveClock" style="font-size: 11px; text-align: center; line-height: 1.2;"></div>
+        <div>
+            <i class="fas fa-barcode" onclick="startScanner()" style="font-size:22px; margin-right: 15px;"></i>
+            <i class="fas fa-cog" onclick="alert('Settings Under Development')"></i>
+        </div>
+    </div>
+
+    <div class="app-body" id="bill-area">
+        <input type="text" id="custName" placeholder="Customer Name" style="width:100%; padding:12px; margin-bottom:10px; border:none; border-radius: 8px; outline:none; font-weight:bold; background: #fff; border: 1px solid #e2e8f0;">
+        
+        <div class="items-list" id="items-list"></div>
+        
+        <div class="final-total-box">
+            <span>TOTAL AMOUNT</span>
+            <b id="final-total" style="font-size:22px;">₹ 0.00</b>
+        </div>
+
+        <div class="history-section">
+            <h3 style="font-size: 14px; margin-bottom: 8px; color: var(--p);">
+                <i class="fas fa-history"></i> Recent Bills (CSV)
+            </h3>
+            <div id="billGallery"></div>
+        </div>
+
+        <footer style="text-align: center; padding: 20px; color: #94a3b8; font-size: 11px;">
+            <p><b>Digital Khata Pro</b> v2.5</p>
+            <p>100% Secure & Offline POS</p>
+        </footer>
+    </div>
+
+    <div class="app-fixed-controls">
+        <div class="entry-grid">
+            <input type="text" id="itemName" placeholder="Item Name" style="flex:2;">
+            <input type="text" id="itemQty" placeholder="Qty" readonly style="width:65px; text-align:center;">
+            <input type="text" id="itemRate" placeholder="Rate" readonly style="width:95px; text-align:center;">
+        </div>
+
+        <div class="numpad">
+            <button class="n-btn op-btn" onclick="clearAll()">AC</button>
+            <button class="n-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="n-btn op-btn" onclick="saveBill()" style="background: #059669; color: white;"><i class="fas fa-save"></i></button>
+            <button class="n-btn op-btn" onclick="printThermal()"><i class="fas fa-print"></i></button>
+            
+            <button class="n-btn" onclick="press('7')">7</button>
+            <button class="n-btn" onclick="press('8')">8</button>
+            <button class="n-btn" onclick="press('9')">9</button>
+            <button class="n-btn star-btn" onclick="handleStar()">*<br><small style="font-size:10px;">NEXT</small></button>
+            
+            <button class="n-btn" onclick="press('4')">4</button>
+            <button class="n-btn" onclick="press('5')">5</button>
+            <button class="n-btn" onclick="press('6')">6</button>
+
+            <button class="n-btn" onclick="press('1')">1</button>
+            <button class="n-btn" onclick="press('2')">2</button>
+            <button class="n-btn" onclick="press('3')">3</button>
+            <button class="n-btn op-btn" style="background:#059669; color:white; font-size: 12px;" onclick="saveBill()"><b>SAVE</b></button>
+     
+            <button class="n-btn" onclick="press('0')" style="grid-column: span 2;">0</button>
+            <button class="n-btn op-btn" onclick="press('.')">.</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let items = [], myInventory = JSON.parse(localStorage.getItem('myInventory')) || [];
+let savedBillsHistory = JSON.parse(localStorage.getItem('savedBillsHistory')) || [];
+let currentFocus = "itemQty";
+let editIndex = null;
+
+// Browser support for Barcode
+if (!window.BarcodeDetector) window.BarcodeDetector = barcodeDetectorPolyfill.BarcodeDetector;
+
+// Clock Logic
+function startClock() {
+    setInterval(() => {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+        document.getElementById('liveClock').innerHTML = `${dateStr}<br>${timeStr}`;
+    }, 1000);
+}
+
+// Input Focus Management
+document.getElementById('itemQty').onclick = () => currentFocus = "itemQty";
+document.getElementById('itemRate').onclick = () => currentFocus = "itemRate";
+document.getElementById('itemName').onclick = () => currentFocus = "itemName";
+
+function press(v) {
+    if(currentFocus === "itemName") return;
+    document.getElementById(currentFocus).value += v;
+}
+
+function back() {
+    let inp = document.getElementById(currentFocus);
+    inp.value = inp.value.slice(0, -1);
+}
+
+function handleStar() {
+    const qty = document.getElementById('itemQty');
+    const rate = document.getElementById('itemRate');
+    if (currentFocus === "itemQty") {
+        if(!qty.value) qty.value = "1";
+        currentFocus = "itemRate";
+        rate.focus();
+    } else if (currentFocus === "itemRate") {
+        if (rate.value !== "") addItemToList();
+    } else {
+        currentFocus = "itemQty";
+        qty.focus();
+    }
+}
+
+function addItemToList() {
+    const n = document.getElementById('itemName').value || "Item " + (items.length + 1);
+    const q = parseFloat(document.getElementById('itemQty').value) || 1;
+    const r = parseFloat(document.getElementById('itemRate').value) || 0;
+
+    if (r > 0) {
+        let newItem = { name: n, qty: q, rate: r, total: q * r };
+        if (editIndex !== null) {
+            items[editIndex] = newItem;
+            editIndex = null;
+        } else {
+            items.push(newItem);
+        }
+        updateDisplay();
+        resetInputs();
+    }
+}
+
+function updateDisplay() {
+    const list = document.getElementById('items-list');
+    list.innerHTML = items.map((it, idx) => `
+        <div class="item-row" onclick="editItem(${idx})">
+            <div><b>${it.name}</b><br><small>${it.qty} x ${it.rate}</small></div>
+            <div>₹${it.total.toFixed(2)}</div>
+        </div>`).join('');
+    
+    let grand = items.reduce((a, b) => a + b.total, 0);
+    document.getElementById('final-total').innerText = "₹ " + grand.toFixed(2);
+}
+
+function editItem(idx) {
+    const it = items[idx];
+    document.getElementById('itemName').value = it.name;
+    document.getElementById('itemQty').value = it.qty;
+    document.getElementById('itemRate').value = it.rate;
+    editIndex = idx;
+    currentFocus = "itemQty";
+}
+
+function resetInputs() {
+    document.getElementById('itemName').value = "";
+    document.getElementById('itemQty').value = "";
+    document.getElementById('itemRate').value = "";
+    currentFocus = "itemQty";
+}
+
+function clearAll() {
+    if(confirm("New Bill?")) {
+        items = [];
+        updateDisplay();
+        resetInputs();
+    }
+}
+
+function saveBill() {
+    if (items.length === 0) return alert("Pehle items add karein!");
+    const custName = document.getElementById('custName').value || "Cash";
+    const date = new Date().toLocaleDateString().replace(/\//g, '-');
+    
+    let csv = "Item,Qty,Rate,Total\n";
+    items.forEach(it => csv += `${it.name},${it.qty},${it.rate},${it.total}\n`);
+    let grand = items.reduce((a, b) => a + b.total, 0);
+    csv += `\n,,,TOTAL,${grand}`;
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Bill_${custName}_${date}.csv`;
+    link.click();
+
+    savedBillsHistory.unshift({ name: custName, total: grand, date: new Date().toLocaleString() });
+    if(savedBillsHistory.length > 10) savedBillsHistory.pop();
+    localStorage.setItem('savedBillsHistory', JSON.stringify(savedBillsHistory));
+    updateGallery();
+}
+
+function updateGallery() {
+    const gal = document.getElementById('billGallery');
+    gal.innerHTML = savedBillsHistory.map(b => `
+        <div class="bill-card">
+            <span><b>${b.name}</b><br><small>${b.date}</small></span>
+            <b style="color:#059669;">₹${b.total.toFixed(2)}</b>
+        </div>`).join('');
+}
+
+// Scanner Logic
+async function startScanner() {
+    document.getElementById('scanner-overlay').style.display = 'flex';
+    const video = document.getElementById('video');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
+        const detector = new BarcodeDetector();
+        const scan = async () => {
+            if(document.getElementById('scanner-overlay').style.display === 'none') return;
+            const codes = await detector.detect(video);
+            if (codes.length > 0) {
+                let code = codes[0].rawValue;
+                stopScanner();
+                let match = myInventory.find(it => it.barcode === code);
+                if (match) {
+                    document.getElementById('itemName').value = match.name;
+                    document.getElementById('itemRate').value = match.price;
+                    currentFocus = "itemQty";
+                }
+                return;
+            }
+            requestAnimationFrame(scan);
+        };
+        scan();
+    } catch (e) { stopScanner(); }
+}
+
+function stopScanner() {
+    const video = document.getElementById('video');
+    if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+    document.getElementById('scanner-overlay').style.display = 'none';
+}
+
+function printThermal() { alert("Thermal Printer Connected..."); }
+
+window.onload = () => {
+    startClock();
+    updateGallery();
+};
+</script>
+</body>
+</html>

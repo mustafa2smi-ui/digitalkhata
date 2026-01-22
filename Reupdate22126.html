@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Khata Pro v3.0</title>
+    <script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@latest/dist/index.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --p: #2563eb; --bg: #f1f5f9; --dark: #1e293b; --success: #059669; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
+        body { background: var(--bg); overflow: hidden; position: fixed; width: 100vw; height: 100dvh; }
+
+        /* Main Container */
+        #app-container { max-width: 500px; margin: auto; background: #fff; height: 100dvh; display: flex; flex-direction: column; }
+
+        /* Header */
+        .header { background: var(--p); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .clock-box { font-size: 11px; text-align: center; opacity: 0.9; }
+
+        /* Scrollable Area */
+        .main-content { flex: 1; overflow-y: auto; padding: 10px; background: #f8fafc; }
+        .cust-input-box { background: #fff; padding: 8px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+        .cust-input-box input { width: 100%; border: none; outline: none; font-weight: bold; font-size: 15px; }
+
+        /* Item List Styling */
+        .bill-list { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; min-height: 100px; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; }
+        .row:active { background: #f0f9ff; }
+        .row .sn { background: var(--p); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; margin-right: 10px; }
+        .row-info { flex: 1; }
+        .row-info b { font-size: 14px; color: var(--dark); }
+        .row-info small { color: #64748b; font-size: 11px; }
+
+        .total-banner { background: var(--dark); color: #ffca28; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+        /* Gallery/History */
+        .gallery { background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .gallery-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+
+        /* FIXED BOTTOM CONTROLS */
+        .bottom-controls { background: #fff; border-top: 1px solid #cbd5e1; padding: 8px; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); }
+        
+        /* Input Grid */
+        .input-grid { display: flex; gap: 4px; margin-bottom: 8px; }
+        .input-grid input { padding: 10px 5px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; font-weight: bold; text-align: center; }
+        .input-grid input:focus { border-color: var(--p); background: #f0f9ff; }
+
+        /* Keypad */
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .k-btn { height: 45px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; background: #f1f5f9; color: var(--dark); cursor: pointer; }
+        .k-btn:active { background: #cbd5e1; }
+        .op-btn { background: #e2e8f0; }
+        .star-btn { background: var(--p) !important; color: white !important; grid-row: span 2; height: 94px; }
+        .save-btn { background: var(--success) !important; color: white !important; font-size: 12px; }
+
+        /* Scanner Overlay */
+        #scan-view { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:1000; flex-direction:column; align-items:center; justify-content:center; }
+        video { width: 85%; border: 2px solid var(--p); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="scan-view">
+    <video id="video" autoplay playsinline></video>
+    <button onclick="stopScanner()" style="margin-top:20px; padding:10px 40px; background:red; color:white; border:none; border-radius:50px;">CLOSE SCANNER</button>
+</div>
+
+<div id="app-container">
+    <div class="header">
+        <div onclick="location.reload()"><i class="fas fa-store"></i> <b>Digital Khata</b></div>
+        <div class="clock-box" id="liveClock"></div>
+        <div>
+            <i class="fas fa-barcode" onclick="startScanner()" style="font-size:22px; margin-right:15px;"></i>
+            <i class="fas fa-cog" onclick="alert('Settings Under Development')"></i>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="cust-input-box">
+            <input type="text" id="custName" placeholder="Customer Name (Keyboard)">
+        </div>
+
+        <div class="bill-list" id="bill-list">
+            </div>
+
+        <div class="total-banner">
+            <span id="itemCount">0 Items</span>
+            <b id="grandTotal" style="font-size:20px;">₹ 0.00</b>
+        </div>
+
+        <div class="gallery">
+            <h4 style="font-size:12px; color:var(--p); margin-bottom:5px;"><i class="fas fa-history"></i> Recent Bills</h4>
+            <div id="recentBills"></div>
+        </div>
+        
+        <footer style="text-align:center; padding:15px; color:#94a3b8; font-size:10px;">
+            Digital Khata Pro v3.0 | Secured Offline Storage
+        </footer>
+    </div>
+
+    <div class="bottom-controls">
+        <div class="input-grid">
+            <input type="text" id="itemName" placeholder="Item Name" style="flex:2; text-align: left; padding-left:10px;">
+            <input type="text" id="itemQty" placeholder="Qty" readonly style="width:60px;">
+            <input type="text" id="itemRate" placeholder="Rate" readonly style="width:85px;">
+        </div>
+
+        <div class="keypad">
+            <button class="k-btn op-btn" onclick="clearAll()">AC</button>
+            <button class="k-btn op-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="k-btn save-btn" onclick="saveBill()">SAVE<br>CSV</button>
+            <button class="k-btn op-btn" onclick="printThermal()"><i class="fas fa-print"></i></button>
+            
+            <button class="k-btn" onclick="press('7')">7</button>
+            <button class="k-btn" onclick="press('8')">8</button>
+            <button class="k-btn" onclick="press('9')">9</button>
+            <button class="k-btn star-btn" onclick="handleStar()">*<br><small style="font-size:9px;">NEXT</small></button>
+            
+            <button class="k-btn" onclick="press('4')">4</button>
+            <button class="k-btn" onclick="press('5')">5</button>
+            <button class="k-btn" onclick="press('6')">6</button>
+
+            <button class="k-btn" onclick="press('1')">1</button>
+            <button class="k-btn" onclick="press('2')">2</button>
+            <button class="k-btn" onclick="press('3')">3</button>
+            <button class="k-btn op-btn" onclick="press('.')">.</button>
+
+            <button class="k-btn" onclick="press('0')" style="grid-column: span 2;">0</button>
+            <button class="k-btn op-btn" onclick="location.reload()"><i class="fas fa-sync"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+let items = [], editIndex = null, currentFocus = "itemQty";
+let myInventory = JSON.parse(localStorage.getItem('myInventory')) || [];
+let history = JSON.parse(localStorage.getItem('savedBillsHistory')) || [];
+
+// 1. Core Logic: Input & Keypad
+document.getElementById('itemQty').onclick = () => currentFocus = "itemQty";
+document.getElementById('itemRate').onclick = () => currentFocus = "itemRate";
+document.getElementById('itemName').onclick = () => currentFocus = "itemName";
+
+function press(v) {
+    if(currentFocus === "itemName") return;
+    document.getElementById(currentFocus).value += v;
+}
+
+function back() {
+    let inp = document.getElementById(currentFocus);
+    inp.value = inp.value.slice(0, -1);
+}
+
+function handleStar() {
+    const qty = document.getElementById('itemQty');
+    const rate = document.getElementById('itemRate');
+    if (currentFocus === "itemQty") {
+        if(!qty.value) qty.value = "1";
+        currentFocus = "itemRate";
+    } else if (currentFocus === "itemRate") {
+        if (rate.value) addItem();
+    } else {
+        currentFocus = "itemQty";
+    }
+}
+
+// 2. Billing Functions
+function addItem() {
+    const n = document.getElementById('itemName').value || "Item " + (items.length + 1);
+    const q = parseFloat(document.getElementById('itemQty').value) || 1;
+    const r = parseFloat(document.getElementById('itemRate').value) || 0;
+
+    if (r > 0) {
+        let obj = { name: n, qty: q, rate: r, total: q * r };
+        if (editIndex !== null) { items[editIndex] = obj; editIndex = null; }
+        else { items.push(obj); }
+        updateUI();
+        resetInputs();
+    }
+}
+
+function updateUI() {
+    const list = document.getElementById('bill-list');
+    list.innerHTML = items.map((it, i) => `
+        <div class="row" onclick="editRow(${i})">
+            <div class="sn">${i + 1}</div>
+            <div class="row-info"><b>${it.name}</b><br><small>${it.qty} x ₹${it.rate}</small></div>
+            <b>₹${it.total.toFixed(2)}</b>
+        </div>`).join('');
+    
+    let grand = items.reduce((a, b) => a + b.total, 0);
+    document.getElementById('grandTotal').innerText = "₹ " + grand.toFixed(2);
+    document.getElementById('itemCount').innerText = items.length + " Items";
+}
+
+function editRow(i) {
+    const it = items[i];
+    document.getElementById('itemName').value = it.name;
+    document.getElementById('itemQty').value = it.qty;
+    document.getElementById('itemRate').value = it.rate;
+    editIndex = i;
+    currentFocus = "itemQty";
+}
+
+function resetInputs() {
+    document.getElementById('itemName').value = "";
+    document.getElementById('itemQty').value = "";
+    document.getElementById('itemRate').value = "";
+    currentFocus = "itemQty";
+}
+
+function clearAll() { if(confirm("New Bill?")) { items = []; updateUI(); resetInputs(); } }
+
+// 3. Save & History Logic
+function saveBill() {
+    if(items.length === 0) return;
+    const name = document.getElementById('custName').value || "Cash";
+    const grand = items.reduce((a, b) => a + b.total, 0);
+    
+    // CSV Download
+    let csv = "S.No,Item,Qty,Rate,Total\n";
+    items.forEach((it, i) => csv += `${i+1},${it.name},${it.qty},${it.rate},${it.total}\n`);
+    const blob = new Blob([csv], {type:'text/csv'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Bill_${name}.csv`;
+    a.click();
+
+    // History Save
+    history.unshift({ name, total: grand, date: new Date().toLocaleString(), billItems: [...items] });
+    if(history.length > 15) history.pop();
+    localStorage.setItem('savedBillsHistory', JSON.stringify(history));
+    renderGallery();
+    alert("Saved!");
+}
+
+function renderGallery() {
+    const gal = document.getElementById('recentBills');
+    gal.innerHTML = history.map((b, i) => `
+        <div class="gallery-item">
+            <span><b>${b.name}</b><br><small>${b.date}</small></span>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <b>₹${b.total.toFixed(0)}</b>
+                <i class="fas fa-print" onclick="reprint(${i})" style="color:var(--p); font-size:16px;"></i>
+            </div>
+        </div>`).join('');
+}
+
+// 4. Scanner & Clock
+function startClock() {
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('liveClock').innerHTML = now.toLocaleDateString() + "<br>" + now.toLocaleTimeString();
+    }, 1000);
+}
+
+// Scanner (Minimal)
+async function startScanner() {
+    document.getElementById('scan-view').style.display = 'flex';
+    const video = document.getElementById('video');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
+        const detector = new BarcodeDetector();
+        const scan = async () => {
+            const codes = await detector.detect(video);
+            if (codes.length > 0) {
+                stopScanner();
+                let match = myInventory.find(it => it.barcode === codes[0].rawValue);
+                if (match) { 
+                    document.getElementById('itemName').value = match.name; 
+                    document.getElementById('itemRate').value = match.price; 
+                    currentFocus = "itemQty";
+                }
+            }
+            if(document.getElementById('scan-view').style.display === 'flex') requestAnimationFrame(scan);
+        };
+        scan();
+    } catch (e) { stopScanner(); }
+}
+function stopScanner() {
+    const v = document.getElementById('video');
+    if (v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
+    document.getElementById('scan-view').style.display = 'none';
+}
+
+function printThermal() { alert("Printing via SRS588..."); }
+function reprint(i) { alert("Reprinting Bill for " + history[i].name); }
+
+window.onload = () => { startClock(); renderGallery(); };
+</script>
+</body>
+</html>

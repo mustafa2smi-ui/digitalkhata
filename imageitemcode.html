@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Khata Pro v4.1</title>
+    <script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@latest/dist/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --p: #2563eb; --bg: #f1f5f9; --dark: #1e293b; --success: #059669; --danger: #dc2626; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
+        body { background: var(--bg); overflow: hidden; position: fixed; width: 100vw; height: 100dvh; }
+
+        #app-container { max-width: 500px; margin: auto; background: #fff; height: 100dvh; display: flex; flex-direction: column; }
+
+        /* Header logic for PNG capture */
+        .header { background: var(--p); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        
+        .main-content { flex: 1; overflow-y: auto; padding: 10px; background: #f8fafc; }
+        .bill-list { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; min-height: 50px; margin-bottom: 10px; }
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f1f5f9; }
+        .row.baki { color: var(--danger); }
+        .row.jama { color: var(--success); }
+
+        /* Auto-Suggest Styling */
+        #suggestion-box { position: absolute; background: white; width: 60%; border: 1px solid #ccc; z-index: 100; display: none; max-height: 150px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .s-item { padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+
+        .total-banner { background: var(--dark); color: #ffca28; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+
+        /* Bottom Controls */
+        .bottom-controls { background: #fff; border-top: 1px solid #cbd5e1; padding: 8px; }
+        .main-inputs { display: flex; gap: 4px; margin-bottom: 8px; position: relative; }
+        .main-inputs input { padding: 10px 5px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; font-weight: bold; text-align: center; }
+
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .k-btn { height: 44px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; background: #f1f5f9; }
+        .star-btn { background: var(--p) !important; color: white !important; grid-row: span 2; height: 92px; }
+
+        /* Print Specific Hide */
+        @media print { body * { visibility: hidden; } #capture-area, #capture-area * { visibility: visible; } #capture-area { position: absolute; left: 0; top: 0; width: 100%; } .k-btn, .bottom-controls, .header i { display: none; } }
+        
+        /* Drawer Styles */
+        .drawer { position: fixed; top: 0; right: -310px; width: 300px; height: 100%; background: white; z-index: 2000; transition: 0.3s; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
+        .drawer.open { right: 0; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+    </style>
+</head>
+<body>
+
+<div id="overlay" class="overlay" onclick="toggleDrawer()"></div>
+<div id="drawer" class="drawer">
+    <div style="background:var(--dark); color:white; padding:15px; display:flex; justify-content:space-between;">
+        <b>⚙️ Settings</b>
+        <i class="fas fa-times" onclick="toggleDrawer()"></i>
+    </div>
+    <div style="padding:15px;">
+        <p style="font-size:11px; font-weight:bold; color:var(--p);">BUSINESS PROFILE</p>
+        <input type="text" id="shopNameIn" placeholder="Shop Name" style="width:100%; padding:8px; margin:5px 0;">
+        <input type="number" id="shopMobIn" placeholder="Contact Number" style="width:100%; padding:8px; margin:5px 0;">
+        <button onclick="saveProfile()" style="width:100%; padding:8px; background:var(--p); color:white; border:none; margin-bottom:15px;">Save Profile</button>
+        
+        <p style="font-size:11px; font-weight:bold; color:#64748b;">INVENTORY</p>
+        <input type="file" id="itemImg" accept="image/*" style="font-size:11px; margin-bottom:5px;">
+        <button onclick="saveToInv()" style="width:100%; padding:10px; background:var(--success); color:white; border:none;">Save Current Item</button>
+        <div id="inv-list" style="margin-top:15px; overflow-y:auto; max-height:250px;"></div>
+    </div>
+</div>
+
+<div id="app-container">
+    <div id="capture-area"> <div class="header" id="main-header">
+            <div><i class="fas fa-store"></i> <b id="displayShopName">MY SHOP</b></div>
+            <div id="liveTime" style="font-size:10px; text-align:right;"></div>
+        </div>
+
+        <div class="main-content">
+            <input type="text" id="custName" placeholder="Customer Name" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:10px;">
+            
+            <div class="bill-list" id="bill-list"></div>
+
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <button onclick="addBaki()" style="flex:1; padding:8px; background:#fee2e2; color:var(--danger); border:1px solid #fecaca; border-radius:5px; font-size:11px; font-weight:bold;">+ OLD BAKI</button>
+                <button onclick="addJama()" style="flex:1; padding:8px; background:#dcfce7; color:var(--success); border:1px solid #bbf7d0; border-radius:5px; font-size:11px; font-weight:bold;">+ JAMA</button>
+            </div>
+
+            <div class="total-banner">
+                <span id="itemCount">0 Items</span>
+                <b id="grandTotal">₹ 0.00</b>
+            </div>
+            
+            <div id="billGallery"></div>
+        </div>
+    </div>
+
+    <div class="bottom-controls">
+        <div class="main-inputs">
+            <input type="text" id="itemName" placeholder="Item Name" style="flex:2; text-align:left; padding-left:10px;" oninput="showSuggestions()">
+            <div id="suggestion-box"></div>
+            <input type="text" id="itemQty" placeholder="Qty" readonly style="width:60px;">
+            <input type="text" id="itemRate" placeholder="Rate" readonly style="width:85px;">
+        </div>
+
+        <div class="keypad">
+            <button class="k-btn" onclick="clearAll()">AC</button>
+            <button class="k-btn" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="k-btn" style="background:var(--success); color:white; font-size:12px;" onclick="savePng()">SAVE PNG</button>
+            <button class="k-btn" onclick="window.print()"><i class="fas fa-print"></i></button>
+            
+            <button class="k-btn" onclick="press('7')">7</button>
+            <button class="k-btn" onclick="press('8')">8</button>
+            <button class="k-btn" onclick="press('9')">9</button>
+            <button class="k-btn star-btn" onclick="handleStar()">*<br><small style="font-size:9px;">NEXT</small></button>
+            
+            <button class="k-btn" onclick="press('4')">4</button>
+            <button class="k-btn" onclick="press('5')">5</button>
+            <button class="k-btn" onclick="press('6')">6</button>
+
+            <button class="k-btn" onclick="press('1')">1</button>
+            <button class="k-btn" onclick="press('2')">2</button>
+            <button class="k-btn" onclick="press('3')">3</button>
+            <button class="k-btn" onclick="press('.')">.</button>
+
+            <button class="k-btn" onclick="press('0')" style="grid-column: span 2;">0</button>
+            <button class="k-btn" onclick="toggleDrawer()"><i class="fas fa-cog"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+let items = [], currentFocus = "itemQty", inv = JSON.parse(localStorage.getItem('myInv')) || [];
+let history = JSON.parse(localStorage.getItem('billHistory')) || [];
+let profile = JSON.parse(localStorage.getItem('bizProfile')) || { name: "MY SHOP", mob: "0000" };
+
+window.onload = () => {
+    setInterval(() => { document.getElementById('liveTime').innerHTML = new Date().toLocaleString(); }, 1000);
+    loadProfile();
+    renderHistory();
+};
+
+function loadProfile() {
+    document.getElementById('displayShopName').innerText = profile.name;
+    document.getElementById('shopNameIn').value = profile.name;
+    document.getElementById('shopMobIn').value = profile.mob;
+}
+
+function saveProfile() {
+    profile = { name: document.getElementById('shopNameIn').value, mob: document.getElementById('shopMobIn').value };
+    localStorage.setItem('bizProfile', JSON.stringify(profile));
+    loadProfile(); alert("Profile Saved!");
+}
+
+// --- Keypad & Inputs ---
+document.getElementById('itemQty').onclick = () => currentFocus = "itemQty";
+document.getElementById('itemRate').onclick = () => currentFocus = "itemRate";
+document.getElementById('itemName').onclick = () => { currentFocus = "itemName"; showSuggestions(); };
+
+function press(v) { if(currentFocus !== "itemName") document.getElementById(currentFocus).value += v; }
+function back() { let i = document.getElementById(currentFocus); i.value = i.value.slice(0,-1); }
+
+function handleStar() {
+    if(currentFocus === "itemQty") currentFocus = "itemRate";
+    else if(currentFocus === "itemRate") addItem();
+}
+
+function addItem(nameManual = null, rateManual = null, type = 'normal') {
+    const n = nameManual || document.getElementById('itemName').value || "Item";
+    const q = parseFloat(document.getElementById('itemQty').value) || 1;
+    const r = rateManual || parseFloat(document.getElementById('itemRate').value) || 0;
+    
+    if(r !== 0 || type !== 'normal') {
+        let total = (type === 'baki') ? r : (type === 'jama' ? -r : q * r);
+        items.push({ name: n, qty: q, rate: r, total: total, type: type });
+        updateUI();
+        resetInputs();
+    }
+}
+
+function addBaki() { let amt = prompt("Enter Old Baki Amount:"); if(amt) addItem("OLD BAKI", parseFloat(amt), 'baki'); }
+function addJama() { let amt = prompt("Enter Jama Amount:"); if(amt) addItem("JAMA", parseFloat(amt), 'jama'); }
+
+function updateUI() {
+    const list = document.getElementById('bill-list');
+    list.innerHTML = items.map((it, i) => `
+        <div class="row ${it.type}" onclick="if(confirm('Delete?')) {items.splice(${i},1); updateUI();}">
+            <div style="font-size:13px;"><b>${it.name}</b><br><small>${it.qty} x ${it.rate}</small></div>
+            <b>${it.total.toFixed(2)}</b>
+        </div>`).join('');
+    let grand = items.reduce((a, b) => a + b.total, 0);
+    document.getElementById('grandTotal').innerText = "₹ " + grand.toFixed(2);
+    document.getElementById('itemCount').innerText = items.length + " entries";
+}
+
+// --- Auto Suggest ---
+function showSuggestions() {
+    const val = document.getElementById('itemName').value.toLowerCase();
+    const box = document.getElementById('suggestion-box');
+    if(val.length < 1) { box.style.display = "none"; return; }
+    
+    const matches = inv.filter(i => i.name.toLowerCase().includes(val));
+    if(matches.length > 0) {
+        box.style.display = "block";
+        box.innerHTML = matches.map(m => `
+            <div class="s-item" onclick="selectSug('${m.name}', ${m.price})">
+                <img src="${m.img || ''}" style="width:30px;height:30px;background:#eee;">
+                <span>${m.name} (₹${m.price})</span>
+            </div>`).join('');
+    } else { box.style.display = "none"; }
+}
+
+function selectSug(n, r) {
+    document.getElementById('itemName').value = n;
+    document.getElementById('itemRate').value = r;
+    document.getElementById('suggestion-box').style.display = "none";
+    currentFocus = "itemQty";
+}
+
+// --- PNG & History ---
+async function savePng() {
+    if(items.length === 0) return;
+    const area = document.getElementById('capture-area');
+    const canvas = await html2canvas(area, { useCORS: true, scale: 2 });
+    const img = canvas.toDataURL("image/png");
+    
+    history.unshift({ cust: document.getElementById('custName').value || "Cash", total: document.getElementById('grandTotal').innerText, img: img, date: new Date().toLocaleString() });
+    if(history.length > 10) history.pop();
+    localStorage.setItem('billHistory', JSON.stringify(history));
+    renderHistory();
+    alert("Saved to Gallery!");
+}
+
+function renderHistory() {
+    const gal = document.getElementById('billGallery');
+    gal.innerHTML = history.map((h, i) => `
+        <div class="history-card">
+            <div style="font-size:12px;"><b>${h.cust}</b> <span style="float:right">${h.total}</span></div>
+            <div class="card-actions">
+                <i class="fas fa-download" onclick="downloadImg('${h.img}', '${h.cust}')"></i>
+                <i class="fas fa-trash" onclick="history.splice(${i},1); localStorage.setItem('billHistory', JSON.stringify(history)); renderHistory();"></i>
+            </div>
+        </div>`).join('');
+}
+
+function downloadImg(data, name) { const a = document.createElement('a'); a.href = data; a.download = `Bill_${name}.png`; a.click(); }
+
+// --- Inventory ---
+function saveToInv() {
+    const n = document.getElementById('itemName').value;
+    const r = document.getElementById('itemRate').value;
+    const f = document.getElementById('itemImg').files[0];
+    if(!n || !r) return alert("Enter Name & Rate!");
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        inv.push({ name: n, price: r, img: e.target.result });
+        localStorage.setItem('myInv', JSON.stringify(inv));
+        renderInvList(); alert("Saved to Inventory!");
+    };
+    if(f) reader.readAsDataURL(f); else { inv.push({ name: n, price: r, img: null }); localStorage.setItem('myInv', JSON.stringify(inv)); renderInvList(); }
+}
+
+function renderInvList() {
+    document.getElementById('inv-list').innerHTML = inv.map((i, idx) => `
+        <div style="display:flex; justify-content:space-between; font-size:12px; padding:5px; border-bottom:1px solid #eee;">
+            <span>${i.name} (₹${i.price})</span>
+            <i class="fas fa-trash" style="color:red" onclick="inv.splice(${idx},1); localStorage.setItem('myInv', JSON.stringify(inv)); renderInvList();"></i>
+        </div>`).join('');
+}
+
+function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); document.getElementById('overlay').style.display = document.getElementById('drawer').classList.contains('open') ? "block" : "none"; renderInvList(); }
+function resetInputs() { document.getElementById('itemName').value = ""; document.getElementById('itemQty').value = ""; document.getElementById('itemRate').value = ""; currentFocus = "itemQty"; }
+function clearAll() { if(confirm("Clear current bill?")) { items = []; updateUI(); } }
+function back() { let i = document.getElementById(currentFocus); i.value = i.value.slice(0,-1); }
+</script>
+</body>
+</html>

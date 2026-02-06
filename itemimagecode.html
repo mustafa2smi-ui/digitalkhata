@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Khata Pro v4.0</title>
+    <script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@latest/dist/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --p: #2563eb; --bg: #f1f5f9; --dark: #1e293b; --success: #059669; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; touch-action: manipulation; }
+        body { background: var(--bg); overflow: hidden; position: fixed; width: 100vw; height: 100dvh; }
+
+        #app-container { max-width: 500px; margin: auto; background: #fff; height: 100dvh; display: flex; flex-direction: column; }
+
+        /* Header */
+        .header { background: var(--p); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 10; }
+
+        /* Main Scrollable Area */
+        .main-content { flex: 1; overflow-y: auto; padding: 10px; background: #f8fafc; padding-bottom: 20px; }
+        .bill-list { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; min-height: 100px; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .row .sn { background: var(--p); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-right: 10px; }
+        
+        .total-banner { background: var(--dark); color: #ffca28; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+        /* History Gallery */
+        .history-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+        .card-actions { display: flex; gap: 15px; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px; color: var(--p); }
+
+        /* Bottom Fixed Controls */
+        .bottom-controls { background: #fff; border-top: 1px solid #cbd5e1; padding: 8px; }
+        .extra-inputs { display: flex; gap: 4px; margin-bottom: 4px; }
+        .extra-inputs div { flex: 1; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 5px; display: flex; align-items: center; }
+        .extra-inputs input { width: 100%; border: none; outline: none; font-size: 12px; text-align: right; font-weight: bold; background: transparent; }
+        
+        .main-inputs { display: flex; gap: 4px; margin-bottom: 8px; }
+        .main-inputs input { padding: 10px 5px; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; font-weight: bold; text-align: center; }
+
+        /* Keypad */
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .k-btn { height: 45px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; background: #f1f5f9; cursor: pointer; }
+        .star-btn { background: var(--p) !important; color: white !important; grid-row: span 2; height: 94px; }
+
+        /* Drawer & Overlay */
+        .drawer { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background: white; z-index: 2000; transition: 0.3s; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
+        .drawer.open { right: 0; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+
+        #scan-view { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:3000; flex-direction:column; align-items:center; justify-content:center; }
+        video { width: 80%; border: 2px solid var(--p); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="scan-view">
+    <video id="video" autoplay playsinline></video>
+    <button onclick="stopScanner()" style="margin-top:20px; padding:10px 40px; background:red; color:white; border:none; border-radius:50px;">CLOSE</button>
+</div>
+
+<div id="overlay" class="overlay" onclick="toggleDrawer()"></div>
+
+<div id="drawer" class="drawer">
+    <div style="background:var(--dark); color:white; padding:15px; display:flex; justify-content:space-between;">
+        <b><i class="fas fa-cog"></i> Settings</b>
+        <i class="fas fa-times" onclick="toggleDrawer()"></i>
+    </div>
+    <div style="flex:1; overflow-y:auto; padding:15px;">
+        <div style="background:#f0f9ff; padding:10px; border-radius:8px; border:1px solid #bae6fd; margin-bottom:15px;">
+            <p style="font-size:10px; font-weight:bold; color:var(--p);">BUSINESS PROFILE</p>
+            <input type="text" id="shopNameInput" placeholder="Shop Name" style="width:100%; margin:5px 0; padding:8px; border:1px solid #ccc;">
+            <input type="number" id="shopContactInput" placeholder="Contact No" style="width:100%; margin:5px 0; padding:8px; border:1px solid #ccc;">
+            <button onclick="saveProfile()" style="width:100%; background:var(--p); color:white; border:none; padding:8px; border-radius:4px;">Save Profile</button>
+        </div>
+
+        <p style="font-size:10px; font-weight:bold; color:#64748b;">SAVE TO INVENTORY</p>
+        <input type="file" id="itemImageInput" accept="image/*" style="font-size:11px; margin:5px 0;">
+        <button onclick="saveToInventory()" style="width:100%; background:var(--success); color:white; border:none; padding:10px; border-radius:8px; margin-bottom:20px;">Save Current Item</button>
+        
+        <div id="inventory-list"></div>
+    </div>
+</div>
+
+<div id="app-container">
+    <div class="header">
+        <div onclick="location.reload()"><i class="fas fa-store"></i> <b>Digital Khata</b></div>
+        <div id="liveClock" style="font-size:10px; text-align:center;"></div>
+        <div>
+            <i class="fas fa-barcode" onclick="startScanner()" style="font-size:22px; margin-right:15px;"></i>
+            <i class="fas fa-cog" onclick="toggleDrawer()" style="font-size:20px;"></i>
+        </div>
+    </div>
+
+    <div class="main-content" id="capture-area">
+        <input type="text" id="custName" placeholder="Customer Name" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #e2e8f0; border-radius:8px; font-weight:bold;">
+        
+        <div class="bill-list" id="bill-list"></div>
+
+        <div class="total-banner">
+            <span id="itemCount">0 Items</span>
+            <b id="grandTotal" style="font-size:20px;">₹ 0.00</b>
+        </div>
+
+        <div id="billGallery"></div>
+    </div>
+
+    <div class="bottom-controls">
+        <div class="extra-inputs">
+            <div><span style="font-size:9px; color:#64748b;">Disc%</span><input type="text" id="itemDisc" placeholder="0" readonly></div>
+            <div><span style="font-size:9px; color:#64748b;">GST%</span><input type="text" id="itemGst" placeholder="0" readonly></div>
+        </div>
+
+        <div class="main-inputs">
+            <input type="text" id="itemName" placeholder="Item Name" style="flex:2; text-align:left; padding-left:10px;">
+            <input type="text" id="itemQty" placeholder="Qty" readonly style="width:60px;">
+            <input type="text" id="itemRate" placeholder="Rate" readonly style="width:85px;">
+        </div>
+
+        <div class="keypad">
+            <button class="k-btn" style="background:#e2e8f0" onclick="clearAll()">AC</button>
+            <button class="k-btn" style="background:#e2e8f0" onclick="back()"><i class="fas fa-backspace"></i></button>
+            <button class="k-btn" style="background:var(--success); color:white; font-size:12px;" onclick="saveBill()">SAVE PNG</button>
+            <button class="k-btn" style="background:#e2e8f0" onclick="printThermal()"><i class="fas fa-print"></i></button>
+            
+            <button class="k-btn" onclick="press('7')">7</button>
+            <button class="k-btn" onclick="press('8')">8</button>
+            <button class="k-btn" onclick="press('9')">9</button>
+            <button class="k-btn star-btn" onclick="handleStar()">*<br><small style="font-size:9px;">NEXT</small></button>
+            
+            <button class="k-btn" onclick="press('4')">4</button>
+            <button class="k-btn" onclick="press('5')">5</button>
+            <button class="k-btn" onclick="press('6')">6</button>
+
+            <button class="k-btn" onclick="press('1')">1</button>
+            <button class="k-btn" onclick="press('2')">2</button>
+            <button class="k-btn" onclick="press('3')">3</button>
+            <button class="k-btn" style="background:#e2e8f0" onclick="press('.')">.</button>
+
+            <button class="k-btn" onclick="press('0')" style="grid-column: span 2;">0</button>
+            <button class="k-btn" style="background:#e2e8f0" onclick="location.reload()"><i class="fas fa-sync"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+let items = [], editIndex = null, currentFocus = "itemQty";
+let myInventory = JSON.parse(localStorage.getItem('myInventory')) || [];
+let history = JSON.parse(localStorage.getItem('savedBillsHistory')) || [];
+let profile = JSON.parse(localStorage.getItem('businessProfile')) || { name: "MY SHOP", contact: "0000000000" };
+
+// Initialization
+window.onload = () => {
+    startClock();
+    renderHistory();
+    document.getElementById('shopNameInput').value = profile.name;
+    document.getElementById('shopContactInput').value = profile.contact;
+};
+
+// --- CORE KEYPAD LOGIC ---
+['itemName','itemQty','itemRate','itemDisc','itemGst'].forEach(id => {
+    document.getElementById(id).onclick = () => currentFocus = id;
+});
+
+function press(v) { if(currentFocus !== "itemName") document.getElementById(currentFocus).value += v; }
+function back() { let i = document.getElementById(currentFocus); i.value = i.value.slice(0,-1); }
+
+function handleStar() {
+    if (currentFocus === "itemQty") currentFocus = "itemRate";
+    else if (currentFocus === "itemRate") addItem();
+    else currentFocus = "itemQty";
+}
+
+// --- BILLING LOGIC ---
+function addItem() {
+    const n = document.getElementById('itemName').value || "Item";
+    const q = parseFloat(document.getElementById('itemQty').value) || 1;
+    const r = parseFloat(document.getElementById('itemRate').value) || 0;
+    const d = parseFloat(document.getElementById('itemDisc').value) || 0;
+    const g = parseFloat(document.getElementById('itemGst').value) || 0;
+
+    if (r > 0) {
+        let pAfterD = r - (r * (d/100));
+        let pWithG = pAfterD + (pAfterD * (g/100));
+        let total = q * pWithG;
+
+        let obj = { name: n, qty: q, rate: r, disc: d, gst: g, total: total };
+        if (editIndex !== null) { items[editIndex] = obj; editIndex = null; }
+        else { items.push(obj); }
+        updateUI();
+        resetInputs();
+    }
+}
+
+function updateUI() {
+    const list = document.getElementById('bill-list');
+    list.innerHTML = items.map((it, i) => `
+        <div class="row" onclick="editRow(${i})">
+            <div style="display:flex; align-items:center;">
+                <div class="sn">${i+1}</div>
+                <div><b>${it.name}</b><br><small>${it.qty} x ₹${it.rate}</small></div>
+            </div>
+            <b>₹${it.total.toFixed(2)}</b>
+        </div>`).join('');
+    
+    let grand = items.reduce((a, b) => a + b.total, 0);
+    document.getElementById('grandTotal').innerText = "₹ " + grand.toFixed(2);
+    document.getElementById('itemCount').innerText = items.length + " Items";
+}
+
+function resetInputs() {
+    ['itemName','itemQty','itemRate','itemDisc','itemGst'].forEach(id => document.getElementById(id).value = "");
+    currentFocus = "itemQty";
+}
+
+function editRow(i) {
+    const it = items[i];
+    document.getElementById('itemName').value = it.name;
+    document.getElementById('itemQty').value = it.qty;
+    document.getElementById('itemRate').value = it.rate;
+    document.getElementById('itemDisc').value = it.disc;
+    document.getElementById('itemGst').value = it.gst;
+    editIndex = i;
+}
+
+// --- THERMAL PRINTING ---
+function printThermal(customData = null) {
+    const data = customData || items;
+    if(data.length === 0) return alert("Pehle items add karein!");
+
+    let esc = '\x1B\x40\x1B\x61\x01'; // Reset & Center
+    esc += profile.name.toUpperCase() + '\n';
+    esc += 'Contact: ' + profile.contact + '\n';
+    esc += '--------------------------------\n';
+    esc += 'Item        Qty   Rate    Amt  \n';
+    esc += '--------------------------------\n';
+    esc += '\x1B\x61\x00'; // Left align
+
+    data.forEach(it => {
+        let n = it.name.substring(0, 11).padEnd(12);
+        let q = it.qty.toString().padStart(3);
+        let r = it.rate.toString().padStart(7);
+        let a = it.total.toFixed(0).padStart(7);
+        esc += `${n}${q}${r} ${a}\n`;
+    });
+
+    let g = data.reduce((a, b) => a + b.total, 0);
+    esc += '--------------------------------\n';
+    esc += `TOTAL: Rs. ${g.toFixed(2)}\n\n\n\n`;
+
+    console.log("Raw Thermal Command:", esc);
+    alert("Thermal Print Sent!");
+}
+
+// --- SAVE & PNG & REPRINT ---
+async function saveBill() {
+    if(items.length === 0) return;
+    const name = document.getElementById('custName').value || "Cash";
+    const total = document.getElementById('grandTotal').innerText;
+
+    // Capture PNG
+    const canvas = await html2canvas(document.getElementById('capture-area'));
+    const imgData = canvas.toDataURL("image/png");
+
+    history.unshift({
+        id: Date.now(),
+        cust: name,
+        time: new Date().toLocaleString(),
+        total: total,
+        all_items: [...items], // Save for Reprint
+        image: imgData
+    });
+
+    if(history.length > 20) history.pop();
+    localStorage.setItem('savedBillsHistory', JSON.stringify(history));
+    renderHistory();
+    alert("Bill Saved!");
+}
+
+function renderHistory() {
+    const gal = document.getElementById('billGallery');
+    gal.innerHTML = `<h4 style="margin:10px 0; font-size:12px; color:var(--p);">RECENT BILLS</h4>`;
+    history.forEach((b, idx) => {
+        const div = document.createElement('div');
+        div.className = 'history-card';
+        div.innerHTML = `
+            <div style="font-size:13px;"><b>${b.cust}</b> <span style="float:right;">${b.total}</span><br><small>${b.time}</small></div>
+            <div class="card-actions">
+                <i class="fas fa-share-nodes" onclick="shareBill(${idx})"></i>
+                <i class="fas fa-receipt" onclick="printThermal(history[${idx}].all_items)"></i>
+                <i class="fas fa-trash" onclick="deleteBill(${idx})"></i>
+            </div>`;
+        gal.appendChild(div);
+    });
+}
+
+function shareBill(idx) {
+    const a = document.createElement('a');
+    a.href = history[idx].image;
+    a.download = `Bill_${history[idx].cust}.png`;
+    a.click();
+}
+
+// --- INVENTORY & COMPRESSOR ---
+function compressImg(file, cb) {
+    const r = new FileReader(); r.readAsDataURL(file);
+    r.onload = (e) => {
+        const i = new Image(); i.src = e.target.result;
+        i.onload = () => {
+            const c = document.createElement('canvas');
+            const s = 200 / i.width; c.width = 200; c.height = i.height * s;
+            c.getContext('2d').drawImage(i, 0, 0, c.width, c.height);
+            cb(c.toDataURL('image/jpeg', 0.6));
+        };
+    };
+}
+
+function saveToInventory() {
+    const n = document.getElementById('itemName').value;
+    const r = document.getElementById('itemRate').value;
+    const f = document.getElementById('itemImageInput').files[0];
+    if(!n || !r) return alert("Fill Name/Rate!");
+
+    const save = (img) => {
+        myInventory.push({ name: n, price: r, image: img, gst: document.getElementById('itemGst').value||0 });
+        localStorage.setItem('myInventory', JSON.stringify(myInventory));
+        renderInventory(); alert("Saved!");
+    };
+    if(f) compressImg(f, save); else save(null);
+}
+
+function renderInventory() {
+    const box = document.getElementById('inventory-list');
+    box.innerHTML = myInventory.map((it, i) => `
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; background:#f9f9f9; padding:5px; border-radius:5px;">
+            <img src="${it.image||'https://via.placeholder.com/40'}" style="width:40px; height:40px; border-radius:4px;">
+            <div style="flex:1; font-size:12px;"><b>${it.name}</b><br>₹${it.price}</div>
+            <i class="fas fa-trash" onclick="myInventory.splice(${i},1); localStorage.setItem('myInventory', JSON.stringify(myInventory)); renderInventory();"></i>
+        </div>`).join('');
+}
+
+// --- UTILS ---
+function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); document.getElementById('overlay').style.display = document.getElementById('drawer').classList.contains('open') ? 'block' : 'none'; renderInventory(); }
+function saveProfile() { profile = { name: document.getElementById('shopNameInput').value, contact: document.getElementById('shopContactInput').value }; localStorage.setItem('businessProfile', JSON.stringify(profile)); alert("Profile Saved!"); }
+function startClock() { setInterval(() => { document.getElementById('liveClock').innerHTML = new Date().toLocaleString(); }, 1000); }
+function clearAll() { if(confirm("New Bill?")) { items = []; updateUI(); resetInputs(); } }
+
+// --- SCANNER ---
+async function startScanner() {
+    document.getElementById('scan-view').style.display = 'flex';
+    const v = document.getElementById('video');
+    const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    v.srcObject = s;
+    const det = new BarcodeDetector();
+    const scan = async () => {
+        const codes = await det.detect(v);
+        if(codes.length > 0) {
+            stopScanner();
+            let match = myInventory.find(it => it.barcode === codes[0].rawValue);
+            if(match) { 
+                document.getElementById('itemName').value = match.name; 
+                document.getElementById('itemRate').value = match.price; 
+                currentFocus = "itemQty";
+            }
+        }
+        if(document.getElementById('scan-view').style.display === 'flex') requestAnimationFrame(scan);
+    }; scan();
+}
+function stopScanner() { document.getElementById('video').srcObject.getTracks().forEach(t => t.stop()); document.getElementById('scan-view').style.display = 'none'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grocery Store Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* Calculator-style layout */
+        .calculator {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .display {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 2px solid #ddd;
+            font-size: 24px;
+            text-align: right;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        button {
+            padding: 20px;
+            font-size: 18px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button.operator {
+            background: #ff9500;
+        }
+        
+        /* Customer info section */
+        .customer-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 5px;
+        }
+        
+        /* Receipt section */
+        #receipt {
+            display: none;
+            background: white;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <!-- Ad Space 1: Above calculator (good for AdSense) -->
+        <div class="ad-space" style="text-align: center; margin-bottom: 15px;">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="XXXXXXXXXX"
+                 data-ad-format="auto"></ins>
+        </div>
+
+        <h2>Grocery Calculator</h2>
+        
+        <!-- Customer Info Section -->
+        <div class="customer-info">
+            <label>Customer Name:</label>
+            <input type="text" id="customerName" placeholder="Enter customer name">
+            <div style="margin-top: 10px;">
+                <span id="currentDate"></span> | 
+                <span id="currentTime"></span>
+            </div>
+        </div>
+        
+        <!-- Calculator Display -->
+        <div class="display" id="display">0</div>
+        
+        <!-- Calculator Buttons -->
+        <div class="buttons">
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="setOperator('/')">÷</button>
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="setOperator('*')">×</button>
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="setOperator('-')">-</button>
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button onclick="calculate()">=</button>
+            <button class="operator" onclick="setOperator('+')">+</button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button onclick="saveTransaction()" style="background: #4CAF50;">Save</button>
+            <button onclick="printReceipt()" style="background: #2196F3;">Print Receipt</button>
+        </div>
+
+        <!-- Ad Space 2: Below calculator -->
+        <div class="ad-space" style="text-align: center; margin-top: 20px;">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="XXXXXXXXXX"
+                 data-ad-format="auto"></ins>
+        </div>
+        
+        <!-- Receipt Preview (Hidden until print) -->
+        <div id="receipt"></div>
+    </div>
+
+    <script>
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+        }
+        setInterval(updateDateTime, 1000);
+        
+        // Calculator logic
+        let display = document.getElementById('display');
+        let currentInput = '0';
+        let operator = null;
+        let previousValue = null;
+        
+        function appendNumber(num) {
+            if (currentInput === '0') {
+                currentInput = num;
+            } else {
+                currentInput += num;
+            }
+            display.textContent = currentInput;
+        }
+        
+        function setOperator(op) {
+            operator = op;
+            previousValue = currentInput;
+            currentInput = '0';
+        }
+        
+        function calculate() {
+            if (operator && previousValue !== null) {
+                let result;
+                const prev = parseFloat(previousValue);
+                const current = parseFloat(currentInput);
+                
+                switch(operator) {
+                    case '+': result = prev + current; break;
+                    case '-': result = prev - current; break;
+                    case '*': result = prev * current; break;
+                    case '/': result = prev / current; break;
+                }
+                
+                currentInput = result.toString();
+                display.textContent = currentInput;
+                operator = null;
+                previousValue = null;
+            }
+        }
+        
+        function clearDisplay() {
+            currentInput = '0';
+            display.textContent = currentInput;
+            operator = null;
+            previousValue = null;
+        }
+        
+        // Save transaction (to localStorage)
+        function saveTransaction() {
+            const name = document.getElementById('customerName').value || 'Guest';
+            const now = new Date();
+            const transaction = {
+                name: name,
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString(),
+                total: display.textContent,
+                items: [] // You could expand this
+            };
+            
+            // Save to localStorage
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            alert('Transaction saved!');
+        }
+        
+        // Print receipt (works with thermal printer)
+        function printReceipt() {
+            const name = document.getElementById('customerName').value || 'Guest';
+            const now = new Date();
+            
+            // Create receipt content
+            const receipt = `
+================================
+    GROCERY STORE RECEIPT
+================================
+Date: ${now.toLocaleDateString()}
+Time: ${now.toLocaleTimeString()}
+Customer: ${name}
+--------------------------------
+Items:
+(Calculator mode - you can add items here)
+--------------------------------
+Total: $${display.textContent}
+--------------------------------
+Thank you for shopping with us!
+================================
+
+            `;
+            
+            // Display receipt
+            const receiptDiv = document.getElementById('receipt');
+            receiptDiv.style.display = 'block';
+            receiptDiv.textContent = receipt;
+            
+            // Print (works with thermal printers)
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<pre>' + receipt + '</pre>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
+</body>
+</html>

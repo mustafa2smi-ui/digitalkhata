@@ -1,245 +1,937 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Grocery Store Calculator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Khata - Grocery Store Calculator</title>
     <style>
-        /* Calculator-style layout */
-        .calculator {
-            max-width: 400px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            max-width: 1400px;
             margin: 0 auto;
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .display {
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #ffd700;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: #ffd700;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hamburger div {
+            width: 30px;
+            height: 3px;
             background: white;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 2px solid #ddd;
-            font-size: 24px;
-            text-align: right;
+            margin: 3px 0;
+            transition: 0.3s;
         }
-        
-        .buttons {
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .nav-menu li a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .customer-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .customer-info input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .date-time {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+
+        /* Calculator Display */
+        .calc-history {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px 10px 0 0;
+            min-height: 80px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: #666;
+            border: 1px solid #ddd;
+            border-bottom: none;
+        }
+
+        .calc-display {
+            background: white;
+            padding: 1.5rem;
+            font-size: 2.5rem;
+            text-align: right;
+            border: 2px solid #667eea;
+            border-radius: 0 0 10px 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Calculator Buttons */
+        .calc-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
+            margin-bottom: 2rem;
         }
-        
-        button {
-            padding: 20px;
-            font-size: 18px;
-            background: #333;
+
+        .calc-btn {
+            padding: 1.2rem;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 10px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .calc-btn:active {
+            transform: translateY(0);
+        }
+
+        .number-btn {
+            background: white;
+            color: #333;
+        }
+
+        .operator-btn {
+            background: #667eea;
             color: white;
+        }
+
+        .function-btn {
+            background: #f6c23e;
+            color: #333;
+        }
+
+        .equals-btn {
+            background: #1e3c72;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .clear-btn {
+            background: #e74a3b;
+            color: white;
+        }
+
+        /* Item Entry Section */
+        .item-entry {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .item-entry h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .item-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .item-form input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .add-btn:hover {
+            background: #218838;
+        }
+
+        /* Items List */
+        .items-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .item-row.header {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 0.9rem;
         }
-        
-        button.operator {
-            background: #ff9500;
+
+        .edit-btn {
+            background: #ffc107;
+            color: #333;
         }
-        
-        /* Customer info section */
-        .customer-info {
-            margin: 20px 0;
-            padding: 15px;
-            background: #e8f4fd;
-            border-radius: 5px;
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
         }
-        
-        /* Receipt section */
-        #receipt {
-            display: none;
+
+        /* Live Preview Section */
+        .preview-section {
             background: white;
-            padding: 15px;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 100px;
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .live-receipt {
+            background: #fff9e6;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
             font-family: monospace;
-            white-space: pre-wrap;
+            min-height: 400px;
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .receipt-items {
+            margin: 1rem 0;
+        }
+
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+        }
+
+        .receipt-total {
+            border-top: 2px solid #333;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .print-btn, .save-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .print-btn {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            background: #1e3c72;
+            color: white;
+            padding: 3rem 2rem 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin: 0.5rem 0;
+        }
+
+        .footer-section ul li a {
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #ffd700;
+            padding-left: 5px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: #1e3c72;
+                flex-direction: column;
+                padding: 2rem;
+                text-align: center;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .item-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Ad Spaces */
+        .ad-space {
+            background: #f8f9fa;
+            border: 2px dashed #ccc;
+            padding: 1rem;
+            text-align: center;
+            margin: 1rem 0;
+            border-radius: 10px;
+            color: #666;
+        }
+
+        /* Animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .calculator-section, .preview-section {
+            animation: slideIn 0.5s ease-out;
         }
     </style>
 </head>
 <body>
-    <div class="calculator">
-        <!-- Ad Space 1: Above calculator (good for AdSense) -->
-        <div class="ad-space" style="text-align: center; margin-bottom: 15px;">
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                 data-ad-slot="XXXXXXXXXX"
-                 data-ad-format="auto"></ins>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i>📱</i>
+                <div>
+                    <h1>Digital Khata</h1>
+                    <span>Your Smart Grocery Calculator</span>
+                </div>
+            </div>
+            
+            <!-- Hamburger Menu -->
+            <div class="hamburger" onclick="toggleMenu()">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            
+            <!-- Navigation -->
+            <ul class="nav-menu">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#calculator">Calculator</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Calculator Section -->
+        <div class="calculator-section">
+            <!-- Ad Space Top -->
+            <div class="ad-space">
+                <p>Advertisement Space (728x90)</p>
+                <small>Your AdSense Code Here</small>
+            </div>
+
+            <div class="customer-info">
+                <h3>👤 Customer Details</h3>
+                <input type="text" id="customerName" placeholder="Enter customer name" oninput="updateLivePreview()">
+                <div class="date-time">
+                    <span id="currentDate"></span>
+                    <span id="currentTime"></span>
+                </div>
+            </div>
+
+            <!-- Calculator -->
+            <div class="calc-history" id="calcHistory"></div>
+            <div class="calc-display" id="calcDisplay">0</div>
+
+            <div class="calc-buttons">
+                <button class="calc-btn function-btn clear-btn" onclick="clearAll()">AC</button>
+                <button class="calc-btn function-btn" onclick="clearEntry()">CE</button>
+                <button class="calc-btn function-btn" onclick="backspace()">⌫</button>
+                <button class="calc-btn operator-btn" onclick="appendOperator('/')">÷</button>
+                
+                <button class="calc-btn number-btn" onclick="appendNumber('7')">7</button>
+                <button class="calc-btn number-btn" onclick="appendNumber('8')">8</button>
+                <button class="calc-btn number-btn" onclick="appendNumber('9')">9</button>
+                <button class="calc-btn operator-btn" onclick="appendOperator('*')">×</button>
+                
+                <button class="calc-btn number-btn" onclick="appendNumber('4')">4</button>
+                <button class="calc-btn number-btn" onclick="appendNumber('5')">5</button>
+                <button class="calc-btn number-btn" onclick="appendNumber('6')">6</button>
+                <button class="calc-btn operator-btn" onclick="appendOperator('-')">−</button>
+                
+                <button class="calc-btn number-btn" onclick="appendNumber('1')">1</button>
+                <button class="calc-btn number-btn" onclick="appendNumber('2')">2</button>
+                <button class="calc-btn number-btn" onclick="appendNumber('3')">3</button>
+                <button class="calc-btn operator-btn" onclick="appendOperator('+')">+</button>
+                
+                <button class="calc-btn number-btn" onclick="appendNumber('0')">0</button>
+                <button class="calc-btn number-btn" onclick="appendNumber('00')">00</button>
+                <button class="calc-btn number-btn" onclick="appendDecimal()">.</button>
+                <button class="calc-btn equals-btn" onclick="calculate()">=</button>
+            </div>
+
+            <!-- Item Entry Section -->
+            <div class="item-entry">
+                <h3>🛒 Add Items</h3>
+                <div class="item-form">
+                    <input type="text" id="itemName" placeholder="Item name">
+                    <input type="number" id="itemPrice" placeholder="Price" step="0.01">
+                    <input type="number" id="itemQty" placeholder="Qty" value="1" min="1">
+                    <button class="add-btn" onclick="addItem()">Add Item</button>
+                </div>
+
+                <div class="items-list" id="itemsList">
+                    <div class="item-row header">
+                        <span>Item</span>
+                        <span>Price</span>
+                        <span>Qty</span>
+                        <span>Total</span>
+                        <span>Actions</span>
+                    </div>
+                    <div id="itemsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Ad Space Bottom -->
+            <div class="ad-space">
+                <p>Advertisement Space (300x250)</p>
+                <small>Your AdSense Code Here</small>
+            </div>
         </div>
 
-        <h2>Grocery Calculator</h2>
-        
-        <!-- Customer Info Section -->
-        <div class="customer-info">
-            <label>Customer Name:</label>
-            <input type="text" id="customerName" placeholder="Enter customer name">
-            <div style="margin-top: 10px;">
-                <span id="currentDate"></span> | 
-                <span id="currentTime"></span>
+        <!-- Live Preview Section -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <h2>📋 Live Receipt Preview</h2>
+            </div>
+
+            <div class="live-receipt" id="liveReceipt">
+                <div class="receipt-header">
+                    <h3>DIGITAL KHATA</h3>
+                    <p>Your Local Grocery Store</p>
+                </div>
+                
+                <div id="receiptCustomer">
+                    <p><strong>Customer:</strong> <span id="previewCustomer">Guest</span></p>
+                    <p><strong>Date:</strong> <span id="previewDate"></span></p>
+                    <p><strong>Time:</strong> <span id="previewTime"></span></p>
+                </div>
+                
+                <div class="receipt-items" id="previewItems">
+                    <p>No items added</p>
+                </div>
+                
+                <div class="receipt-total" id="previewTotal">
+                    Total: ₹0.00
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="print-btn" onclick="printReceipt()">🖨️ Print Receipt</button>
+                <button class="save-btn" onclick="saveTransaction()">💾 Save Bill</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Digital Khata</h3>
+                <p>Your trusted grocery calculator for accurate billing and receipt management. Serving local stores since 2024.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact Info</h3>
+                <ul>
+                    <li>📍 123 Main Street, City</li>
+                    <li>📞 +91 98765 43210</li>
+                    <li>✉️ info@digitalkhata.com</li>
+                </ul>
             </div>
         </div>
         
-        <!-- Calculator Display -->
-        <div class="display" id="display">0</div>
-        
-        <!-- Calculator Buttons -->
-        <div class="buttons">
-            <button onclick="clearDisplay()">C</button>
-            <button onclick="appendNumber('7')">7</button>
-            <button onclick="appendNumber('8')">8</button>
-            <button onclick="appendNumber('9')">9</button>
-            <button class="operator" onclick="setOperator('/')">÷</button>
-            <button onclick="appendNumber('4')">4</button>
-            <button onclick="appendNumber('5')">5</button>
-            <button onclick="appendNumber('6')">6</button>
-            <button class="operator" onclick="setOperator('*')">×</button>
-            <button onclick="appendNumber('1')">1</button>
-            <button onclick="appendNumber('2')">2</button>
-            <button onclick="appendNumber('3')">3</button>
-            <button class="operator" onclick="setOperator('-')">-</button>
-            <button onclick="appendNumber('0')">0</button>
-            <button onclick="appendNumber('.')">.</button>
-            <button onclick="calculate()">=</button>
-            <button class="operator" onclick="setOperator('+')">+</button>
+        <div class="copyright">
+            <p>&copy; 2024 Digital Khata. All rights reserved. | Made with ❤️ for local stores</p>
         </div>
-
-        <!-- Action Buttons -->
-        <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button onclick="saveTransaction()" style="background: #4CAF50;">Save</button>
-            <button onclick="printReceipt()" style="background: #2196F3;">Print Receipt</button>
-        </div>
-
-        <!-- Ad Space 2: Below calculator -->
-        <div class="ad-space" style="text-align: center; margin-top: 20px;">
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                 data-ad-slot="XXXXXXXXXX"
-                 data-ad-format="auto"></ins>
-        </div>
-        
-        <!-- Receipt Preview (Hidden until print) -->
-        <div id="receipt"></div>
-    </div>
+    </footer>
 
     <script>
-        // Update date and time
+        // Calculator Variables
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = null;
+        let calculationHistory = [];
+        let items = [];
+
+        // Update Date and Time
         function updateDateTime() {
             const now = new Date();
             document.getElementById('currentDate').textContent = now.toLocaleDateString();
             document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+            document.getElementById('previewDate').textContent = now.toLocaleDateString();
+            document.getElementById('previewTime').textContent = now.toLocaleTimeString();
         }
         setInterval(updateDateTime, 1000);
-        
-        // Calculator logic
-        let display = document.getElementById('display');
-        let currentInput = '0';
-        let operator = null;
-        let previousValue = null;
-        
+
+        // Calculator Functions
         function appendNumber(num) {
-            if (currentInput === '0') {
+            if (currentInput === '0' && num !== '.') {
                 currentInput = num;
             } else {
                 currentInput += num;
             }
-            display.textContent = currentInput;
+            updateDisplay();
         }
-        
-        function setOperator(op) {
+
+        function appendDecimal() {
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (operator !== null) {
+                calculate();
+            }
+            previousInput = currentInput;
             operator = op;
-            previousValue = currentInput;
+            calculationHistory.push(`${currentInput} ${op}`);
+            updateHistory();
             currentInput = '0';
         }
-        
+
         function calculate() {
-            if (operator && previousValue !== null) {
+            if (operator && previousInput) {
                 let result;
-                const prev = parseFloat(previousValue);
+                const prev = parseFloat(previousInput);
                 const current = parseFloat(currentInput);
-                
+
                 switch(operator) {
                     case '+': result = prev + current; break;
                     case '-': result = prev - current; break;
                     case '*': result = prev * current; break;
                     case '/': result = prev / current; break;
                 }
-                
+
+                calculationHistory.push(`${currentInput} = ${result}`);
                 currentInput = result.toString();
-                display.textContent = currentInput;
                 operator = null;
-                previousValue = null;
+                previousInput = '';
+                updateDisplay();
+                updateHistory();
             }
         }
-        
-        function clearDisplay() {
+
+        function clearAll() {
             currentInput = '0';
-            display.textContent = currentInput;
+            previousInput = '';
             operator = null;
-            previousValue = null;
+            calculationHistory = [];
+            updateDisplay();
+            updateHistory();
         }
-        
-        // Save transaction (to localStorage)
-        function saveTransaction() {
-            const name = document.getElementById('customerName').value || 'Guest';
-            const now = new Date();
-            const transaction = {
+
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        function backspace() {
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === '') currentInput = '0';
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('calcDisplay').textContent = currentInput;
+        }
+
+        function updateHistory() {
+            document.getElementById('calcHistory').textContent = calculationHistory.join(' ');
+        }
+
+        // Item Management
+        function addItem() {
+            const name = document.getElementById('itemName').value;
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            const qty = parseInt(document.getElementById('itemQty').value);
+
+            if (!name || isNaN(price) || isNaN(qty)) {
+                alert('Please fill all fields correctly');
+                return;
+            }
+
+            const item = {
+                id: Date.now(),
                 name: name,
-                date: now.toLocaleDateString(),
-                time: now.toLocaleTimeString(),
-                total: display.textContent,
-                items: [] // You could expand this
+                price: price,
+                qty: qty,
+                total: price * qty
             };
-            
-            // Save to localStorage
-            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-            transactions.push(transaction);
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-            
-            alert('Transaction saved!');
+
+            items.push(item);
+            renderItems();
+            clearItemForm();
+            updateLivePreview();
         }
-        
-        // Print receipt (works with thermal printer)
+
+        function renderItems() {
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+
+            items.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'item-row';
+                row.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>₹${item.price.toFixed(2)}</span>
+                    <span>${item.qty}</span>
+                    <span>₹${item.total.toFixed(2)}</span>
+                    <div class="item-actions">
+                        <button class="edit-btn" onclick="editItem(${index})">Edit</button>
+                        <button class="delete-btn" onclick="deleteItem(${index})">Del</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function editItem(index) {
+            const item = items[index];
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemPrice').value = item.price;
+            document.getElementById('itemQty').value = item.qty;
+            deleteItem(index);
+        }
+
+        function deleteItem(index) {
+            items.splice(index, 1);
+            renderItems();
+            updateLivePreview();
+        }
+
+        function clearItemForm() {
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('itemQty').value = '1';
+        }
+
+        // Live Preview
+        function updateLivePreview() {
+            const customerName = document.getElementById('customerName').value || 'Guest';
+            document.getElementById('previewCustomer').textContent = customerName;
+
+            const previewItems = document.getElementById('previewItems');
+            if (items.length === 0) {
+                previewItems.innerHTML = '<p>No items added</p>';
+            } else {
+                let itemsHtml = '';
+                let total = 0;
+
+                items.forEach(item => {
+                    itemsHtml += `
+                        <div class="receipt-item">
+                            <span>${item.name} x${item.qty}</span>
+                            <span>₹${item.total.toFixed(2)}</span>
+                        </div>
+                    `;
+                    total += item.total;
+                });
+
+                previewItems.innerHTML = itemsHtml;
+                document.getElementById('previewTotal').innerHTML = `Total: ₹${total.toFixed(2)}`;
+            }
+        }
+
+        // Print Receipt
         function printReceipt() {
-            const name = document.getElementById('customerName').value || 'Guest';
+            const customerName = document.getElementById('customerName').value || 'Guest';
             const now = new Date();
             
-            // Create receipt content
-            const receipt = `
+            let receiptContent = `
 ================================
-    GROCERY STORE RECEIPT
+      DIGITAL KHATA
+   Your Local Grocery Store
 ================================
+Customer: ${customerName}
 Date: ${now.toLocaleDateString()}
 Time: ${now.toLocaleTimeString()}
-Customer: ${name}
---------------------------------
-Items:
-(Calculator mode - you can add items here)
---------------------------------
-Total: $${display.textContent}
---------------------------------
-Thank you for shopping with us!
 ================================
+ITEMS:
+`;
 
+            let total = 0;
+            items.forEach(item => {
+                receiptContent += `${item.name} x${item.qty}   ₹${item.total.toFixed(2)}\n`;
+                total += item.total;
+            });
+
+            receiptContent += `
+================================
+TOTAL: ₹${total.toFixed(2)}
+================================
+Thank you for shopping!
+   Visit Again!
+================================
             `;
-            
-            // Display receipt
-            const receiptDiv = document.getElementById('receipt');
-            receiptDiv.style.display = 'block';
-            receiptDiv.textContent = receipt;
-            
-            // Print (works with thermal printers)
+
             const printWindow = window.open('', '_blank');
-            printWindow.document.write('<pre>' + receipt + '</pre>');
+            printWindow.document.write('<pre>' + receiptContent + '</pre>');
             printWindow.document.close();
             printWindow.print();
         }
+
+        // Save Transaction
+        function saveTransaction() {
+            const customerName = document.getElementById('customerName').value || 'Guest';
+            const now = new Date();
+            
+            const transaction = {
+                customer: customerName,
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString(),
+                items: [...items],
+                total: items.reduce((sum, item) => sum + item.total, 0)
+            };
+
+            let savedBills = JSON.parse(localStorage.getItem('savedBills') || '[]');
+            savedBills.push(transaction);
+            localStorage.setItem('savedBills', JSON.stringify(savedBills));
+
+            alert('Bill saved successfully!');
+        }
+
+        // Hamburger Menu
+        function toggleMenu() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        }
+
+        // Initialize
+        updateDateTime();
+        updateLivePreview();
     </script>
 </body>
 </html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+
+body{
+font-family:Arial;
+margin:5px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #333;
+padding:5px;
+text-align:center;
+}
+
+input{
+width:100%;
+border:none;
+outline:none;
+text-align:center;
+font-size:16px;
+}
+
+.keypad{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:#eee;
+padding:5px;
+}
+
+.keypad button{
+width:9%;
+margin:2px;
+padding:10px;
+font-size:14px;
+}
+
+.totalbox{
+margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h3>Fast Bill</h3>
+
+<table id="billTable">
+<tr>
+<th>Sl</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td><input readonly onclick="setCell(this)"></td>
+<td><input readonly onclick="setCell(this)"></td>
+<td><input readonly onclick="setCell(this)"></td>
+<td></td>
+</tr>
+
+</table>
+
+<div class="totalbox">
+
+Total: <span id="total">0</span><br>
+Pichla Udhar: <input id="udhar"><br>
+Aaj Jama: <input id="jama"><br>
+Grand Total/Balance: <span id="balance">0</span>
+
+</div>
+
+
+<div class="keypad" id="keypad"></div>
+
+
+<script>
+
+let currentCell=null;
+
+function setCell(cell){
+currentCell=cell;
+}
+
+function pressKey(val){
+
+if(!currentCell) return;
+
+if(val=="BACKSPACE"){
+currentCell.value=currentCell.value.slice(0,-1)
+return
+}
+
+if(val=="C"){
+currentCell.value=""
+return
+}
+
+if(val=="ENTER"){
+moveNext()
+return
+}
+
+if(val=="SPACE"){
+currentCell.value+=" "
+return
+}
+
+currentCell.value+=val
+
+}
+
+function moveNext(){
+
+let td=currentCell.parentElement
+let tr=td.parentElement
+let index=td.cellIndex
+
+if(index==1){
+tr.cells[2].children[0].click()
+}
+
+else if(index==2){
+tr.cells[3].children[0].click()
+}
+
+else if(index==3){
+
+let qty=tr.cells[2].children[0].value
+let rate=tr.cells[3].children[0].value
+
+let amt=qty*rate
+tr.cells[4].innerText=amt
+
+updateTotal()
+
+addRow()
+
+}
+
+}
+
+function addRow(){
+
+let table=document.getElementById("billTable")
+let rowCount=table.rows.length
+
+let row=table.insertRow()
+
+row.innerHTML=`
+<td>${rowCount}</td>
+<td><input readonly onclick="setCell(this)"></td>
+<td><input readonly onclick="setCell(this)"></td>
+<td><input readonly onclick="setCell(this)"></td>
+<td></td>
+`
+
+row.cells[1].children[0].click()
+
+}
+
+function updateTotal(){
+
+let table=document.getElementById("billTable")
+let total=0
+
+for(let i=1;i<table.rows.length;i++){
+total+=Number(table.rows[i].cells[4].innerText)||0
+}
+
+document.getElementById("total").innerText=total
+
+}
+
+let keys=[
+"*","-","/","+","%","=",
+"A","B","C","D","E","F","G","1","2","3",
+"H","I","J","K","L","M","N","4","5","6",
+"O","P","Q","R","S","T","U","7","8","9",
+"V","W","X","Y","Z",".","0",
+"ENTER","SPACE","BACKSPACE","C"
+]
+
+let keypad=document.getElementById("keypad")
+
+keys.forEach(k=>{
+let btn=document.createElement("button")
+btn.innerText=k
+btn.onclick=()=>pressKey(k)
+keypad.appendChild(btn)
+})
+
+</script>
+
+</body>
+</html>

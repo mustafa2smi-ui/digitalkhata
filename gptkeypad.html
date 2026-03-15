@@ -383,6 +383,7 @@ color:#00ff00;
 
 
 <br>
+    <!--
 <div class="totalbox">
 Total: <span id="total">0</span><br>
 Pichla Udhar: <input id="udhar"><br>
@@ -390,6 +391,26 @@ Aaj Jama: <input id="jama"><br>
 Grand Total: <span id="balance">0</span>
 </div>
   </div>
+  -->
+  <div class="totalbox">
+
+Total: <span id="total">0</span><br>
+
+Pichla Udhar:
+<input readonly onclick="setCell(this)" id="udhar">
+
+<br>
+
+Aaj Jama:
+<input readonly onclick="setCell(this)" id="jama">
+
+<br>
+
+Grand Total / Balance:
+<span id="balance">0</span>
+
+</div>
+</div>
 <div class="keypad" id="keypad"></div>
 
 
@@ -435,7 +456,7 @@ return
 }
 
 currentCell.value+=val
-
+updateBalance()
 }
 /*
 function moveNext(){
@@ -565,7 +586,17 @@ document.getElementById("total")
 .innerText=total
 
 }
+function updateBalance(){
 
+let total=Number(document.getElementById("total").innerText)||0
+let udhar=Number(document.getElementById("udhar").value)||0
+let jama=Number(document.getElementById("jama").value)||0
+
+let balance=total+udhar-jama
+
+document.getElementById("balance").innerText=balance
+
+}
 
 /* KEYPAD *
 
@@ -605,7 +636,7 @@ keypad.appendChild(btn)
 
 })
 */
-  /* KEYPAD */
+  /* KEYPAD *
 
 let keys=[
 
@@ -635,7 +666,7 @@ let keypad=document.getElementById("keypad")
 
 keys.forEach(k=>{
 
-/* divider line */
+/* divider line *
 
 if(k=="DIVIDER"){
 
@@ -657,7 +688,66 @@ let btn=document.createElement("button")
 
 btn.innerText=k
 
-/* button colors */
+/* button colors *
+
+if(!isNaN(k) || k==".")
+btn.className="num"
+
+else if(k.length==1 && /[A-Z]/.test(k))
+btn.className="alpha"
+
+else if(["+","-","*","/","%","="].includes(k))
+btn.className="op"
+
+else
+btn.className="ctrl"
+
+btn.onclick=()=>pressKey(k)
+
+keypad.appendChild(btn)
+
+})
+  */
+  /* KEYPAD */
+
+let keys=[
+
+"*","-","/","+","%","=",
+
+"A","B","C","D","E","F","G","|","1","2","3",
+"H","I","J","K","L","M","N","|","4","5","6",
+"O","P","Q","R","S","T","U","|","7","8","9",
+"V","W","X","Y","Z","|",".","0",
+
+"ENTER","SPACE","BACKSPACE","C"
+
+]
+
+let keypad=document.getElementById("keypad")
+
+keys.forEach(k=>{
+
+/* vertical divider */
+
+if(k=="|"){
+
+let line=document.createElement("div")
+
+line.style.width="2px"
+line.style.height="32px"
+line.style.background="cyan"
+line.style.display="inline-block"
+line.style.margin="2px"
+line.style.boxShadow="0 0 10px cyan"
+
+keypad.appendChild(line)
+
+return
+}
+
+let btn=document.createElement("button")
+
+btn.innerText=k
 
 if(!isNaN(k) || k==".")
 btn.className="num"

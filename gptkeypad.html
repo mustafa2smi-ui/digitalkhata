@@ -47,8 +47,8 @@ font-size:14px;
 
 .totalbox{
 margin-top:10px;
-}
 
+}
 </style>
 </head>
 
@@ -235,7 +235,22 @@ border:1px solid #444;
 padding:6px;
 text-align:center;
 }
+.tableBox{
 
+height:220px;
+overflow-y:auto;
+margin-bottom:200px;
+
+}
+
+.divider{
+
+width:100%;
+height:2px;
+background:cyan;
+margin:5px 0;
+box-shadow:0 0 10px cyan;
+}
 input{
 width:100%;
 border:none;
@@ -317,7 +332,7 @@ color:#00ff00;
 <body>
 
 <h3>⚡ Fast Bill POS</h3>
-
+<!--
 <table id="billTable">
 
 <tr>
@@ -341,7 +356,32 @@ color:#00ff00;
 </tr>
 
 </table>
+-->
+  <div class="tableBox">
 
+<table id="billTable">
+
+<tr>
+<th>Sl</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+
+<tr>
+
+<td>1</td>
+<td><input readonly onclick="setCell(this)"></td>
+<td><input readonly onclick="setCell(this)"></td>
+<td><input readonly onclick="setCell(this)"></td>
+<td></td>
+
+</tr>
+
+</table>
+
+</div>
 <br>
 
 Total: <span id="total">0</span><br>
@@ -397,7 +437,7 @@ return
 currentCell.value+=val
 
 }
-
+/*
 function moveNext(){
 
 let td=currentCell.parentElement
@@ -431,7 +471,54 @@ addRow()
 }
 
 }
+*/
+  function moveNext(){
 
+let td=currentCell.parentElement
+let tr=td.parentElement
+let table=document.getElementById("billTable")
+
+let i=td.cellIndex
+
+if(i==1){
+tr.cells[2].children[0].click()
+}
+
+else if(i==2){
+tr.cells[3].children[0].click()
+}
+
+else if(i==3){
+
+let q=tr.cells[2].children[0].value
+let r=tr.cells[3].children[0].value
+
+if(!q || q==0 || !r || r==0){
+
+alert("Invalid Qty or Rate")
+
+return
+
+}
+
+let amt=q*r
+
+tr.cells[4].innerText=amt
+
+updateTotal()
+
+let rowIndex=tr.rowIndex
+let lastRow=table.rows.length-1
+
+if(rowIndex==lastRow){
+
+addRow()
+
+}
+
+}
+
+}
 function addRow(){
 
 let table=
@@ -480,7 +567,7 @@ document.getElementById("total")
 }
 
 
-/* KEYPAD */
+/* KEYPAD *
 
 let keys=[
 "*","-","/","+","%","=",
@@ -517,7 +604,78 @@ btn.onclick=()=>pressKey(k)
 keypad.appendChild(btn)
 
 })
+*/
+  /* KEYPAD */
 
+let keys=[
+
+"*","-","/","+","%","=",
+
+"DIVIDER",
+
+"A","B","C","D","E","F","G",
+"H","I","J","K","L","M","N",
+"O","P","Q","R","S","T","U",
+"V","W","X","Y","Z",
+
+"DIVIDER",
+
+"1","2","3",
+"4","5","6",
+"7","8","9",
+".","0",
+
+"DIVIDER",
+
+"ENTER","SPACE","BACKSPACE","C"
+
+]
+
+let keypad=document.getElementById("keypad")
+
+keys.forEach(k=>{
+
+/* divider line */
+
+if(k=="DIVIDER"){
+
+let line=document.createElement("div")
+
+line.style.width="100%"
+line.style.height="2px"
+line.style.background="cyan"
+line.style.margin="6px 0"
+
+line.style.boxShadow="0 0 10px cyan,0 0 20px cyan"
+
+keypad.appendChild(line)
+
+return
+}
+
+let btn=document.createElement("button")
+
+btn.innerText=k
+
+/* button colors */
+
+if(!isNaN(k) || k==".")
+btn.className="num"
+
+else if(k.length==1 && /[A-Z]/.test(k))
+btn.className="alpha"
+
+else if(["+","-","*","/","%","="].includes(k))
+btn.className="op"
+
+else
+btn.className="ctrl"
+
+btn.onclick=()=>pressKey(k)
+
+keypad.appendChild(btn)
+
+})
 </script>
 
 </body>

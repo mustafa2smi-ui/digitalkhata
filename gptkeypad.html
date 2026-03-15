@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html>
 <head>
@@ -201,6 +202,320 @@ let btn=document.createElement("button")
 btn.innerText=k
 btn.onclick=()=>pressKey(k)
 keypad.appendChild(btn)
+})
+
+</script>
+
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+
+body{
+font-family:Arial;
+margin:5px;
+background:#111;
+color:white;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #444;
+padding:6px;
+text-align:center;
+}
+
+input{
+width:100%;
+border:none;
+outline:none;
+background:transparent;
+color:white;
+text-align:center;
+font-size:16px;
+}
+
+/* ACTIVE CELL */
+
+.active{
+background:#0044ff55;
+box-shadow:0 0 8px cyan;
+}
+
+/* KEYPAD */
+
+.keypad{
+
+position:fixed;
+bottom:0;
+left:0;
+
+width:100%;
+background:#000;
+
+padding:6px;
+
+border:2px solid cyan;
+box-shadow:
+0 0 10px cyan,
+0 0 20px cyan,
+0 0 30px cyan;
+
+}
+
+/* BUTTON */
+
+.keypad button{
+
+width:9%;
+margin:2px;
+padding:10px;
+
+border:none;
+border-radius:4px;
+
+font-weight:bold;
+
+}
+
+/* COLORS */
+
+.num{
+background:#222;
+color:#00ffcc;
+}
+
+.alpha{
+background:#222;
+color:#ffcc00;
+}
+
+.op{
+background:#330033;
+color:#ff66ff;
+}
+
+.ctrl{
+background:#003300;
+color:#00ff00;
+}
+
+</style>
+</head>
+
+<body>
+
+<h3>⚡ Fast Bill POS</h3>
+
+<table id="billTable">
+
+<tr>
+<th>Sl</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+
+<tr>
+
+<td>1</td>
+
+<td><input readonly onclick="setCell(this)"></td>
+<td><input readonly onclick="setCell(this)"></td>
+<td><input readonly onclick="setCell(this)"></td>
+
+<td></td>
+
+</tr>
+
+</table>
+
+<br>
+
+Total: <span id="total">0</span><br>
+Pichla Udhar: <input id="udhar"><br>
+Aaj Jama: <input id="jama"><br>
+Grand Total: <span id="balance">0</span>
+
+
+<div class="keypad" id="keypad"></div>
+
+
+<script>
+
+let currentCell=null
+
+function setCell(cell){
+
+document
+.querySelectorAll("input")
+.forEach(i=>i.classList.remove("active"))
+
+cell.classList.add("active")
+
+currentCell=cell
+
+}
+
+function pressKey(val){
+
+if(!currentCell)return
+
+if(val=="BACKSPACE"){
+currentCell.value=
+currentCell.value.slice(0,-1)
+return
+}
+
+if(val=="C"){
+currentCell.value=""
+return
+}
+
+if(val=="SPACE"){
+currentCell.value+=" "
+return
+}
+
+if(val=="ENTER"){
+moveNext()
+return
+}
+
+currentCell.value+=val
+
+}
+
+function moveNext(){
+
+let td=currentCell.parentElement
+let tr=td.parentElement
+let i=td.cellIndex
+
+if(i==1){
+tr.cells[2].children[0].click()
+}
+
+else if(i==2){
+tr.cells[3].children[0].click()
+}
+
+else if(i==3){
+
+let q=
+tr.cells[2].children[0].value
+
+let r=
+tr.cells[3].children[0].value
+
+let amt=q*r
+
+tr.cells[4].innerText=amt
+
+updateTotal()
+
+addRow()
+
+}
+
+}
+
+function addRow(){
+
+let table=
+document.getElementById("billTable")
+
+let rowNum=table.rows.length
+
+let row=table.insertRow()
+
+row.innerHTML=`
+
+<td>${rowNum}</td>
+
+<td><input readonly onclick="setCell(this)"></td>
+
+<td><input readonly onclick="setCell(this)"></td>
+
+<td><input readonly onclick="setCell(this)"></td>
+
+<td></td>
+
+`
+
+row.cells[1].children[0].click()
+
+}
+
+function updateTotal(){
+
+let table=
+document.getElementById("billTable")
+
+let total=0
+
+for(let i=1;i<table.rows.length;i++){
+
+total+=Number(
+table.rows[i].cells[4].innerText
+)||0
+
+}
+
+document.getElementById("total")
+.innerText=total
+
+}
+
+
+/* KEYPAD */
+
+let keys=[
+"*","-","/","+","%","=",
+"A","B","C","D","E","F","G","1","2","3",
+"H","I","J","K","L","M","N","4","5","6",
+"O","P","Q","R","S","T","U","7","8","9",
+"V","W","X","Y","Z",".","0",
+"ENTER","SPACE","BACKSPACE","C"
+]
+
+let keypad=
+document.getElementById("keypad")
+
+keys.forEach(k=>{
+
+let btn=document.createElement("button")
+
+btn.innerText=k
+
+if(!isNaN(k) || k==".")
+btn.className="num"
+
+else if(k.length==1 && /[A-Z]/.test(k))
+btn.className="alpha"
+
+else if(["+","-","*","/","%","="].includes(k))
+btn.className="op"
+
+else
+btn.className="ctrl"
+
+btn.onclick=()=>pressKey(k)
+
+keypad.appendChild(btn)
+
 })
 
 </script>

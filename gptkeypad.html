@@ -242,7 +242,14 @@ overflow-y:auto;
 margin-bottom:200px;
 
 }
+.totalbox{
 
+position:sticky;
+bottom:200px;
+background:#111;
+padding:5px;
+
+}
 .divider{
 
 width:100%;
@@ -380,7 +387,7 @@ color:#00ff00;
 </tr>
 
 </table>
-
+  </div>
 
 <br>
     <!--
@@ -409,8 +416,7 @@ Aaj Jama:
 Grand Total / Balance:
 <span id="balance">0</span>
 
-</div>
-</div>
+  </div>
 <div class="keypad" id="keypad"></div>
 
 
@@ -429,7 +435,7 @@ cell.classList.add("active")
 currentCell=cell
 
 }
-
+/*
 function pressKey(val){
 
 if(!currentCell)return
@@ -457,6 +463,39 @@ return
 
 currentCell.value+=val
 updateBalance()
+}
+  */
+  function pressKey(val){
+
+if(!currentCell)return
+
+if(val=="BACKSPACE"){
+currentCell.value=currentCell.value.slice(0,-1)
+updateBalance()
+return
+}
+
+if(val=="C"){
+currentCell.value=""
+updateBalance()
+return
+}
+
+if(val=="SPACE"){
+currentCell.value+=" "
+updateBalance()
+return
+}
+
+if(val=="ENTER"){
+moveNext()
+return
+}
+
+currentCell.value+=val
+
+updateBalance()
+
 }
 /*
 function moveNext(){
@@ -710,40 +749,34 @@ keypad.appendChild(btn)
   */
   /* KEYPAD */
 
-let keys=[
-
-"*","-","/","+","%","=",
-
-"A","B","C","D","E","F","G","|","1","2","3",
-"H","I","J","K","L","M","N","|","4","5","6",
-"O","P","Q","R","S","T","U","|","7","8","9",
-"V","W","X","Y","Z","|",".","0",
-
-"ENTER","SPACE","BACKSPACE","C"
-
-]
-
 let keypad=document.getElementById("keypad")
 
-keys.forEach(k=>{
+function addDivider(type){
 
-/* vertical divider */
+let d=document.createElement("div")
 
-if(k=="|"){
-
-let line=document.createElement("div")
-
-line.style.width="2px"
-line.style.height="32px"
-line.style.background="cyan"
-line.style.display="inline-block"
-line.style.margin="2px"
-line.style.boxShadow="0 0 10px cyan"
-
-keypad.appendChild(line)
-
-return
+if(type=="h"){
+d.style.width="100%"
+d.style.height="2px"
+d.style.background="cyan"
+d.style.margin="5px 0"
+d.style.boxShadow="0 0 10px cyan"
 }
+
+if(type=="v"){
+d.style.width="2px"
+d.style.height="38px"
+d.style.background="cyan"
+d.style.margin="2px"
+d.style.display="inline-block"
+d.style.boxShadow="0 0 10px cyan"
+}
+
+keypad.appendChild(d)
+
+}
+
+function addKey(k){
 
 let btn=document.createElement("button")
 
@@ -765,7 +798,49 @@ btn.onclick=()=>pressKey(k)
 
 keypad.appendChild(btn)
 
-})
+}
+
+/* operators */
+
+["*","-","/","+","%","="].forEach(addKey)
+
+/* horizontal line */
+
+addDivider("h")
+
+/* alphabet + numbers */
+
+let alphaRows=[
+["A","B","C","D","E","F","G"],
+["H","I","J","K","L","M","N"],
+["O","P","Q","R","S","T","U"],
+["V","W","X","Y","Z"]
+]
+
+let numRows=[
+["1","2","3"],
+["4","5","6"],
+["7","8","9"],
+[".","0"]
+]
+
+for(let i=0;i<alphaRows.length;i++){
+
+alphaRows[i].forEach(addKey)
+
+addDivider("v")
+
+numRows[i].forEach(addKey)
+
+}
+
+/* horizontal line */
+
+addDivider("h")
+
+/* control buttons */
+
+["ENTER","SPACE","BACKSPACE","C"].forEach(addKey)
 </script>
 
 </body>

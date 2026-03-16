@@ -237,7 +237,7 @@ text-align:center;
 }
 .tableBox{
 
-height:220px;
+height:100px;
 overflow-y:auto;
 margin-bottom:200px;
 
@@ -675,7 +675,7 @@ keypad.appendChild(btn)
 
 })
 */
-  /* KEYPAD *
+  /* KEYPAD */
 
 let keys=[
 
@@ -705,7 +705,7 @@ let keypad=document.getElementById("keypad")
 
 keys.forEach(k=>{
 
-/* divider line *
+/* divider line */
 
 if(k=="DIVIDER"){
 
@@ -727,7 +727,7 @@ let btn=document.createElement("button")
 
 btn.innerText=k
 
-/* button colors *
+/* button colors */
 
 if(!isNaN(k) || k==".")
 btn.className="num"
@@ -746,8 +746,8 @@ btn.onclick=()=>pressKey(k)
 keypad.appendChild(btn)
 
 })
-  */
-  /* KEYPAD */
+  
+  /* KEYPAD *
 
 let keypad=document.getElementById("keypad")
 
@@ -800,15 +800,15 @@ keypad.appendChild(btn)
 
 }
 
-/* operators */
+/* operators *
 
 ["*","-","/","+","%","="].forEach(addKey)
 
-/* horizontal line */
+/* horizontal line *
 
 addDivider("h")
 
-/* alphabet + numbers */
+/* alphabet + numbers *
 
 let alphaRows=[
 ["A","B","C","D","E","F","G"],
@@ -834,13 +834,14 @@ numRows[i].forEach(addKey)
 
 }
 
-/* horizontal line */
+/* horizontal line *
 
 addDivider("h")
 
-/* control buttons */
+/* control buttons *
 
 ["ENTER","SPACE","BACKSPACE","C"].forEach(addKey)
+  */
 </script>
 
 </body>

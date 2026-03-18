@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Fast Bill POS</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:#fff;
+  overflow:hidden;
+}
+:root{
+  --keypad-h: 190px;
+  --summary-h: 104px;
+  --topbar-h: 44px;
+  --cyan:#00e5ff;
+}
+.topbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:var(--topbar-h);
+  background:#000;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:5px;
+  border-bottom:1px solid #333;
+  z-index:50;
+  overflow-x:auto;
+  white-space:nowrap;
+}
+.topbar button,.topbar label{
+  background:#1f1f1f;
+  color:#fff;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:6px 9px;
+  font-size:12px;
+  cursor:pointer;
+  flex:0 0 auto;
+}
+.topbar input[type="file"]{display:none}
+
+.tableBox{
+  position:fixed;
+  top:var(--topbar-h);
+  left:0;right:0;
+  bottom:calc(var(--keypad-h) + var(--summary-h));
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:6px;
+  background:#111;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#111;
+}
+th,td{
+  border:1px solid #444;
+  padding:6px 4px;
+  text-align:center;
+  font-size:14px;
+}
+th{
+  background:#181818;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+.cellInput{
+  width:100%;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:#fff;
+  text-align:center;
+  font-size:15px;
+  padding:4px 2px;
+}
+.active{
+  background:#0b3250 !important;
+  box-shadow:0 0 0 1px #00d9ff inset,0 0 8px #00d9ff;
+  border-radius:4px;
+}
+
+.summary{
+  position:fixed;
+  left:0;right:0;
+  bottom:var(--keypad-h);
+  height:var(--summary-h);
+  background:#000;
+  border-top:1px solid #333;
+  padding:6px;
+  z-index:40;
+}
+.sumGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.sumRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  background:#121212;
+  border:1px solid #2d2d2d;
+  border-radius:8px;
+  padding:6px 8px;
+  min-height:42px;
+}
+.sumRow .label{
+  font-size:12px;
+  color:#cfcfcf;
+}
+.sumRow .value,.summaryInput{
+  width:96px;
+  min-width:96px;
+  max-width:96px;
+  text-align:right;
+  color:#fff;
+  font-size:14px;
+}
+.summaryInput{
+  background:#0f0f0f;
+  border:1px solid #444;
+  border-radius:6px;
+  padding:6px 8px;
+  outline:none;
+}
+
+.keypad{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  height:var(--keypad-h);
+  background:#000;
+  border-top:2px solid var(--cyan);
+  box-shadow:0 0 10px var(--cyan);
+  padding:4px;
+  z-index:45;
+  overflow:hidden;
+}
+.keypadRow{
+  display:grid;
+  gap:3px;
+  margin-bottom:3px;
+}
+.r1{grid-template-columns:repeat(6,1fr)}
+.r2,.r3,.r4{grid-template-columns:repeat(10,1fr)}
+.r5{grid-template-columns:repeat(9,1fr)}
+.r6{grid-template-columns:2fr 2fr 2fr 1fr}
+.keypad button{
+  border:none;
+  border-radius:7px;
+  padding:7px 2px;
+  font-weight:700;
+  font-size:12px;
+  min-height:30px;
+  cursor:pointer;
+}
+.num{background:#222;color:#00ffcc}
+.alpha{background:#222;color:#ffcc00}
+.op{background:#330033;color:#ff66ff}
+.ctrl{background:#003300;color:#00ff00}
+.wide{font-size:11px}
+
+.modalWrap{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:12px;
+}
+.modal{
+  width:min(95vw,520px);
+  background:#121212;
+  border:1px solid #333;
+  border-radius:14px;
+  padding:12px;
+  max-height:88vh;
+  overflow:auto;
+  box-shadow:0 0 18px rgba(0,229,255,.25);
+}
+.modal h3{margin:0 0 10px 0}
+.mgrid{display:grid;gap:8px}
+.mrow{
+  display:grid;
+  grid-template-columns:110px 1fr;
+  gap:8px;
+  align-items:center;
+}
+.modal input,.modal textarea{
+  width:100%;
+  background:#0c0c0c;
+  color:#fff;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:10px;
+  outline:none;
+}
+.btns{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.btn{
+  background:#1d1d1d;
+  color:#fff;
+  border:1px solid #444;
+  border-radius:8px;
+  padding:10px 12px;
+  cursor:pointer;
+}
+.btn.primary{background:#003f4a;border-color:#0ad3ff}
+.list{
+  display:grid;
+  gap:8px;
+  margin-top:8px;
+}
+.itemCard{
+  border:1px solid #333;
+  border-radius:10px;
+  padding:8px;
+  background:#141414;
+  display:grid;
+  gap:6px;
+}
+.itemActions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.hint{
+  font-size:12px;
+  color:#bbb;
+}
+.badge{
+  display:inline-block;
+  border:1px solid #555;
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:11px;
+  color:#ddd;
+}
+.receipt{
+  background:#fff;
+  color:#000;
+  padding:14px;
+  width:360px;
+  margin:0 auto;
+  font-family:Arial,sans-serif;
+}
+.receipt table{color:#000;background:#fff}
+.receipt th,.receipt td{
+  border:1px solid #000;
+  font-size:12px;
+  padding:4px;
+}
+.hidden{display:none}
+#reader{
+  width:100%;
+  min-height:220px;
+  border:1px solid #333;
+  border-radius:10px;
+  overflow:hidden;
+  background:#000;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button onclick="openBarcodeModal()">Barcode</button>
+  <button onclick="openManualItemModal()">Add Item</button>
+  <button onclick="openItemsManager()">Items</button>
+  <button onclick="saveCurrentBill()">Save Bill</button>
+  <button onclick="openHistory()">History</button>
+  <button onclick="exportItemsCSV()">Export CSV</button>
+  <label for="importFile">Import CSV</label>
+  <input id="importFile" type="file" accept=".csv,text/csv" onchange="importItemsCSV(event)">
+  <button onclick="generateReceiptImage()">Receipt</button>
+</div>
+
+<div class="tableBox" id="tableBox">
+  <table id="billTable">
+    <thead>
+      <tr>
+        <th style="width:44px">Sl</th>
+        <th>ItemName</th>
+        <th style="width:70px">Qty</th>
+        <th style="width:80px">Rate</th>
+        <th style="width:90px">Amount</th>
+      </tr>
+    </thead>
+    <tbody id="billBody"></tbody>
+  </table>
+</div>
+
+<div class="summary">
+  <div class="sumGrid">
+    <div class="sumRow"><span class="label">Total</span><span class="value" id="total">0</span></div>
+    <div class="sumRow"><span class="label">Balance</span><span class="value" id="balance">0</span></div>
+    <div class="sumRow">
+      <span class="label">Pichla Udhar</span>
+      <input id="udhar" class="summaryInput" readonly onclick="setCell(this,'summary','udhar')">
+    </div>
+    <div class="sumRow">
+      <span class="label">Aaj Jama</span>
+      <input id="jama" class="summaryInput" readonly onclick="setCell(this,'summary','jama')">
+    </div>
+  </div>
+</div>
+
+<div class="keypad" id="keypad"></div>
+
+<div class="modalWrap" id="barcodeModalWrap">
+  <div class="modal">
+    <h3>Barcode Scan / Entry</h3>
+    <div class="mgrid">
+      <div id="reader"></div>
+      <div class="mrow">
+        <label>Barcode</label>
+        <input id="barcodeInput" placeholder="Scan ya type barcode">
+      </div>
+      <div class="hint">Camera scan ke liye Start Camera dabaiye. Agar browser file mode me hai to camera kabhi-kabhi block ho sakta hai.</div>
+      <div class="btns">
+        <button class="btn primary" onclick="startCameraScanner()">Start Camera</button>
+        <button class="btn" onclick="stopCameraScanner()">Stop Camera</button>
+        <button class="btn" onclick="processBarcode()">Find / Add</button>
+        <button class="btn" onclick="closeBarcodeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modalWrap" id="unknownBarcodeWrap">
+  <div class="modal">
+    <h3>New Barcode Item Save</h3>
+    <div class="mgrid">
+      <div class="mrow">
+        <label>Barcode</label>
+        <input id="newBarcode" readonly>
+      </div>
+      <div class="mrow">
+        <label>Item Name</label>
+        <input id="newItemName" placeholder="Item name">
+      </div>
+      <div class="mrow">
+        <label>Rate</label>
+        <input id="newItemRate" placeholder="Rate">
+      </div>
+      <div class="btns">
+        <button class="btn primary" onclick="saveUnknownBarcodeItem()">Save</button>
+        <button class="btn" onclick="closeUnknownBarcodeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modalWrap" id="manualItemWrap">
+  <div class="modal">
+    <h3>Manual Item Save</h3>
+    <div class="mgrid">
+      <div class="mrow">
+        <label>Barcode</label>
+        <input id="manualBarcode" placeholder="Optional">
+      </div>
+      <div class="mrow">
+        <label>Item Name</label>
+        <input id="manualItemName" placeholder="Item name">
+      </div>
+      <div class="mrow">
+        <label>Rate</label>
+        <input id="manualItemRate" placeholder="Rate">
+      </div>
+      <div class="btns">
+        <button class="btn primary" onclick="saveManualItem()">Save</button>
+        <button class="btn" onclick="closeManualItemModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modalWrap" id="itemsWrap">
+  <div class="modal">
+    <h3>Saved Items</h3>
+    <div class="mrow">
+      <label>Search</label>
+      <input id="itemSearch" placeholder="Barcode ya item search" oninput="renderItemsManager()">
+    </div>
+    <div class="btns">
+      <button class="btn" onclick="exportItemsCSV()">Export CSV</button>
+      <label class="btn" for="importFile2">Import CSV</label>
+      <input id="importFile2" type="file" accept=".csv,text/csv" onchange="importItemsCSV(event)">
+      <button class="btn" onclick="closeItemsManager()">Close</button>
+    </div>
+    <div class="list" id="itemsList"></div>
+  </div>
+</div>
+
+<div class="modalWrap" id="historyWrap">
+  <div class="modal">
+    <h3>Bill History</h3>
+    <div class="list" id="historyList"></div>
+    <div class="btns">
+      <button class="btn" onclick="closeHistory()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="receiptNode" class="hidden"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+const LS_ITEMS = "fastbill_items_v2";
+const LS_BILLS = "fastbill_bills_v2";
+
+let currentCell = null;
+let currentCellMeta = { area:"table", rowIndex:0, col:"item" };
+let currentBarcodeTargetRow = null;
+let html5Qr = null;
+let cameraRunning = false;
+
+function getItemsMap(){
+  try{return JSON.parse(localStorage.getItem(LS_ITEMS)) || {}}
+  catch(e){return {}}
+}
+function setItemsMap(map){
+  localStorage.setItem(LS_ITEMS, JSON.stringify(map));
+}
+function getBills(){
+  try{return JSON.parse(localStorage.getItem(LS_BILLS)) || []}
+  catch(e){return []}
+}
+function setBills(arr){
+  localStorage.setItem(LS_BILLS, JSON.stringify(arr));
+}
+
+function init(){
+  createInitialRows(4);
+  buildKeypad();
+  setCell(document.querySelector('#billBody tr:first-child td:nth-child(2) input'),'table','item');
+}
+document.addEventListener("DOMContentLoaded", init);
+
+function createInitialRows(count){
+  const body = document.getElementById("billBody");
+  body.innerHTML = "";
+  for(let i=1;i<=count;i++) body.appendChild(makeRow(i));
+}
+function makeRow(sl){
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${sl}</td>
+    <td><input class="cellInput" readonly onclick="setCell(this,'table','item')"></td>
+    <td><input class="cellInput" readonly onclick="setCell(this,'table','qty')"></td>
+    <td><input class="cellInput" readonly onclick="setCell(this,'table','rate')"></td>
+    <td class="amt">0</td>
+  `;
+  return tr;
+}
+function addRow(){
+  const body = document.getElementById("billBody");
+  const tr = makeRow(body.rows.length + 1);
+  body.appendChild(tr);
+  const next = tr.cells[1].children[0];
+  setCell(next,'table','item');
+  scrollCellIntoTableView(next);
+}
+function getCurrentTR(){
+  return currentCell?.closest("tr") || null;
+}
+function recalcRow(tr){
+  if(!tr) return;
+  const qty = Number(tr.cells[2].children[0].value || 0);
+  const rate = Number(tr.cells[3].children[0].value || 0);
+  tr.querySelector(".amt").textContent = qty > 0 && rate > 0 ? qty * rate : 0;
+  updateTotal();
+}
+function updateTotal(){
+  let total = 0;
+  document.querySelectorAll("#billBody tr").forEach(tr=>{
+    total += Number(tr.querySelector(".amt").textContent || 0);
+  });
+  document.getElementById("total").textContent = total;
+  updateBalance();
+}
+function updateBalance(){
+  const total = Number(document.getElementById("total").textContent || 0);
+  const udhar = Number(document.getElementById("udhar").value || 0);
+  const jama = Number(document.getElementById("jama").value || 0);
+  document.getElementById("balance").textContent = total + udhar - jama;
+}
+
+function setCell(cell, area='table', col='item'){
+  document.querySelectorAll(".active").forEach(el=>el.classList.remove("active"));
+  cell.classList.add("active");
+  currentCell = cell;
+  currentCellMeta.area = area;
+  if(area === 'table'){
+    currentCellMeta.rowIndex = cell.closest("tr").rowIndex - 1;
+    currentCellMeta.col = col;
+    scrollCellIntoTableView(cell);
+  }else{
+    currentCellMeta.rowIndex = -1;
+    currentCellMeta.col = col;
+  }
+}
+function scrollCellIntoTableView(cell){
+  const box = document.getElementById("tableBox");
+  if(!box || !cell || !box.contains(cell)) return;
+  const c = cell.getBoundingClientRect();
+  const b = box.getBoundingClientRect();
+  if(c.bottom > b.bottom - 8) box.scrollTop += (c.bottom - b.bottom) + 8;
+  if(c.top < b.top + 8) box.scrollTop -= (b.top - c.top) + 8;
+}
+
+function buildKeypad(){
+  const keypad = document.getElementById("keypad");
+  keypad.innerHTML = `
+    <div class="keypadRow r1" id="r1"></div>
+    <div class="keypadRow r2" id="r2"></div>
+    <div class="keypadRow r3" id="r3"></div>
+    <div class="keypadRow r4" id="r4"></div>
+    <div class="keypadRow r5" id="r5"></div>
+    <div class="keypadRow r6" id="r6"></div>
+  `;
+  addKeys("r1", ["*","-","/","+","%","="]);
+  addKeys("r2", ["A","B","C","D","E","F","G","1","2","3"]);
+  addKeys("r3", ["H","I","J","K","L","M","N","4","5","6"]);
+  addKeys("r4", ["O","P","Q","R","S","T","U","7","8","9"]);
+  addKeys("r5", ["V","W","X","Y","Z",".","0","BARCODE","CLEARROW"]);
+  addKeys("r6", ["ENTER","SPACE","BACKSPACE","C"]);
+}
+function addKeys(rowId, keys){
+  const row = document.getElementById(rowId);
+  keys.forEach(k=>{
+    const btn = document.createElement("button");
+    btn.textContent = k;
+    btn.onclick = ()=>pressKey(k);
+    if(!isNaN(k) || k===".") btn.className = "num";
+    else if(["+","-","*","/","%","="].includes(k)) btn.className = "op";
+    else if(["ENTER","SPACE","BACKSPACE","C","BARCODE","CLEARROW"].includes(k)) btn.className = "ctrl wide";
+    else btn.className = "alpha";
+    row.appendChild(btn);
+  });
+}
+
+function pressKey(val){
+  if(!currentCell) return;
+
+  if(val==="BARCODE"){ openBarcodeModal(); return; }
+
+  if(val==="CLEARROW"){
+    if(currentCellMeta.area === 'table'){
+      const tr = getCurrentTR();
+      tr.cells[1].children[0].value = "";
+      tr.cells[2].children[0].value = "";
+      tr.cells[3].children[0].value = "";
+      tr.querySelector(".amt").textContent = "0";
+      updateTotal();
+      setCell(tr.cells[1].children[0],'table','item');
+    }else{
+      currentCell.value = "";
+      updateBalance();
+    }
+    return;
+  }
+
+  if(val==="BACKSPACE"){
+    currentCell.value = (currentCell.value || "").slice(0,-1);
+    if(currentCellMeta.area === 'table') recalcRow(getCurrentTR());
+    else updateBalance();
+    return;
+  }
+
+  if(val==="C"){
+    currentCell.value = "";
+    if(currentCellMeta.area === 'table') recalcRow(getCurrentTR());
+    else updateBalance();
+    return;
+  }
+
+  if(val==="SPACE"){
+    currentCell.value += " ";
+    return;
+  }
+
+  if(val==="ENTER"){
+    handleEnter();
+    return;
+  }
+
+  currentCell.value += val;
+  if(currentCellMeta.area === 'table') recalcRow(getCurrentTR());
+  else updateBalance();
+}
+
+function handleEnter(){
+  if(!currentCell) return;
+
+  if(currentCellMeta.area === 'summary'){
+    if(currentCell.id === 'udhar'){
+      setCell(document.getElementById('jama'),'summary','jama');
+    }else if(currentCell.id === 'jama'){
+      const lastBlank = [...document.querySelectorAll("#billBody tr")].find(tr=>!tr.cells[1].children[0].value.trim()) || document.querySelector("#billBody tr:last-child");
+      setCell(lastBlank.cells[1].children[0],'table','item');
+    }
+    return;
+  }
+
+  const tr = getCurrentTR();
+  const rows = [...document.querySelectorAll("#billBody tr")];
+  const rowIndex = rows.indexOf(tr);
+
+  const itemInput = tr.cells[1].children[0];
+  const qtyInput  = tr.cells[2].children[0];
+  const rateInput = tr.cells[3].children[0];
+
+  if(currentCellMeta.col === 'item'){
+    if(!itemInput.value.trim()){
+      alert("Item blank nahi ho sakta");
+      setCell(itemInput,'table','item');
+      return;
+    }
+    setCell(qtyInput,'table','qty');
+    return;
+  }
+
+  if(currentCellMeta.col === 'qty'){
+    const q = Number(qtyInput.value || 0);
+    if(!qtyInput.value.trim() || q === 0){
+      alert("Qty blank ya zero nahi ho sakta");
+      setCell(qtyInput,'table','qty');
+      return;
+    }
+    setCell(rateInput,'table','rate');
+    return;
+  }
+
+  if(currentCellMeta.col === 'rate'){
+    const q = Number(qtyInput.value || 0);
+    const r = Number(rateInput.value || 0);
+
+    if(!qtyInput.value.trim() || q === 0 || !rateInput.value.trim() || r === 0){
+      alert("Qty aur Rate blank ya zero nahi ho sakta");
+      if(!qtyInput.value.trim() || q === 0) setCell(qtyInput,'table','qty');
+      else setCell(rateInput,'table','rate');
+      return;
+    }
+
+    recalcRow(tr);
+
+    if(rowIndex === rows.length - 1){
+      addRow();
+    }else{
+      setCell(rows[rowIndex + 1].cells[1].children[0],'table','item');
+    }
+  }
+}
+
+/* BARCODE */
+function openBarcodeModal(){
+  document.getElementById("barcodeModalWrap").style.display = "flex";
+  document.getElementById("barcodeInput").value = "";
+  currentBarcodeTargetRow = currentCellMeta.area === 'table' ? getCurrentTR() : null;
+}
+function closeBarcodeModal(){
+  stopCameraScanner();
+  document.getElementById("barcodeModalWrap").style.display = "none";
+}
+function startCameraScanner(){
+  if(cameraRunning) return;
+
+  if(location.protocol === "file:"){
+    alert("Camera scanner local file mode me block ho sakta hai. Isko hosting ya localhost par chalana better rahega.");
+  }
+
+  const readerId = "reader";
+  html5Qr = new Html5Qrcode(readerId);
+
+  Html5Qrcode.getCameras().then(cameras=>{
+    if(!cameras || !cameras.length){
+      alert("Camera nahi mila");
+      return;
+    }
+    html5Qr.start(
+      { facingMode:"environment" },
+      { fps:10, qrbox:{ width:250, height:120 } },
+      (decodedText)=>{
+        document.getElementById("barcodeInput").value = decodedText;
+        stopCameraScanner();
+        processBarcode();
+      },
+      ()=>{}
+    ).then(()=>{
+      cameraRunning = true;
+    }).catch(err=>{
+      alert("Camera start nahi hua: " + err);
+    });
+  }).catch(err=>{
+    alert("Camera access error: " + err);
+  });
+}
+function stopCameraScanner(){
+  if(html5Qr && cameraRunning){
+    html5Qr.stop().then(()=>{
+      html5Qr.clear();
+      cameraRunning = false;
+    }).catch(()=>{});
+  }
+}
+function processBarcode(){
+  const code = document.getElementById("barcodeInput").value.trim();
+  if(!code) return;
+
+  closeBarcodeModal();
+  const items = getItemsMap();
+
+  if(items[code]){
+    applyBarcodeItemToRow(code, items[code]);
+  }else{
+    document.getElementById("newBarcode").value = code;
+    document.getElementById("newItemName").value = "";
+    document.getElementById("newItemRate").value = "";
+    document.getElementById("unknownBarcodeWrap").style.display = "flex";
+  }
+}
+function closeUnknownBarcodeModal(){
+  document.getElementById("unknownBarcodeWrap").style.display = "none";
+}
+function saveUnknownBarcodeItem(){
+  const code = document.getElementById("newBarcode").value.trim();
+  const name = document.getElementById("newItemName").value.trim();
+  const rate = Number(document.getElementById("newItemRate").value || 0);
+
+  if(!code || !name || rate === 0){
+    alert("Barcode, Item Name aur Rate sahi bharna zaroori hai");
+    return;
+  }
+
+  const items = getItemsMap();
+  items[code] = { barcode:code, name, rate, updatedAt:new Date().toISOString() };
+  setItemsMap(items);
+
+  closeUnknownBarcodeModal();
+  applyBarcodeItemToRow(code, items[code]);
+}
+function applyBarcodeItemToRow(code, itemObj){
+  let tr = currentBarcodeTargetRow || (currentCellMeta.area === 'table' ? getCurrentTR() : null);
+  if(!tr){
+    tr = [...document.querySelectorAll("#billBody tr")].find(r=>!r.cells[1].children[0].value.trim()) || document.querySelector("#billBody tr:last-child");
+  }
+
+  tr.cells[1].children[0].value = itemObj.name;
+  tr.cells[2].children[0].value = "1";
+  tr.cells[3].children[0].value = String(itemObj.rate);
+  recalcRow(tr);
+
+  const rows = [...document.querySelectorAll("#billBody tr")];
+  const idx = rows.indexOf(tr);
+
+  if(idx === rows.length - 1){
+    addRow();
+  }else{
+    setCell(rows[idx + 1].cells[1].children[0],'table','item');
+  }
+}
+
+/* MANUAL ITEM */
+function openManualItemModal(){
+  document.getElementById("manualItemWrap").style.display = "flex";
+  document.getElementById("manualBarcode").value = "";
+  document.getElementById("manualItemName").value = "";
+  document.getElementById("manualItemRate").value = "";
+}
+function closeManualItemModal(){
+  document.getElementById("manualItemWrap").style.display = "none";
+}
+function saveManualItem(){
+  const barcode = document.getElementById("manualBarcode").value.trim();
+  const name = document.getElementById("manualItemName").value.trim();
+  const rate = Number(document.getElementById("manualItemRate").value || 0);
+
+  if(!name || rate === 0){
+    alert("Item Name aur Rate zaroori hai");
+    return;
+  }
+
+  const items = getItemsMap();
+  const key = barcode || ("manual_" + Date.now());
+
+  items[key] = {
+    barcode: barcode || "",
+    name,
+    rate,
+    updatedAt: new Date().toISOString()
+  };
+
+  setItemsMap(items);
+  closeManualItemModal();
+  alert("Item saved");
+}
+
+/* ITEMS MANAGER */
+function openItemsManager(){
+  document.getElementById("itemsWrap").style.display = "flex";
+  renderItemsManager();
+}
+function closeItemsManager(){
+  document.getElementById("itemsWrap").style.display = "none";
+}
+function renderItemsManager(){
+  const wrap = document.getElementById("itemsList");
+  const q = document.getElementById("itemSearch").value.trim().toLowerCase();
+  const items = Object.entries(getItemsMap()).map(([key,val])=>({key,...val}))
+    .sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+
+  const filtered = items.filter(it=>{
+    const txt = `${it.key} ${it.barcode} ${it.name} ${it.rate}`.toLowerCase();
+    return txt.includes(q);
+  });
+
+  if(!filtered.length){
+    wrap.innerHTML = `<div class="hint">Koi item nahi mila.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = filtered.map(it=>`
+    <div class="itemCard">
+      <div><span class="badge">${escapeHtml(it.barcode || "NO-BARCODE")}</span></div>
+      <div><b>${escapeHtml(it.name)}</b></div>
+      <div>Rate: ${it.rate}</div>
+      <div class="itemActions">
+        <button class="btn" onclick="editItem('${jsSafe(it.key)}')">Edit</button>
+        <button class="btn" onclick="deleteItem('${jsSafe(it.key)}')">Delete</button>
+      </div>
+    </div>
+  `).join("");
+}
+function editItem(key){
+  const items = getItemsMap();
+  const it = items[key];
+  const name = prompt("Item name", it.name);
+  if(name === null) return;
+  const rate = prompt("Rate", it.rate);
+  if(rate === null) return;
+  const r = Number(rate || 0);
+  if(!name.trim() || r === 0){
+    alert("Invalid name/rate");
+    return;
+  }
+  items[key] = {...it, name:name.trim(), rate:r, updatedAt:new Date().toISOString()};
+  setItemsMap(items);
+  renderItemsManager();
+}
+function deleteItem(key){
+  if(!confirm("Delete this item?")) return;
+  const items = getItemsMap();
+  delete items[key];
+  setItemsMap(items);
+  renderItemsManager();
+}
+
+/* CSV */
+function exportItemsCSV(){
+  const items = Object.values(getItemsMap());
+  let csv = "barcode,itemName,rate\n";
+  items.forEach(it=>{
+    csv += `"${String(it.barcode||"").replace(/"/g,'""')}","${String(it.name).replace(/"/g,'""')}",${it.rate}\n`;
+  });
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "items_export.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importItemsCSV(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    if(lines.length < 2){
+      alert("CSV empty hai");
+      return;
+    }
+    const items = getItemsMap();
+
+    for(let i=1;i<lines.length;i++){
+      const row = parseCSVLine(lines[i]);
+      if(row.length < 3) continue;
+
+      const barcode = String(row[0] || "").trim();
+      const name = String(row[1] || "").trim();
+      const rate = Number(row[2] || 0);
+
+      if(name && rate){
+        const key = barcode || ("manual_" + Date.now() + "_" + i);
+        items[key] = { barcode, name, rate, updatedAt:new Date().toISOString() };
+      }
+    }
+
+    setItemsMap(items);
+    alert("Items imported successfully");
+    renderItemsManager();
+    event.target.value = "";
+  };
+  reader.readAsText(file);
+}
+function parseCSVLine(line){
+  const out = [];
+  let cur = "", inside = false;
+  for(let i=0;i<line.length;i++){
+    const ch = line[i];
+    if(ch === '"'){
+      if(inside && line[i+1] === '"'){ cur += '"'; i++; }
+      else inside = !inside;
+    }else if(ch === "," && !inside){
+      out.push(cur); cur = "";
+    }else{
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+/* BILLS */
+function collectCurrentBill(){
+  const rows = [...document.querySelectorAll("#billBody tr")]
+    .map(tr=>({
+      item: tr.cells[1].children[0].value.trim(),
+      qty: Number(tr.cells[2].children[0].value || 0),
+      rate: Number(tr.cells[3].children[0].value || 0),
+      amount: Number(tr.querySelector(".amt").textContent || 0)
+    }))
+    .filter(r=>r.item && r.qty && r.rate);
+
+  return {
+    id: "B" + Date.now(),
+    date: new Date().toLocaleString(),
+    rows,
+    total: Number(document.getElementById("total").textContent || 0),
+    udhar: Number(document.getElementById("udhar").value || 0),
+    jama: Number(document.getElementById("jama").value || 0),
+    balance: Number(document.getElementById("balance").textContent || 0)
+  };
+}
+function saveCurrentBill(){
+  const bill = collectCurrentBill();
+  if(!bill.rows.length){
+    alert("Save karne ke liye kam se kam 1 valid row honi chahiye");
+    return;
+  }
+  const bills = getBills();
+  bills.unshift(bill);
+  setBills(bills);
+  alert("Bill saved");
+}
+function openHistory(){
+  document.getElementById("historyWrap").style.display = "flex";
+  renderHistory();
+}
+function closeHistory(){
+  document.getElementById("historyWrap").style.display = "none";
+}
+function renderHistory(){
+  const list = document.getElementById("historyList");
+  const bills = getBills();
+  if(!bills.length){
+    list.innerHTML = `<div class="hint">Abhi history empty hai.</div>`;
+    return;
+  }
+
+  list.innerHTML = bills.map(b=>`
+    <div class="itemCard">
+      <div><b>${b.id}</b></div>
+      <div>${b.date}</div>
+      <div>Total: ${b.total} | Udhar: ${b.udhar} | Jama: ${b.jama} | Balance: ${b.balance}</div>
+      <div>Rows: ${b.rows.length}</div>
+      <div class="itemActions">
+        <button class="btn" onclick="loadBill('${jsSafe(b.id)}')">Load</button>
+        <button class="btn" onclick="deleteBill('${jsSafe(b.id)}')">Delete</button>
+      </div>
+    </div>
+  `).join("");
+}
+function loadBill(id){
+  const bill = getBills().find(b=>b.id === id);
+  if(!bill) return;
+
+  const body = document.getElementById("billBody");
+  body.innerHTML = "";
+
+  bill.rows.forEach((r,idx)=>{
+    const tr = makeRow(idx + 1);
+    tr.cells[1].children[0].value = r.item;
+    tr.cells[2].children[0].value = r.qty;
+    tr.cells[3].children[0].value = r.rate;
+    tr.querySelector(".amt").textContent = r.amount;
+    body.appendChild(tr);
+  });
+
+  body.appendChild(makeRow(body.rows.length + 1));
+  document.getElementById("udhar").value = bill.udhar || "";
+  document.getElementById("jama").value = bill.jama || "";
+  updateTotal();
+  closeHistory();
+  setCell(document.querySelector("#billBody tr:last-child td:nth-child(2) input"),'table','item');
+}
+function deleteBill(id){
+  if(!confirm("Delete this bill?")) return;
+  setBills(getBills().filter(b=>b.id !== id));
+  renderHistory();
+}
+
+/* RECEIPT */
+async function generateReceiptImage(){
+  const bill = collectCurrentBill();
+  if(!bill.rows.length){
+    alert("Receipt banane ke liye bill me items chahiye");
+    return;
+  }
+
+  const node = document.getElementById("receiptNode");
+  node.className = "";
+  node.innerHTML = `
+    <div class="receipt" id="receiptRender">
+      <h3 style="text-align:center;margin:0 0 8px 0;">Receipt</h3>
+      <div style="font-size:12px;margin-bottom:6px;">${bill.date}</div>
+      <table>
+        <tr><th>Sl</th><th>Item</th><th>Qty</th><th>Rate</th><th>Amt</th></tr>
+        ${bill.rows.map((r,i)=>`
+          <tr>
+            <td>${i+1}</td>
+            <td>${escapeHtml(r.item)}</td>
+            <td>${r.qty}</td>
+            <td>${r.rate}</td>
+            <td>${r.amount}</td>
+          </tr>
+        `).join("")}
+      </table>
+      <div style="margin-top:8px;font-size:13px;">
+        <div>Total: ${bill.total}</div>
+        <div>Pichla Udhar: ${bill.udhar}</div>
+        <div>Aaj Jama: ${bill.jama}</div>
+        <div><b>Balance: ${bill.balance}</b></div>
+      </div>
+    </div>
+  `;
+
+  const canvas = await html2canvas(document.getElementById("receiptRender"), {scale:2});
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = "receipt.png";
+  a.click();
+
+  node.className = "hidden";
+  node.innerHTML = "";
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+function jsSafe(str){
+  return String(str).replaceAll("\\","\\\\").replaceAll("'","\\'");
+}
+
+document.addEventListener("keydown", function(e){
+  if(document.getElementById("barcodeModalWrap").style.display === "flex" && e.key === "Enter"){
+    e.preventDefault();
+    processBarcode();
+  }
+  if(document.getElementById("unknownBarcodeWrap").style.display === "flex" && e.key === "Enter"){
+    e.preventDefault();
+    saveUnknownBarcodeItem();
+  }
+});
+</script>
+
+</body>
+</html>

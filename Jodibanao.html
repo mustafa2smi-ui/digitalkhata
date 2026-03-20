@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Jodi Milao Game - Level 1</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            touch-action: none;
+            color: var(--text-color);
+        }
+
+        header {
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        h1 { margin: 0; font-size: 1.2rem; color: var(--primary-color); }
+
+        .game-container {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            width: 95vw;
+            max-width: 500px;
+            margin-top: 30px;
+            z-index: 5;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .item {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            position: relative;
+            z-index: 2;
+        }
+
+        .word-item {
+            width: 100px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #drawing-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+            z-index: 3;
+        }
+
+        .controls {
+            margin-top: 40px;
+            z-index: 10;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+            cursor: pointer;
+        }
+
+        #result-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 100;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Bachpan ki Yaadein: Level 1</h1>
+    <div id="stats">Jodi Milao! 🍎 ➔ Word</div>
+</header>
+
+<div class="game-container" id="gameArea">
+    <canvas id="drawing-canvas"></canvas>
+    
+    <div class="column" id="left-col">
+        <div class="item" data-id="1" id="q1">🍎</div>
+        <div class="item" data-id="2" id="q2">🐶</div>
+        <div class="item" data-id="3" id="q3">🚗</div>
+        <div class="item" data-id="4" id="q4">☀️</div>
+        <div class="item" data-id="5" id="q5">🐟</div>
+    </div>
+
+    <div class="column" id="right-col">
+        <div class="item word-item" data-id="2" id="a2">DOG</div>
+        <div class="item word-item" data-id="5" id="a5">FISH</div>
+        <div class="item word-item" data-id="1" id="a1">APPLE</div>
+        <div class="item word-item" data-id="4" id="a4">SUN</div>
+        <div class="item word-item" data-id="3" id="a3">CAR</div>
+    </div>
+</div>
+
+<div class="controls">
+    <button onclick="checkResults()">MY SCORE</button>
+</div>
+
+<div id="result-popup">
+    <h2 id="msg">Shabash!</h2>
+    <p id="score-text"></p>
+    <p id="time-text"></p>
+    <button onclick="location.reload()">Reset Game</button>
+</div>
+
+<script>
+    const canvas = document.getElementById('drawing-canvas');
+    const ctx = canvas.getContext('2d');
+    const gameArea = document.getElementById('gameArea');
+    let startTime = Date.now();
+    let isDrawing = false;
+    let startEl = null;
+    let currentLines = []; // Store finished lines: {startId, endId, startPos, endPos}
+
+    // Canvas size adjustment
+    function resizeCanvas() {
+        canvas.width = gameArea.clientWidth;
+        canvas.height = gameArea.clientHeight;
+    }
+    window.onload = resizeCanvas;
+
+    // Drawing Logic
+    canvas.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+
+        // Check if starting near a left item
+        document.querySelectorAll('#left-col .item').forEach(el => {
+            const elRect = el.getBoundingClientRect();
+            const relX = elRect.left + elRect.width - rect.left;
+            const relY = elRect.top + elRect.height/2 - rect.top;
+
+            if (Math.abs(x - relX) < 40 && Math.abs(y - relY) < 40) {
+                isDrawing = true;
+                startEl = el;
+            }
+        });
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (!isDrawing) return;
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        
+        drawScene(); // Redraw existing lines
+        
+        // Draw current live line
+        const startRect = startEl.getBoundingClientRect();
+        ctx.beginPath();
+        ctx.moveTo(startRect.right - rect.left, startRect.top + startRect.height/2 - rect.top);
+        ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        ctx.strokeStyle = '#4a90e2';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+        if (!isDrawing) return;
+        const touch = e.changedTouches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+
+        let found = false;
+        document.querySelectorAll('#right-col .item').forEach(el => {
+            const elRect = el.getBoundingClientRect();
+            const relX = elRect.left - rect.left;
+            const relY = elRect.top + elRect.height/2 - rect.top;
+
+            if (Math.abs(x - relX) < 50 && Math.abs(y - relY) < 50) {
+                // Connection made
+                const startRect = startEl.getBoundingClientRect();
+                currentLines.push({
+                    startId: startEl.dataset.id,
+                    endId: el.dataset.id,
+                    sx: startRect.right - rect.left,
+                    sy: startRect.top + startRect.height/2 - rect.top,
+                    ex: relX,
+                    ey: relY
+                });
+                found = true;
+            }
+        });
+
+        isDrawing = false;
+        drawScene();
+    });
+
+    function drawScene(showColors = false) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        currentLines.forEach(line => {
+            ctx.beginPath();
+            ctx.moveTo(line.sx, line.sy);
+            ctx.lineTo(line.ex, line.ey);
+            
+            if (showColors) {
+                ctx.strokeStyle = (line.startId === line.endId) ? '#2ecc71' : '#e74c3c';
+            } else {
+                ctx.strokeStyle = '#4a90e2';
+            }
+            
+            ctx.lineWidth = 4;
+            ctx.stroke();
+        });
+    }
+
+    function checkResults() {
+        const endTime = Date.now();
+        const seconds = Math.floor((endTime - startTime) / 1000);
+        
+        let correct = 0;
+        currentLines.forEach(line => {
+            if (line.startId === line.endId) correct++;
+        });
+
+        // Points calculation
+        const baseScore = correct * 100;
+        const bonus = Math.max(0, Math.floor(5000 / (seconds + 1)));
+        const totalScore = baseScore + (correct > 0 ? bonus : 0);
+
+        drawScene(true); // Show Red/Green lines
+
+        document.getElementById('score-text').innerText = `Score: ${totalScore} Points`;
+        document.getElementById('time-text').innerText = `Samay liya: ${seconds} seconds | Sahi: ${correct}/5`;
+        document.getElementById('result-popup').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

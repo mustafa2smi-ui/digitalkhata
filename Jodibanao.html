@@ -1017,7 +1017,7 @@
             initLevel(lvl);
         });
     }
-
+/*
     function initLevel(lvl) {
         const board = document.getElementById(`board-${lvl.level}`);
         const canv = document.getElementById(`canvas-${lvl.level}`);
@@ -1103,6 +1103,102 @@
             });
         }, 500);
     }
+*/
+    // --- Is logic ko apne purane script mein update karein ya pura replace karein ---
+
+function initLevel(lvl) {
+    const board = document.getElementById(`board-${lvl.level}`);
+    const canv = document.getElementById(`canvas-${lvl.level}`);
+    const left = board.querySelector('.left');
+    const right = board.querySelector('.right');
+    const shuffled = [...lvl.pairs].sort(() => Math.random() - 0.5);
+
+    // Pehle se save ki hui lines load karein
+    let savedLines = JSON.parse(localStorage.getItem(`lines_${currentCat}_${lvl.level}`)) || [];
+
+    lvl.pairs.forEach((p, i) => {
+        left.innerHTML += `<div class="box" id="L-${lvl.level}-${i}" data-ans="${p.a}">${p.q}<div class="sub">(${p.sub})</div></div>`;
+        right.innerHTML += `<div class="box" id="R-${lvl.level}-${i}" data-ans="${shuffled[i].a}">${shuffled[i].a}</div>`;
+    });
+
+    setTimeout(() => {
+        canv.width = board.offsetWidth; 
+        canv.height = board.offsetHeight;
+        const ctx = canv.getContext('2d');
+        
+        // Purani lines ko draw karein agar user ne pehle khela hai
+        function redrawSavedLines() {
+            ctx.clearRect(0, 0, canv.width, canv.height);
+            savedLines.forEach(l => {
+                ctx.beginPath(); ctx.moveTo(l.x1, l.y1); ctx.lineTo(l.x2, l.y2);
+                ctx.strokeStyle = l.col; ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.stroke();
+            });
+        }
+        redrawSavedLines();
+
+        // Touch logic
+        canv.addEventListener('touchstart', e => {
+            // Agar level pehle hi 5/5 complete hai, toh drawing band
+            if (savedLines.length === lvl.pairs.length) return;
+
+            const r = canv.getBoundingClientRect();
+            const ty = e.touches[0].clientY - r.top;
+            board.querySelectorAll('.left .box').forEach(box => {
+                const b = box.getBoundingClientRect();
+                const alreadyDone = savedLines.find(l => l.ans === box.dataset.ans);
+                if (!alreadyDone && ty > b.top - r.top && ty < b.bottom - r.top) {
+                    isDrawing = true;
+                    startPt = { x: b.right - r.left, y: b.top + b.height/2 - r.top, ans: box.dataset.ans };
+                    playBeep(500, 'sine');
+                }
+            });
+        });
+
+        canv.addEventListener('touchmove', e => {
+            if(!isDrawing) return;
+            const r = canv.getBoundingClientRect();
+            redrawSavedLines(); // Purani lines dikhti rahein
+            ctx.beginPath(); ctx.moveTo(startPt.x, startPt.y);
+            ctx.lineTo(e.touches[0].clientX - r.left, e.touches[0].clientY - r.top);
+            ctx.strokeStyle = "#4a90e2"; ctx.lineWidth = 3; ctx.stroke();
+        });
+
+        canv.addEventListener('touchend', e => {
+            if(!isDrawing) return;
+            const r = canv.getBoundingClientRect();
+            const ex = e.changedTouches[0].clientX - r.left;
+            const ey = e.changedTouches[0].clientY - r.top;
+
+            board.querySelectorAll('.right .box').forEach(box => {
+                const b = box.getBoundingClientRect();
+                if (ex > b.left - r.left && ey > b.top - r.top && ey < b.bottom - r.top) {
+                    const correct = startPt.ans === box.dataset.ans;
+                    savedLines.push({ 
+                        ans: startPt.ans, x1: startPt.x, y1: startPt.y, 
+                        x2: b.left - r.left, y2: b.top + b.height/2 - r.top,
+                        col: correct ? "#2ecc71" : "#e74c3c"
+                    });
+                    // Permanent Save in LocalStorage
+                    localStorage.setItem(`lines_${currentCat}_${lvl.level}`, JSON.stringify(savedLines));
+                    playBeep(correct ? 800 : 200, correct ? 'sine' : 'square');
+                }
+            });
+
+            isDrawing = false;
+            redrawSavedLines();
+
+            if(savedLines.length === lvl.pairs.length) {
+                const finalScore = savedLines.filter(l => l.col === "#2ecc71").length * 100;
+                localStorage.setItem(`score_${currentCat}_${lvl.level}`, finalScore);
+                const currentUnlocked = parseInt(localStorage.getItem(`unlocked_${currentCat}`)) || 1;
+                if(lvl.level === currentUnlocked) {
+                    localStorage.setItem(`unlocked_${currentCat}`, currentUnlocked + 1);
+                    setTimeout(renderFeed, 1000); // Agla level unlock
+                }
+            }
+        });
+    }, 500);
+}
 
     function shareLevel(cat, id) {
         const text = `🔥 Challenge: Category ${cat} | Level ${id} \nKya aap ye jodi mila sakte hain? \nKhelne ke liye click karein: ${window.location.href}`;

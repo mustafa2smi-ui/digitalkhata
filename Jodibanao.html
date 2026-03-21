@@ -3,283 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Jodi Milao Game - Level 1</title>
+    <title>Jodi Milao Pro</title>
     <style>
         :root {
-            --bg-color: #f0f4f8;
-            --primary-color: #4a90e2;
-            --success-color: #2ecc71;
-            --error-color: #e74c3c;
-            --text-color: #2c3e50;
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            font-family: sans-serif;
             margin: 0;
+            background: #f4f7f6;
+            color: var(--dark);
+            padding-top: 70px; /* Header space */
+            padding-bottom: 50px; /* Footer space */
+        }
+
+        /* Fixed Header & Menu */
+        header {
+            position: fixed;
+            top: 0; width: 100%;
+            height: 60px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .menu-btn { font-size: 24px; cursor: pointer; }
+
+        /* Digital Clock */
+        #clock {
+            font-family: 'Courier New', Courier, monospace;
+            background: #333;
+            color: #0f0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        /* Game Area */
+        .container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
-            touch-action: none;
-            color: var(--text-color);
+            padding: 20px;
         }
 
-        header {
-            width: 100%;
-            padding: 15px;
-            text-align: center;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
-
-        h1 { margin: 0; font-size: 1.2rem; color: var(--primary-color); }
-
-        .game-container {
+        .game-board {
             position: relative;
             display: flex;
             justify-content: space-between;
-            width: 95vw;
-            max-width: 500px;
-            margin-top: 30px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 5;
+            touch-action: none;
         }
 
-        .column {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .item {
-            width: 80px;
-            height: 80px;
+        .col { display: flex; flex-direction: column; gap: 15px; z-index: 2; }
+        
+        .box {
+            width: 70px; height: 70px;
             background: white;
-            border: 3px solid #ddd;
-            border-radius: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-            position: relative;
-            z-index: 2;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .word-item {
-            width: 100px;
-            font-size: 1rem;
-            font-weight: bold;
-            text-align: center;
-        }
+        .word { width: 90px; font-size: 0.9rem; font-weight: bold; text-align: center; }
 
-        #drawing-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: auto;
-            z-index: 3;
-        }
-
-        .controls {
-            margin-top: 40px;
-            z-index: 10;
-        }
-
-        button {
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
-            cursor: pointer;
-        }
-
-        #result-popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        /* Result Label */
+        #status-label {
+            width: 90%;
+            max-width: 400px;
+            padding: 15px;
             background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+            border-radius: 10px;
             text-align: center;
-            z-index: 100;
-            width: 80%;
+            margin: 10px 0;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* History Table */
+        .history-section {
+            width: 95%;
+            max-width: 500px;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+        th { background: var(--primary); color: white; }
+
+        footer {
+            position: fixed;
+            bottom: 0; width: 100%;
+            background: #eee;
+            text-align: center;
+            padding: 5px;
+            font-size: 0.7rem;
         }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Bachpan ki Yaadein: Level 1</h1>
-    <div id="stats">Jodi Milao! 🍎 ➔ Word</div>
+    <div class="menu-btn" onclick="alert('Menu Open!')">☰</div>
+    <div id="level-title">Level: 1</div>
+    <div id="clock">00:00</div>
 </header>
 
-<div class="game-container" id="gameArea">
-    <canvas id="drawing-canvas"></canvas>
-    
-    <div class="column" id="left-col">
-        <div class="item" data-id="1" id="q1">🍎</div>
-        <div class="item" data-id="2" id="q2">🐶</div>
-        <div class="item" data-id="3" id="q3">🚗</div>
-        <div class="item" data-id="4" id="q4">☀️</div>
-        <div class="item" data-id="5" id="q5">🐟</div>
+<div class="container">
+    <div id="status-label">Jodi Milaiye! (Line Khinchiye)</div>
+
+    <div class="game-board" id="board">
+        <canvas id="canvas"></canvas>
+        <div class="col" id="left-side"></div>
+        <div class="col" id="right-side"></div>
     </div>
 
-    <div class="column" id="right-col">
-        <div class="item word-item" data-id="2" id="a2">DOG</div>
-        <div class="item word-item" data-id="5" id="a5">FISH</div>
-        <div class="item word-item" data-id="1" id="a1">APPLE</div>
-        <div class="item word-item" data-id="4" id="a4">SUN</div>
-        <div class="item word-item" data-id="3" id="a3">CAR</div>
+    <div class="history-section">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Level</th>
+                    <th>Correct</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+        </table>
     </div>
 </div>
 
-<div class="controls">
-    <button onclick="checkResults()">MY SCORE</button>
-</div>
-
-<div id="result-popup">
-    <h2 id="msg">Shabash!</h2>
-    <p id="score-text"></p>
-    <p id="time-text"></p>
-    <button onclick="location.reload()">Reset Game</button>
-</div>
+<footer>
+    <p>Made with ❤️ for Learners | Note: Har sahi jodi par points milenge.</p>
+</footer>
 
 <script>
-    const canvas = document.getElementById('drawing-canvas');
-    const ctx = canvas.getContext('2d');
-    const gameArea = document.getElementById('gameArea');
+    // Levels Data (Directly adding for demo, you can use levels.js)
+    const levels = [
+        { id: 1, data: [{q:'🍎', a:'APPLE'}, {q:'🐶', a:'DOG'}, {q:'🚗', a:'CAR'}, {q:'☀️', a:'SUN'}, {q:'🐟', a:'FISH'}]},
+        { id: 2, data: [{q:'🍌', a:'BANANA'}, {q:'🐱', a:'CAT'}, {q:'🚲', a:'CYCLE'}, {q:'🌙', a:'MOON'}, {q:'🐦', a:'BIRD'}]}
+    ];
+
+    let currentLevelIdx = 0;
     let startTime = Date.now();
     let isDrawing = false;
-    let startEl = null;
-    let currentLines = []; // Store finished lines: {startId, endId, startPos, endPos}
+    let currentLines = [];
+    let startPoint = null;
 
-    // Canvas size adjustment
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const clockEl = document.getElementById('clock');
+
+    // 1. Digital Clock
+    setInterval(() => {
+        const diff = Math.floor((Date.now() - startTime) / 1000);
+        const m = Math.floor(diff / 60).toString().padStart(2, '0');
+        const s = (diff % 60).toString().padStart(2, '0');
+        clockEl.innerText = `${m}:${s}`;
+    }, 1000);
+
+    // 2. Load Level
+    function loadLevel(idx) {
+        const level = levels[idx];
+        document.getElementById('level-title').innerText = `Level: ${level.id}`;
+        const left = document.getElementById('left-side');
+        const right = document.getElementById('right-side');
+        
+        left.innerHTML = ''; right.innerHTML = '';
+        currentLines = [];
+        startTime = Date.now();
+        
+        // Shuffle right side
+        const shuffled = [...level.data].sort(() => Math.random() - 0.5);
+
+        level.data.forEach((item, i) => {
+            left.innerHTML += `<div class="box" data-id="${item.a}" id="L${i}">${item.q}</div>`;
+            right.innerHTML += `<div class="box word" data-id="${shuffled[i].a}" id="R${i}">${shuffled[i].a}</div>`;
+        });
+
+        setTimeout(resizeCanvas, 100);
+    }
+
     function resizeCanvas() {
-        canvas.width = gameArea.clientWidth;
-        canvas.height = gameArea.clientHeight;
+        const board = document.getElementById('board');
+        canvas.width = board.clientWidth;
+        canvas.height = board.clientHeight;
+        drawLines();
     }
-    window.onload = resizeCanvas;
 
-    // Drawing Logic
-    canvas.addEventListener('touchstart', (e) => {
-        const touch = e.touches[0];
+    // 3. Drawing Logic
+    canvas.addEventListener('touchstart', e => {
         const rect = canvas.getBoundingClientRect();
-        const x = touch.clientX - rect.left;
-        const y = touch.clientY - rect.top;
+        const x = e.touches[0].clientX - rect.left;
+        const y = e.touches[0].clientY - rect.top;
 
-        // Check if starting near a left item
-        document.querySelectorAll('#left-col .item').forEach(el => {
-            const elRect = el.getBoundingClientRect();
-            const relX = elRect.left + elRect.width - rect.left;
-            const relY = elRect.top + elRect.height/2 - rect.top;
-
-            if (Math.abs(x - relX) < 40 && Math.abs(y - relY) < 40) {
+        document.querySelectorAll('#left-side .box').forEach(el => {
+            const r = el.getBoundingClientRect();
+            if (x < (r.right - rect.left) && y > (r.top - rect.top) && y < (r.bottom - rect.top)) {
                 isDrawing = true;
-                startEl = el;
+                startPoint = { x: r.right - rect.left, y: r.top + r.height/2 - rect.top, id: el.dataset.id };
             }
         });
     });
 
-    canvas.addEventListener('touchmove', (e) => {
+    canvas.addEventListener('touchmove', e => {
         if (!isDrawing) return;
-        const touch = e.touches[0];
+        drawLines();
         const rect = canvas.getBoundingClientRect();
-        
-        drawScene(); // Redraw existing lines
-        
-        // Draw current live line
-        const startRect = startEl.getBoundingClientRect();
         ctx.beginPath();
-        ctx.moveTo(startRect.right - rect.left, startRect.top + startRect.height/2 - rect.top);
-        ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-        ctx.strokeStyle = '#4a90e2';
-        ctx.lineWidth = 4;
-        ctx.lineCap = 'round';
-        ctx.stroke();
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+        ctx.strokeStyle = "#4a90e2"; ctx.lineWidth = 3; ctx.stroke();
     });
 
-    canvas.addEventListener('touchend', (e) => {
+    canvas.addEventListener('touchend', e => {
         if (!isDrawing) return;
-        const touch = e.changedTouches[0];
         const rect = canvas.getBoundingClientRect();
-        const x = touch.clientX - rect.left;
-        const y = touch.clientY - rect.top;
+        const x = e.changedTouches[0].clientX - rect.left;
+        const y = e.changedTouches[0].clientY - rect.top;
 
-        let found = false;
-        document.querySelectorAll('#right-col .item').forEach(el => {
-            const elRect = el.getBoundingClientRect();
-            const relX = elRect.left - rect.left;
-            const relY = elRect.top + elRect.height/2 - rect.top;
-
-            if (Math.abs(x - relX) < 50 && Math.abs(y - relY) < 50) {
-                // Connection made
-                const startRect = startEl.getBoundingClientRect();
-                currentLines.push({
-                    startId: startEl.dataset.id,
-                    endId: el.dataset.id,
-                    sx: startRect.right - rect.left,
-                    sy: startRect.top + startRect.height/2 - rect.top,
-                    ex: relX,
-                    ey: relY
-                });
-                found = true;
+        document.querySelectorAll('#right-side .box').forEach(el => {
+            const r = el.getBoundingClientRect();
+            if (x > (r.left - rect.left) && y > (r.top - rect.top) && y < (r.bottom - rect.top)) {
+                // Check if already connected
+                if (!currentLines.find(l => l.startId === startPoint.id)) {
+                    currentLines.push({
+                        startId: startPoint.id, endId: el.dataset.id,
+                        x1: startPoint.x, y1: startPoint.y,
+                        x2: r.left - rect.left, y2: r.top + r.height/2 - rect.top
+                    });
+                }
             }
         });
-
         isDrawing = false;
-        drawScene();
+        drawLines();
+        if (currentLines.length === 5) autoCheck();
     });
 
-    function drawScene(showColors = false) {
+    function drawLines(colored = false) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        currentLines.forEach(line => {
+        currentLines.forEach(l => {
             ctx.beginPath();
-            ctx.moveTo(line.sx, line.sy);
-            ctx.lineTo(line.ex, line.ey);
-            
-            if (showColors) {
-                ctx.strokeStyle = (line.startId === line.endId) ? '#2ecc71' : '#e74c3c';
-            } else {
-                ctx.strokeStyle = '#4a90e2';
-            }
-            
-            ctx.lineWidth = 4;
-            ctx.stroke();
+            ctx.moveTo(l.x1, l.y1); ctx.lineTo(l.x2, l.y2);
+            ctx.strokeStyle = colored ? (l.startId === l.endId ? "#2ecc71" : "#e74c3c") : "#4a90e2";
+            ctx.lineWidth = 4; ctx.stroke();
         });
     }
 
-    function checkResults() {
-        const endTime = Date.now();
-        const seconds = Math.floor((endTime - startTime) / 1000);
-        
-        let correct = 0;
-        currentLines.forEach(line => {
-            if (line.startId === line.endId) correct++;
-        });
+    // 4. Score & Local Storage
+    function autoCheck() {
+        drawLines(true);
+        let correct = currentLines.filter(l => l.startId === l.endId).length;
+        let timeTaken = Math.floor((Date.now() - startTime) / 1000);
+        let score = (correct * 100) + Math.max(0, 500 - (timeTaken * 5));
 
-        // Points calculation
-        const baseScore = correct * 100;
-        const bonus = Math.max(0, Math.floor(5000 / (seconds + 1)));
-        const totalScore = baseScore + (correct > 0 ? bonus : 0);
+        document.getElementById('status-label').innerHTML = 
+            `<span style="color:var(--success)">Sahi: ${correct}/5</span> | Score: ${score} <br> 
+             <button onclick="nextLevel()" style="margin-top:10px">Next Level</button>`;
 
-        drawScene(true); // Show Red/Green lines
-
-        document.getElementById('score-text').innerText = `Score: ${totalScore} Points`;
-        document.getElementById('time-text').innerText = `Samay liya: ${seconds} seconds | Sahi: ${correct}/5`;
-        document.getElementById('result-popup').style.display = 'block';
+        // Save to History
+        const entry = { date: new Date().toLocaleDateString(), level: currentLevelIdx+1, correct, score };
+        let history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
+        history.unshift(entry);
+        localStorage.setItem('gameHistory', JSON.stringify(history));
+        updateTable();
     }
+
+    function updateTable() {
+        const history = JSON.parse(localStorage.getItem('gameHistory') || '[]');
+        document.getElementById('history-body').innerHTML = history.map(h => 
+            `<tr><td>${h.date}</td><td>${h.level}</td><td>${h.correct}</td><td>${h.score}</td></tr>`
+        ).join('');
+    }
+
+    function nextLevel() {
+        currentLevelIdx = (currentLevelIdx + 1) % levels.length;
+        document.getElementById('status-label').innerText = "Jodi Milaiye!";
+        loadLevel(currentLevelIdx);
+    }
+
+    window.onload = () => { loadLevel(0); updateTable(); };
 </script>
-
 </body>
 </html>

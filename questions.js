@@ -53,11 +53,6 @@ const gameData = {
                 {q:"🌍", sub:"Planet", a:"Earth"}
             ] 
         }
-    ]
-};
-const gameData = {
-    "General": [
-        // Aapke purane levels yahan rahenge...
     ],
 
     "Idioms": [

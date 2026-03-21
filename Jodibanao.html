@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -195,6 +196,230 @@
     }, 1000);
 
     window.onload = renderHome;
+</script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Jodi Milao - Non-Stop</title>
+    <style>
+        :root { --p: #4a90e2; --s: #2ecc71; --d: #e74c3c; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-top: 70px; padding-bottom: 30px; }
+
+        /* Header & Sidebar */
+        header { position: fixed; top: 0; width: 100%; height: 60px; background: white; display: flex; 
+                 align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 10px #0001; z-index: 1000; box-sizing: border-box;}
+        
+        .sidebar { position: fixed; left: -250px; top: 0; width: 250px; height: 100%; background: white; 
+                   z-index: 2000; transition: 0.3s; box-shadow: 2px 0 10px #0002; padding: 20px; box-sizing: border-box;}
+        .sidebar.active { left: 0; }
+        .overlay { position: fixed; display: none; top: 0; left: 0; width: 100%; height: 100%; background: #0005; z-index: 1500; }
+
+        /* Level Cards Feed */
+        .feed { display: flex; flex-direction: column; align-items: center; gap: 30px; padding: 15px; }
+        .level-card { width: 100%; max-width: 450px; background: white; border-radius: 20px; 
+                      padding: 15px; box-shadow: 0 4px 15px #0001; position: relative; transition: 0.3s; }
+        .level-card.locked { opacity: 0.6; pointer-events: none; filter: grayscale(1); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        /* Game Component */
+        .board { position: relative; display: flex; justify-content: space-between; height: 350px; margin: 10px 0; touch-action: none; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; }
+        .col { display: flex; flex-direction: column; gap: 8px; z-index: 10; width: 30%; }
+        .box { background: #f8f9fa; border: 2px solid #eee; border-radius: 10px; padding: 10px; text-align: center; font-size: 1.2rem; min-height: 50px; display: flex; flex-direction: column; justify-content: center; align-items: center;}
+        .sub { font-size: 9px; color: #888; margin-top: 2px; }
+        .word { font-size: 12px; font-weight: bold; width: 100%; }
+
+        /* Buttons & Badges */
+        .share-btn { background: #25D366; color: white; border: none; padding: 5px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
+        .score-tag { background: #f1c40f; padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+        
+        .menu-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<div class="sidebar" id="sidebar">
+    <h3>Menu</h3>
+    <div class="menu-item" onclick="resetGame()">🔄 Reset Progress</div>
+    <div class="menu-item" onclick="toggleMenu()">❌ Close</div>
+</div>
+
+<header>
+    <div onclick="toggleMenu()" style="font-size:24px; cursor:pointer;">☰</div>
+    <div style="font-weight:bold; color:var(--p)">Jodi Milao 2026</div>
+    <div id="clock" style="font-family:monospace; background:#eee; padding:5px; border-radius:5px;">00:00</div>
+</header>
+
+<div class="feed" id="game-feed">
+    </div>
+
+<script src="questions.js"></script>
+<script>
+    // Agar questions.js nahi hai toh ye dummy data kaam karega
+    const data = typeof gameData !== 'undefined' ? gameData : {
+        "General": [
+            { level: 1, pairs: [{q:"🍎", sub:"Fruit", a:"Apple"}, {q:"🐶", sub:"Animal", a:"Dog"}, {q:"🚗", sub:"Vehicle", a:"Car"}] },
+            { level: 2, pairs: [{q:"💻", sub:"Tech", a:"Laptop"}, {q:"📱", sub:"Tech", a:"Mobile"}, {q:"🖱️", sub:"Tech", a:"Mouse"}] },
+            { level: 3, pairs: [{q:"☀️", sub:"Space", a:"Sun"}, {q:"🌍", sub:"Space", a:"Earth"}, {q:"🌙", sub:"Space", a:"Moon"}] }
+        ]
+    };
+
+    let unlockedLevel = parseInt(localStorage.getItem('unlockedLevel')) || 1;
+    let activeCanvas = null;
+    let ctx = null;
+    let isDrawing = false;
+    let startPt = null;
+    let lines = [];
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none';
+    }
+
+    function resetGame() {
+        if(confirm("Saara progress delete karein?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    function renderFeed() {
+        const feed = document.getElementById('game-feed');
+        feed.innerHTML = '';
+        const currentCat = "General"; // Aap dropdown se badal sakte hain
+
+        data[currentCat].forEach((lvl, index) => {
+            const isLocked = lvl.level > unlockedLevel;
+            const score = localStorage.getItem(`score_${lvl.level}`) || 0;
+            
+            const card = document.createElement('div');
+            card.className = `level-card ${isLocked ? 'locked' : ''}`;
+            card.id = `card-${lvl.level}`;
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <span style="font-weight:bold">Level ${lvl.level}</span>
+                    <span class="score-tag">Best: ${score}</span>
+                    <button class="share-btn" onclick="shareLevel(${lvl.level})">Share</button>
+                </div>
+                <div class="board" id="board-${lvl.level}">
+                    <canvas id="canvas-${lvl.level}"></canvas>
+                    <div class="col left"></div>
+                    <div class="col right"></div>
+                </div>
+            `;
+            feed.appendChild(card);
+            setupBoard(lvl);
+        });
+    }
+
+    function setupBoard(lvl) {
+        const board = document.getElementById(`board-${lvl.level}`);
+        const left = board.querySelector('.left');
+        const right = board.querySelector('.right');
+        const canvas = document.getElementById(`canvas-${lvl.level}`);
+        
+        // Shuffle Answers
+        const shuffled = [...lvl.pairs].sort(() => Math.random() - 0.5);
+
+        lvl.pairs.forEach((p, i) => {
+            left.innerHTML += `<div class="box" id="L-${lvl.level}-${i}" data-ans="${p.a}">${p.q}<div class="sub">(${p.sub})</div></div>`;
+            right.innerHTML += `<div class="box word" id="R-${lvl.level}-${i}" data-ans="${shuffled[i].a}">${shuffled[i].a}</div>`;
+        });
+
+        // Initialize Canvas
+        setTimeout(() => {
+            canvas.width = board.clientWidth;
+            canvas.height = board.clientHeight;
+            attachEvents(canvas, lvl);
+        }, 300);
+    }
+
+    function attachEvents(canv, lvl) {
+        const localLines = [];
+        const localCtx = canv.getContext('2d');
+
+        canv.addEventListener('touchstart', e => {
+            const r = canv.getBoundingClientRect();
+            const x = e.touches[0].clientX - r.left;
+            const y = e.touches[0].clientY - r.top;
+            
+            canv.parentElement.querySelectorAll('.left .box').forEach(box => {
+                const bR = box.getBoundingClientRect();
+                if (y > bR.top - r.top && y < bR.bottom - r.top) {
+                    isDrawing = true;
+                    startPt = { x: bR.right - r.left, y: bR.top + bR.height/2 - r.top, ans: box.dataset.ans };
+                }
+            });
+        });
+
+        canv.addEventListener('touchmove', e => {
+            if(!isDrawing) return;
+            const r = canv.getBoundingClientRect();
+            localCtx.clearRect(0,0,canv.width,canv.height);
+            // Draw existing lines
+            localLines.forEach(l => drawLine(localCtx, l.x1, l.y1, l.x2, l.y2, l.color));
+            // Draw current
+            drawLine(localCtx, startPt.x, startPt.y, e.touches[0].clientX - r.left, e.touches[0].clientY - r.top, "#4a90e2");
+        });
+
+        canv.addEventListener('touchend', e => {
+            if(!isDrawing) return;
+            const r = canv.getBoundingClientRect();
+            const x = e.changedTouches[0].clientX - r.left;
+            const y = e.changedTouches[0].clientY - r.top;
+
+            canv.parentElement.querySelectorAll('.right .box').forEach(box => {
+                const bR = box.getBoundingClientRect();
+                if (x > bR.left - r.left && y > bR.top - r.top && y < bR.bottom - r.top) {
+                    if(!localLines.find(l => l.ans === startPt.ans)) {
+                        const isCorrect = startPt.ans === box.dataset.ans;
+                        localLines.push({ 
+                            ans: startPt.ans, x1: startPt.x, y1: startPt.y, 
+                            x2: bR.left - r.left, y2: bR.top + bR.height/2 - r.top,
+                            color: isCorrect ? "#2ecc71" : "#e74c3c"
+                        });
+                    }
+                }
+            });
+            isDrawing = false;
+            localCtx.clearRect(0,0,canv.width,canv.height);
+            localLines.forEach(l => drawLine(localCtx, l.x1, l.y1, l.x2, l.y2, l.color));
+
+            if(localLines.length === lvl.pairs.length) {
+                const score = localLines.filter(l => l.color === "#2ecc71").length * 100;
+                localStorage.setItem(`score_${lvl.level}`, score);
+                if(lvl.level === unlockedLevel) {
+                    unlockedLevel++;
+                    localStorage.setItem('unlockedLevel', unlockedLevel);
+                    setTimeout(renderFeed, 1000); // Refresh to unlock next
+                }
+            }
+        });
+    }
+
+    function drawLine(c, x1, y1, x2, y2, color) {
+        c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
+        c.strokeStyle = color; c.lineWidth = 4; c.lineCap = "round"; c.stroke();
+    }
+
+    function shareLevel(lvl) {
+        const msg = encodeURIComponent(`Maine Jodi Milao Game mein Level ${lvl} complete kiya! Kya aap try karenge? 🎮`);
+        window.open(`whatsapp://send?text=${msg}`);
+    }
+
+    setInterval(() => {
+        const diff = Math.floor((Date.now() - 1711000000000)/1000); // Sample timer
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }, 1000);
+
+    window.onload = renderFeed;
 </script>
 </body>
 </html>

@@ -425,6 +425,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -676,6 +677,209 @@
     setInterval(() => {
         document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     }, 1000);
+
+    window.onload = () => { renderCategories(); renderFeed(); };
+</script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Jodi Milao Pro 2026</title>
+    <style>
+        :root { --p: #4a90e2; --s: #2ecc71; --d: #e74c3c; --bg: #f0f2f5; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); padding-top: 115px; padding-bottom: 60px; }
+
+        /* Header & Category Bar */
+        header { position: fixed; top: 0; width: 100%; height: 60px; background: white; display: flex; 
+                 align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 10px #0001; z-index: 1001; box-sizing: border-box;}
+        
+        .cat-bar { position: fixed; top: 60px; width: 100%; height: 50px; background: white; z-index: 1000; 
+                   display: flex; align-items: center; overflow-x: auto; padding: 0 10px; box-shadow: 0 2px 5px #0001; box-sizing: border-box; }
+        .cat-item { padding: 6px 15px; margin-right: 10px; background: #eee; border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+        .cat-item.active { background: var(--p); color: white; }
+
+        /* Feed & Cards */
+        .feed { display: flex; flex-direction: column; align-items: center; gap: 25px; padding: 15px; }
+        .level-card { width: 100%; max-width: 450px; background: white; border-radius: 18px; padding: 15px; box-shadow: 0 4px 15px #0001; box-sizing: border-box; }
+        .level-card.locked { opacity: 0.5; pointer-events: none; filter: grayscale(1); }
+
+        /* Board & Canvas Fix */
+        .board { position: relative; display: flex; justify-content: space-between; height: 350px; margin: 10px 0; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; touch-action: none; pointer-events: auto; }
+        .col { display: flex; flex-direction: column; gap: 10px; z-index: 10; width: 33%; position: relative; }
+        
+        .box { background: #fdfdfd; border: 2px solid #f0f0f0; border-radius: 12px; padding: 8px; text-align: center; 
+               min-height: 55px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 5;}
+        .sub { font-size: 9px; color: #999; margin-top: 2px; }
+        .word { font-size: 11px; font-weight: bold; }
+
+        footer { position: fixed; bottom: 0; width: 100%; height: 50px; background: #333; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; z-index: 1001; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div onclick="location.reload()" style="font-size:24px;">🏠</div>
+    <div style="font-weight:bold; color:var(--p)">JODI MILAO</div>
+    <div id="clock">00:00</div>
+</header>
+
+<div class="cat-bar" id="category-bar"></div>
+<div class="feed" id="game-feed"></div>
+
+<footer>© 2026 Star Digital Shop | Design by AI</footer>
+
+<script src="questions.js"></script>
+<script>
+    // Audio Context for Beep Sound (No files needed)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTouchSound(freq = 400, type = 'sine') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    }
+
+    const data = typeof gameData !== 'undefined' ? gameData : { "General": [{level:1, pairs:[{q:"A", sub:"test", a:"A"}]}] };
+    let currentCat = Object.keys(data)[0];
+    let isDrawing = false;
+    let startPt = null;
+
+    function renderCategories() {
+        const bar = document.getElementById('category-bar');
+        bar.innerHTML = '';
+        Object.keys(data).forEach(cat => {
+            const div = document.createElement('div');
+            div.className = `cat-item ${cat === currentCat ? 'active' : ''}`;
+            div.innerText = cat;
+            div.onclick = () => { currentCat = cat; renderCategories(); renderFeed(); };
+            bar.appendChild(div);
+        });
+    }
+
+    function renderFeed() {
+        const feed = document.getElementById('game-feed');
+        feed.innerHTML = '';
+        const unlocked = parseInt(localStorage.getItem(`unlocked_${currentCat}`)) || 1;
+
+        data[currentCat].forEach(lvl => {
+            const card = document.createElement('div');
+            card.className = `level-card ${lvl.level > unlocked ? 'locked' : ''}`;
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:12px;">
+                    <b>Level ${lvl.level}</b>
+                    <button onclick="shareLevel('${currentCat}', ${lvl.level})" style="background:#25D366; color:white; border:none; border-radius:5px; padding:3px 8px;">WhatsApp</button>
+                </div>
+                <div class="board" id="board-${lvl.level}">
+                    <canvas id="canvas-${lvl.level}"></canvas>
+                    <div class="col left"></div>
+                    <div class="col right"></div>
+                </div>
+            `;
+            feed.appendChild(card);
+            setupLevel(lvl);
+        });
+    }
+
+    function setupLevel(lvl) {
+        const board = document.getElementById(`board-${lvl.level}`);
+        const left = board.querySelector('.left');
+        const right = board.querySelector('.right');
+        const canv = document.getElementById(`canvas-${lvl.level}`);
+        const shuffled = [...lvl.pairs].sort(() => Math.random() - 0.5);
+
+        lvl.pairs.forEach((p, i) => {
+            left.innerHTML += `<div class="box" id="L-${lvl.level}-${i}" data-ans="${p.a}">${p.q}<div class="sub">(${p.sub})</div></div>`;
+            right.innerHTML += `<div class="box word" id="R-${lvl.level}-${i}" data-ans="${shuffled[i].a}">${shuffled[i].a}</div>`;
+        });
+
+        // Drawing Logic Fix
+        setTimeout(() => {
+            canv.width = board.offsetWidth;
+            canv.height = board.offsetHeight;
+            const ctx = canv.getContext('2d');
+            let lines = [];
+
+            canv.addEventListener('touchstart', e => {
+                const r = canv.getBoundingClientRect();
+                const tx = e.touches[0].clientX - r.left;
+                const ty = e.touches[0].clientY - r.top;
+
+                board.querySelectorAll('.left .box').forEach(box => {
+                    const b = box.getBoundingClientRect();
+                    if (ty > b.top - r.top && ty < b.bottom - r.top) {
+                        isDrawing = true;
+                        startPt = { x: b.right - r.left, y: b.top + b.height/2 - r.top, ans: box.dataset.ans };
+                        playTouchSound(500); // Start sound
+                    }
+                });
+            });
+
+            canv.addEventListener('touchmove', e => {
+                if(!isDrawing) return;
+                const r = canv.getBoundingClientRect();
+                ctx.clearRect(0,0,canv.width,canv.height);
+                lines.forEach(l => drawLine(ctx, l.x1, l.y1, l.x2, l.y2, l.col));
+                drawLine(ctx, startPt.x, startPt.y, e.touches[0].clientX - r.left, e.touches[0].clientY - r.top, "#4a90e2");
+            });
+
+            canv.addEventListener('touchend', e => {
+                if(!isDrawing) return;
+                const r = canv.getBoundingClientRect();
+                const ex = e.changedTouches[0].clientX - r.left;
+                const ey = e.changedTouches[0].clientY - r.top;
+
+                board.querySelectorAll('.right .box').forEach(box => {
+                    const b = box.getBoundingClientRect();
+                    if (ex > b.left - r.left && ey > b.top - r.top && ey < b.bottom - r.top) {
+                        if(!lines.find(l => l.ans === startPt.ans)) {
+                            const correct = startPt.ans === box.dataset.ans;
+                            lines.push({ 
+                                ans: startPt.ans, x1: startPt.x, y1: startPt.y, 
+                                x2: b.left - r.left, y2: b.top + b.height/2 - r.top,
+                                col: correct ? "#2ecc71" : "#e74c3c"
+                            });
+                            playTouchSound(correct ? 800 : 200, correct ? 'sine' : 'square'); // Success/Fail sound
+                        }
+                    }
+                });
+
+                isDrawing = false;
+                ctx.clearRect(0,0,canv.width,canv.height);
+                lines.forEach(l => drawLine(ctx, l.x1, l.y1, l.x2, l.y2, l.col));
+
+                if(lines.length === lvl.pairs.length) {
+                    let score = lines.filter(l => l.col === "#2ecc71").length * 100;
+                    localStorage.setItem(`score_${currentCat}_${lvl.level}`, score);
+                    let unlocked = parseInt(localStorage.getItem(`unlocked_${currentCat}`)) || 1;
+                    if(lvl.level === unlocked) {
+                        localStorage.setItem(`unlocked_${currentCat}`, unlocked + 1);
+                        setTimeout(renderFeed, 1000);
+                    }
+                }
+            });
+        }, 500);
+    }
+
+    function drawLine(ctx, x1, y1, x2, y2, col) {
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.strokeStyle = col; ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.stroke();
+    }
+
+    function shareLevel(cat, id) {
+        const url = window.location.href;
+        const text = `🔥 Challenge: Category ${cat} | Level ${id} \nKya aap ye jodi mila sakte hain? \nKhelne ke liye click karein: ${url}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+    }
 
     window.onload = () => { renderCategories(); renderFeed(); };
 </script>

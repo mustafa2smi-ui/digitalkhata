@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -152,6 +153,215 @@
             navigator.share({ title: 'Trip Timeline', text: msg, url: window.location.href });
         } else {
             alert("Copy this to share: " + msg);
+        }
+    }
+
+    window.onload = render;
+</script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Timeline | Live Journey Tracker</title>
+    
+    <meta name="description" content="Capture your travel memories with live GPS tracking and photos.">
+    <meta property="og:title" content="My Journey Timeline 📍">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="icon" href="https://fonts.gstatic.com/s/i/short-term/release/googlestandardsymbols/location_on/default/24px.svg">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding-bottom: 180px; color: var(--text); }
+        
+        header { 
+            background: linear-gradient(135deg, #1e40af, #2563eb); 
+            color: white; padding: 20px; text-align: center; 
+            position: sticky; top: 0; z-index: 100; border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .container { padding: 15px; max-width: 600px; margin: auto; }
+        .timeline { border-left: 3px solid #cbd5e1; margin-left: 15px; padding-left: 20px; }
+
+        .log-card { 
+            background: white; border-radius: 15px; padding: 15px; margin-bottom: 20px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative;
+            transition: 0.3s;
+        }
+
+        /* Disable interaction for deleted logs */
+        .log-card.deleted { 
+            opacity: 0.5; background: #fff1f2; border: 1px dashed var(--danger);
+            pointer-events: none; /* Isse click disable ho jayega */
+        }
+
+        .delete-btn { 
+            position: absolute; top: 10px; right: 10px; 
+            background: #fee2e2; border: none; color: var(--danger); 
+            border-radius: 50%; width: 30px; height: 30px; cursor: pointer; pointer-events: auto;
+        }
+
+        .map-link { color: var(--primary); font-weight: 600; text-decoration: none; font-size: 0.85rem; display: block; margin-top: 8px; }
+
+        .controls { 
+            position: fixed; bottom: 0; width: 100%; background: white; 
+            padding: 15px; box-sizing: border-box; border-radius: 25px 25px 0 0;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.1); z-index: 200;
+        }
+
+        .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
+        input, textarea { flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-family: inherit; }
+        
+        .btn-live { background: #f59e0b; color: white; border: none; border-radius: 10px; padding: 0 15px; cursor: pointer; font-weight: bold; }
+
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-blue { background: var(--primary); color: white; }
+        .btn-green { background: #10b981; color: white; }
+        
+        .deleted-msg { color: var(--danger); font-weight: 600; font-size: 0.9rem; margin: 5px 0; }
+        #img-preview { height: 40px; border-radius: 5px; display: none; margin-left: 10px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2 style="margin:0">🚗 Trip Timeline</h2>
+    <div id="liveClock" style="font-size: 0.85rem; margin-top:5px"></div>
+</header>
+
+<div class="container">
+    <div id="timeline" class="timeline"></div>
+    <button onclick="window.print()" class="btn" style="background:#64748b; color:white; margin-top:20px; width:100%">📄 Export Trip as PDF</button>
+</div>
+
+<div class="controls">
+    <div class="input-group">
+        <input type="text" id="loc" placeholder="City or Paste Maps Link">
+        <button class="btn-live" onclick="getLiveLocation()" title="Get Live GPS">📍 Live</button>
+    </div>
+    
+    <textarea id="note" placeholder="Write something (Max 100 words)..." rows="2"></textarea>
+    
+    <div class="btn-row">
+        <button class="btn" onclick="document.getElementById('img').click()" style="background:#f1f5f9; color:#475569">📸 Photo</button>
+        <button class="btn btn-blue" onclick="addLog()">🚀 Log Now</button>
+        <button class="btn btn-green" onclick="shareApp()">🔗 Share</button>
+    </div>
+    <input type="file" id="img" accept="image/*" capture="camera" style="display:none">
+    <center><img id="img-preview"></center>
+</div>
+
+<script>
+    let currentImg = "";
+    
+    // Image Handling
+    document.getElementById('img').onchange = e => {
+        const reader = new FileReader();
+        reader.onload = r => {
+            currentImg = r.target.result;
+            document.getElementById('img-preview').src = currentImg;
+            document.getElementById('img-preview').style.display = "inline-block";
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    // Live Clock
+    setInterval(() => {
+        document.getElementById('liveClock').innerText = new Date().toLocaleString('en-IN');
+    }, 1000);
+
+    // 1. Live Location API
+    function getLiveLocation() {
+        const btn = document.querySelector('.btn-live');
+        btn.innerText = "⏳...";
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                // Creating Google Maps Link automatically
+                document.getElementById('loc').value = `https://www.google.com/maps?q=${lat},${lon}`;
+                btn.innerText = "✅";
+                setTimeout(() => btn.innerText = "📍 Live", 2000);
+            }, () => {
+                alert("GPS Permission denied!");
+                btn.innerText = "📍 Live";
+            });
+        }
+    }
+
+    // 2. Add Log
+    function addLog() {
+        const locVal = document.getElementById('loc').value;
+        const noteVal = document.getElementById('note').value;
+        if(!locVal) return alert("Please enter location or use Live GPS!");
+
+        const isLink = locVal.includes("http");
+        const entry = {
+            id: Date.now(),
+            location: isLink ? "📍 Current GPS Location" : locVal,
+            link: isLink ? locVal : "",
+            note: noteVal,
+            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+            date: new Date().toLocaleDateString(),
+            img: currentImg,
+            isDeleted: false
+        };
+
+        const data = JSON.parse(localStorage.getItem('tripLogs') || "[]");
+        data.push(entry);
+        localStorage.setItem('tripLogs', JSON.stringify(data));
+        
+        render();
+        // Clear Form
+        document.getElementById('loc').value = "";
+        document.getElementById('note').value = "";
+        document.getElementById('img-preview').style.display = "none";
+        currentImg = "";
+    }
+
+    // 3. Delete Logic (With Disabled Click)
+    function deleteLog(id) {
+        if(confirm("Delete this point?")) {
+            let data = JSON.parse(localStorage.getItem('tripLogs'));
+            data = data.map(item => item.id === id ? {...item, isDeleted: true} : item);
+            localStorage.setItem('tripLogs', JSON.stringify(data));
+            render();
+        }
+    }
+
+    function render() {
+        const container = document.getElementById('timeline');
+        const data = JSON.parse(localStorage.getItem('tripLogs') || "[]");
+        container.innerHTML = data.slice().reverse().map(item => `
+            <div class="log-card ${item.isDeleted ? 'deleted' : ''}">
+                ${!item.isDeleted ? `<button class="delete-btn" onclick="deleteLog(${item.id})">✕</button>` : ''}
+                <div style="font-size:0.75rem; color:#64748b; margin-bottom:5px">${item.date} | ${item.time}</div>
+                <strong style="color:#1e40af">${item.location}</strong>
+                
+                ${item.isDeleted ? `
+                    <p class="deleted-msg">🚫 This location was deleted</p>
+                ` : `
+                    ${item.link ? `<a href="${item.link}" target="_blank" class="map-link">View on Google Maps →</a>` : ''}
+                    <p style="margin: 8px 0; font-size:0.95rem;">${item.note}</p>
+                    ${item.img ? `<img src="${item.img}" style="width:100%; border-radius:12px; margin-top:10px">` : ''}
+                `}
+            </div>
+        `).join('');
+    }
+
+    function shareApp() {
+        const msg = "Check out my live Trip Timeline! 🚗💨\nTrack my journey here: ";
+        if (navigator.share) {
+            navigator.share({ title: 'My Journey', text: msg, url: window.location.href });
+        } else {
+            prompt("Copy & Share link:", msg + window.location.href);
         }
     }
 

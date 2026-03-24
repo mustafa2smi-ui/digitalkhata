@@ -1,3 +1,4 @@
+/*
 // Register the datalabels plugin globally (Imported in HTML)
 Chart.register(ChartDataLabels);
 
@@ -227,5 +228,156 @@ async function downloadImage(format) {
         link.download = `${fileName}.jpg`;
     }
     
+    link.click();
+}
+*/
+Chart.register(ChartDataLabels);
+let myChart = null;
+
+// Sahi dino ki sankhya nikalne ke liye function
+function getDaysInMonth(month, year) {
+    const monthIndex = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ].indexOf(month);
+    
+    // February ke liye 28 ya 29 check karega, baaki ke liye sahi din
+    return new Date(year, monthIndex + 1, 0).getDate();
+}
+
+function generateTable() {
+    const month = document.getElementById('monthSelect').value;
+    const durationType = document.getElementById('durationSelect').value;
+    const currentYear = new Date().getFullYear();
+    
+    let days;
+    if (durationType === "30") {
+        days = getDaysInMonth(month, currentYear); // February fix yaha hai
+    } else {
+        days = parseInt(durationType);
+    }
+
+    document.getElementById('selectedReportTitle').innerText = `${month} (${days} Days)`;
+    document.getElementById('chartReportTitle').innerText = `${month} Daylight Analysis`;
+    document.getElementById('dataEntryCard').style.display = 'block';
+    document.getElementById('graphCard').style.display = 'none';
+
+    let html = `<table><thead><tr><th>Day</th><th>Sunrise☀️</th><th>Sunset🌙</th></tr></thead><tbody>`;
+    for(let i=1; i<=days; i++) {
+        html += `<tr>
+            <td><strong>Day ${i}</strong></td>
+            <td><input type="time" class="sunrise-input" value="06:00"></td>
+            <td><input type="time" class="sunset-input" value="18:00"></td>
+        </tr>`;
+    }
+    html += `</tbody></table>`;
+    document.getElementById('table-wrapper').innerHTML = html;
+}
+
+function timeToDecimal(timeStr) {
+    if(!timeStr) return 0;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours + (minutes / 60);
+}
+
+function formatTimeAP(decimalHours) {
+    let hours = Math.floor(decimalHours);
+    let minutes = Math.round((decimalHours - hours) * 60);
+    if (minutes === 60) { hours += 1; minutes = 0; }
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    let h = hours % 12; h = h ? h : 12;
+    return `${h}:${minutes < 10 ? '0'+minutes : minutes}${ampm}`;
+}
+
+function createChart() {
+    const sunriseInputs = document.querySelectorAll('.sunrise-input');
+    const sunsetInputs = document.querySelectorAll('.sunset-input');
+    const labels = [], durData = [], rawSunrise = [], rawSunset = [];
+
+    sunriseInputs.forEach((input, index) => {
+        const srDec = timeToDecimal(input.value);
+        let ssDec = timeToDecimal(sunsetInputs[index].value);
+        if(ssDec < srDec) ssDec += 24; 
+        const diff = (ssDec - srDec).toFixed(2);
+
+        labels.push(`D-${index + 1}`);
+        durData.push(parseFloat(diff));
+        rawSunrise.push(formatTimeAP(srDec));
+        rawSunset.push(formatTimeAP(ssDec));
+    });
+
+    document.getElementById('graphCard').style.display = 'block';
+    if(myChart) myChart.destroy();
+
+    const ctx = document.getElementById('daylightChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, '#818cf8');
+    gradient.addColorStop(1, '#4f46e5');
+
+    myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: durData,
+                backgroundColor: gradient,
+                borderColor: '#4338ca',
+                borderWidth: 1,
+                borderRadius: 8,
+                barPercentage: 0.8,      // Bar ko mota karne ke liye
+                categoryPercentage: 0.9, // Bars ke beech gap kam karne ke liye
+                sunriseTimes: rawSunrise, 
+                sunsetTimes: rawSunset
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 50, bottom: 50 } },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    max: Math.max(...durData) * 1.3,
+                    ticks: { callback: v => v + 'h' }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    display: true,
+                    textAlign: 'center',
+                    labels: {
+                        sunrise: {
+                            align: 'top', anchor: 'end', color: '#d97706', // Orange for sun
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (v, ctx) => ctx.dataset.sunriseTimes[ctx.dataIndex],
+                            offset: 10
+                        },
+                        duration: {
+                            align: 'center', anchor: 'center', color: '#ffffff',
+                            font: { weight: 'bold', size: 14 },
+                            formatter: v => v + ' hrs'
+                        },
+                        sunset: {
+                            align: 'bottom', anchor: 'start', color: '#1e293b',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (v, ctx) => ctx.dataset.sunsetTimes[ctx.dataIndex],
+                            offset: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Download function remains same
+async function downloadImage(format) {
+    const element = document.getElementById('capture-area');
+    const canvas = await html2canvas(element, { scale: 2 });
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL(format === 'png' ? 'image/png' : 'image/jpeg');
+    link.download = `Solar_Report.${format}`;
     link.click();
 }

@@ -240,6 +240,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -317,7 +318,7 @@
             <button class="btn btn-secondary" onclick="downloadImage('jpg')">Download as JPG</button>
         </div>
     </div>
-            -->
+            --
             <div class="card graph-card" id="graphCard" style="display: none;">
     <div class="chart-scroll-container"> <div id="capture-area">
             <h2 id="chartReportTitle" style="text-align: center; margin-bottom: 5px;"></h2>
@@ -339,5 +340,66 @@
 
 <script src="script.js"></script>
 
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Tracker Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>☀️ Solar Day Tracker</h1>
+    </div>
+
+    <div class="card">
+        <div class="controls">
+            <select id="monthSelect">
+                <option value="January">January</option><option value="February">February</option>
+                <option value="March">March</option><option value="April">April</option>
+                <option value="May">May</option><option value="June">June</option>
+                <option value="July">July</option><option value="August">August</option>
+                <option value="September">September</option><option value="October">October</option>
+                <option value="November">November</option><option value="December">December</option>
+            </select>
+            <select id="durationSelect">
+                <option value="7">7 Days</option>
+                <option value="10">10 Days</option>
+                <option value="30">Full Month</option>
+            </select>
+            <button class="btn btn-primary" onclick="generateTable()">Set Table</button>
+        </div>
+    </div>
+
+    <div class="card" id="dataEntryCard" style="display: none;">
+        <div id="table-wrapper"></div>
+        <button class="btn btn-success" onclick="createChart()">Create Visual Chart</button>
+    </div>
+
+    <div class="card graph-card" id="graphCard" style="display: none;">
+        <div class="scroll-box">
+            <div id="capture-area">
+                <h2 id="chartReportTitle" style="text-align: center;"></h2>
+                <div class="chart-wrapper">
+                    <canvas id="daylightChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-secondary" onclick="downloadImage()">Download Report</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>

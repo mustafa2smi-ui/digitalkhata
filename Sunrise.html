@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daylight Tracker | Chart & Insights</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --sunrise: #fbbf24;
+            --sunset: #f87171;
+            --diff: #38bdf8;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        select, button {
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button.primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: center;
+        }
+
+        input[type="time"] {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        #chart-container {
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+        }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>☀️ Solar Day Tracker</h1>
+        <p>Sunrise, Sunset aur Day Duration ka khoobsurat graph banayein.</p>
+    </div>
+
+    <div class="card">
+        <div class="controls">
+            <select id="duration">
+                <option value="7">Next 7 Days</option>
+                <option value="10">Next 10 Days</option>
+                <option value="30">Full Month (30 Days)</option>
+            </select>
+            <button class="primary" onclick="generateTable()">Generate Table</button>
+        </div>
+
+        <div id="table-wrapper">
+            </div>
+
+        <div class="actions" id="chart-actions" style="display: none;">
+            <button class="primary" onclick="createChart()">Create Bar Chart</button>
+            <button style="background: #10b981; color: white; border: none;" onclick="downloadPDF()">Download PDF</button>
+        </div>
+    </div>
+
+    <div class="card" id="graph-section" style="display: none;">
+        <div id="capture-area">
+            <h3 style="text-align: center;">Daylight Hours Analysis</h3>
+            <canvas id="daylightChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    let myChart = null;
+
+    function generateTable() {
+        const days = document.getElementById('duration').value;
+        let html = `<table>
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Sunrise</th>
+                    <th>Sunset</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        
+        for(let i=1; i<=days; i++) {
+            html += `<tr>
+                <td>Day ${i}</td>
+                <td><input type="time" class="sunrise-input" value="06:00"></td>
+                <td><input type="time" class="sunset-input" value="18:00"></td>
+            </tr>`;
+        }
+        
+        html += `</tbody></table>`;
+        document.getElementById('table-wrapper').innerHTML = html;
+        document.getElementById('chart-actions').style.display = 'flex';
+    }
+
+    function calculateDiff(start, end) {
+        const s = start.split(':');
+        const e = end.split(':');
+        const startDate = new Date(0, 0, 0, s[0], s[1], 0);
+        const endDate = new Date(0, 0, 0, e[0], e[1], 0);
+        let diff = endDate.getTime() - startDate.getTime();
+        return (diff / (1000 * 60 * 60)).toFixed(2); // Hours me return
+    }
+
+    function createChart() {
+        const sunrises = Array.from(document.querySelectorAll('.sunrise-input')).map(i => i.value);
+        const sunsets = Array.from(document.querySelectorAll('.sunset-input')).map(i => i.value);
+        const labels = sunrises.map((_, i) => `Day ${i+1}`);
+        const differences = sunrises.map((s, i) => calculateDiff(s, sunsets[i]));
+
+        document.getElementById('graph-section').style.display = 'block';
+
+        if(myChart) myChart.destroy();
+
+        const ctx = document.getElementById('daylightChart').getContext('2d');
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Day Duration (Hours)',
+                    data: differences,
+                    backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: 'rgba(99, 102, 241, 0.8)'
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            afterBody: (context) => {
+                                const index = context[0].dataIndex;
+                                return `Sunrise: ${sunrises[index]}\nSunset: ${sunsets[index]}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        title: { display: true, text: 'Hours' }
+                    }
+                }
+            }
+        });
+        
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    async function downloadPDF() {
+        const element = document.getElementById('capture-area');
+        const canvas = await html2canvas(element);
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('l', 'mm', 'a4');
+        pdf.addImage(imgData, 'PNG', 10, 10, 280, 150);
+        pdf.save("Daylight_Analysis.pdf");
+    }
+</script>
+
+</body>
+</html>

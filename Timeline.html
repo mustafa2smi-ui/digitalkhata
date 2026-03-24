@@ -223,6 +223,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -643,5 +644,206 @@
             }
         }
     </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Timeline History Prophet</title>
+    <meta name="description" content="History of Prophet Muhammad (PBUH) in Timeline format.">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕌</text></svg>">
+
+    <meta property="og:title" content="Event Title Here">
+    <meta property="og:image" content="https://yourlink.com/event1.jpg"> <meta property="og:type" content="article">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --line-color: #27ae60;
+            --bg-color: #ffffff;
+            --text-color: #333;
+            --date-color: #27ae60;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Header */
+        header {
+            padding: 15px 20px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0; z-index: 100;
+        }
+
+        .logo { font-weight: 600; color: var(--line-color); }
+
+        /* Notebook Timeline Container */
+        .notebook-container {
+            position: relative;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        /* The Margin Line (Like a Notebook) */
+        .notebook-container::before {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            left: 100px; /* Red/Green line ki position */
+            width: 2px;
+            background: var(--line-color);
+        }
+
+        .event-row {
+            display: flex;
+            margin-bottom: 40px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: 0.6s ease-out;
+        }
+
+        .event-row.show { opacity: 1; transform: translateX(0); }
+
+        /* Left Side: Date */
+        .date-side {
+            width: 85px;
+            text-align: right;
+            padding-right: 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--date-color);
+            padding-top: 5px;
+        }
+
+        /* Right Side: Content */
+        .content-side {
+            flex: 1;
+            padding-left: 35px;
+        }
+
+        .content-side h3 { font-size: 1.2rem; margin-bottom: 10px; }
+        .content-side img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .content-side p { font-size: 0.95rem; color: #555; margin-bottom: 10px; }
+
+        /* Share Buttons */
+        .share-row { display: flex; gap: 10px; }
+        .btn-sm {
+            padding: 5px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .btn-sm:hover { border-color: var(--line-color); color: var(--line-color); }
+
+        .main-share {
+            display: block;
+            margin: 40px auto;
+            padding: 10px 25px;
+            background: var(--line-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .notebook-container::before { left: 70px; }
+            .date-side { width: 60px; font-size: 0.75rem; }
+            .content-side { padding-left: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Timeline History Prophet</div>
+    <div onclick="alert('Menu links go here')">☰</div>
+</header>
+
+<div class="notebook-container">
+    
+    <div class="event-row" id="ev1">
+        <div class="date-side">1/1/571</div>
+        <div class="content-side">
+            <h3>Title of Event 1</h3>
+            <img src="https://via.placeholder.com/500x250" alt="img">
+            <p>Yaha aapka 100 words ka explanation aayega. Ye notebook layout mein bahut sundar dikhega.</p>
+            <div class="share-row">
+                <button class="btn-sm" onclick="shareSpecific('ev1', 'event1.html')">📲 Share Event</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="event-row" id="ev2">
+        <div class="date-side">5/6/572</div>
+        <div class="content-side">
+            <h3>Title of Event 2</h3>
+            <img src="https://via.placeholder.com/500x250" alt="img">
+            <p>Is event ki detail yaha likhein. Date hamesha line ke left mein rahegi.</p>
+            <div class="share-row">
+                <button class="btn-sm" onclick="shareSpecific('ev2', 'event2.html')">📲 Share Event</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<button class="main-share" onclick="window.location.href='index.html'">🔗 Full Timeline Share</button>
+
+<script>
+    // Scroll Animation
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('show');
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.event-row').forEach(row => observer.observe(row));
+
+    // Sharing Logic
+    function shareSpecific(divId, pageName) {
+        const title = document.querySelector(`#${divId} h3`).innerText;
+        // Ham share link us specific page ka denge jisme OG Tags honge
+        const shareUrl = window.location.origin + '/' + pageName; 
+        
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: `Check out this event: ${title}`,
+                url: shareUrl
+            });
+        } else {
+            alert("Link: " + shareUrl);
+        }
+    }
+</script>
+
 </body>
 </html>

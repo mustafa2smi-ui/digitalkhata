@@ -1,0 +1,231 @@
+// Register the datalabels plugin globally (Imported in HTML)
+Chart.register(ChartDataLabels);
+
+let myChart = null;
+
+function generateTable() {
+    const month = document.getElementById('monthSelect').value;
+    const days = document.getElementById('durationSelect').value;
+
+    // Update UI Titles
+    document.getElementById('selectedReportTitle').innerText = `${month} (${days} Days)`;
+    document.getElementById('chartReportTitle').innerText = `${month} Daylight Analysis`;
+
+    // Show Data Entry Card, Hide Graph Card
+    document.getElementById('dataEntryCard').style.display = 'block';
+    document.getElementById('graphCard').style.display = 'none';
+
+    // Generate Table HTML
+    let html = `<table>
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Sunrise☀️</th>
+                <th>Sunset🌙</th>
+            </tr>
+        </thead>
+        <tbody>`;
+    
+    // Default values (approximate) - Thoda randomness add kiya hai taaki graph visually change dikhe test karte waqt
+    for(let i=1; i<=days; i++) {
+        // Example dynamic times for testing variety
+        let srTime = "06:00";
+        let ssTime = (18 + (i % 3) * 0.5).toString().padStart(2, '0') + ":00"; // sunset will vary between 18:00, 18:30, 19:00
+
+        html += `<tr>
+            <td><strong>Day ${i}</strong></td>
+            <td><input type="time" class="sunrise-input" value="${srTime}"></td>
+            <td><input type="time" class="sunset-input" value="${ssTime}"></td>
+        </tr>`;
+    }
+    
+    html += `</tbody></table>`;
+    document.getElementById('table-wrapper').innerHTML = html;
+}
+
+// Helper to convert time string to decimal hours (e.g., "6:30" -> 6.5)
+function timeToDecimal(timeStr) {
+    if(!timeStr) return 0;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours + (minutes / 60);
+}
+
+// Helper to format decimal back to AM/PM (e.g., 6.5 -> "6:30 AM", 18.5 -> "6:30 PM")
+function formatTimeAP(decimalHours) {
+    if(isNaN(decimalHours)) return "";
+    
+    let hours = Math.floor(decimalHours);
+    let minutes = Math.round((decimalHours - hours) * 60);
+    
+    if (minutes === 60) {
+        hours += 1;
+        minutes = 0;
+    }
+
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    let displayHours = hours % 12;
+    displayHours = displayHours ? displayHours : 12; // total hour '0' should be '12'
+    const displayMinutes = minutes < 10 ? '0'+minutes : minutes;
+    
+    return `${displayHours}:${displayMinutes}${ampm}`;
+}
+
+function createChart() {
+    // 1. Get Data from Table
+    const sunriseInputs = document.querySelectorAll('.sunrise-input');
+    const sunsetInputs = document.querySelectorAll('.sunset-input');
+    
+    const labels = [];
+    const durData = []; // Daylight Duration (This represents the BAR HEIGHT now)
+    const rawSunrise = [];
+    const rawSunset = [];
+
+    sunriseInputs.forEach((input, index) => {
+        const srTime = input.value;
+        const ssTime = sunsetInputs[index].value;
+
+        if(!srTime || !ssTime) return; // Skip if empty
+
+        const srDec = timeToDecimal(srTime);
+        let ssDec = timeToDecimal(ssTime);
+
+        // Handle case where sunset might be past midnight (e.g., polar regions or very long days)
+        if(ssDec < srDec) ssDec += 24; 
+
+        const diff = (ssDec - srDec).toFixed(2); // Duration calculation
+
+        labels.push(`Day ${index + 1}`);
+        durData.push(parseFloat(diff)); // Bar Height
+        rawSunrise.push(formatTimeAP(srDec)); // Text for Top
+        rawSunset.push(formatTimeAP(ssDec)); // Text for Bottom
+    });
+
+    if(durData.length === 0) {
+        alert("Please enter sunrise and sunset times.");
+        return;
+    }
+
+    // 2. Show Graph Card
+    document.getElementById('graphCard').style.display = 'block';
+
+    // 3. Destroy old chart if exists (important!)
+    if(myChart) myChart.destroy();
+
+    // 4. Create New Chart
+    const ctx = document.getElementById('daylightChart').getContext('2d');
+    
+    // Custom Bar Gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, '#818cf8'); // Lighter violet (top)
+    gradient.addColorStop(1, '#4f46e5'); // Darker violet (bottom)
+
+    myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Daylight Hours',
+                data: durData, // Bar Height directly related to daylight duration
+                backgroundColor: gradient,
+                borderColor: '#4338ca',
+                borderWidth: 1,
+                borderRadius: 6,
+                borderSkipped: false, // Apply border radius to all sides
+                
+                // --- Custom Data attached for DataLabels plugin to use ---
+                sunriseTimes: rawSunrise, 
+                sunsetTimes: rawSunset
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // Use CSS height from .chart-container-relative
+            layout: {
+                padding: {
+                    top: 40, // More Space for Sunrise labels
+                    bottom: 40 // More Space for Sunset labels
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    // Dynamic Max based on data + padding
+                    max: Math.max(...durData) * 1.2, 
+                    title: { display: true, text: 'Daylight Duration (Hours)' },
+                    grid: { color: '#f1f5f9' },
+                    ticks: {
+                        callback: function(value) { return value + 'h'; }
+                    }
+                },
+                x: {
+                    grid: { display: false } // Hide vertical grid lines
+                }
+            },
+            plugins: {
+                legend: { display: false }, // Hide dataset label
+                tooltip: { enabled: false }, // Disable default tooltips
+                
+                // --- Configure Datalabels Plugin (This creates your custom design) ---
+                datalabels: {
+                    display: true,
+                    // textAlign must be center for all labels
+                    textAlign: 'center',
+                    
+                    // Main Label configuration (we use multiple objects for top/mid/bot)
+                    labels: {
+                        // 1. Sunrise (Top of the Bar)
+                        sunrise: {
+                            align: 'top',
+                            anchor: 'end', // Position relative to the *end* (top) of the bar
+                            color: '#000000',
+                            font: {weight: '600', size: 11},
+                            formatter: (value, ctx) => ctx.dataset.sunriseTimes[ctx.dataIndex],
+                            offset: 5 // Space above bar
+                        },
+                        // 2. Duration (Middle of the Bar)
+                        duration: {
+                            align: 'center',
+                            anchor: 'center', // Position in the *center* of the bar
+                            color: '#ffffff',
+                            font: {weight: 'bold', size: 13},
+                            formatter: (value) => `${value}h`, // Display the height value
+                        },
+                        // 3. Sunset (Bottom of the Bar)
+                        sunset: {
+                            align: 'bottom',
+                            anchor: 'start', // Position relative to the *start* (bottom) of the bar
+                            color: '#444444',
+                            font: {weight: '600', size: 11},
+                            formatter: (value, ctx) => ctx.dataset.sunsetTimes[ctx.dataIndex],
+                            offset: 5 // Space below bar
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Download functionality remains the same as previous response
+async function downloadImage(format) {
+    const element = document.getElementById('capture-area');
+    const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff', // Ensure white background
+        scale: 2 // Higher quality
+    });
+    
+    const month = document.getElementById('monthSelect').value;
+    const fileName = `${month}_Daylight_Chart`;
+    
+    const link = document.createElement('a');
+    
+    if (format === 'png') {
+        link.href = canvas.toDataURL('image/png');
+        link.download = `${fileName}.png`;
+    } else {
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.download = `${fileName}.jpg`;
+    }
+    
+    link.click();
+}

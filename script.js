@@ -330,6 +330,7 @@ function createChart() {
                 sunsetTimes: rawSunset
             }]
         },
+        /*
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -369,6 +370,54 @@ function createChart() {
                 }
             }
         }
+        */
+            // createChart function ke andar 'options' section ko update karein:
+options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: {
+        padding: { top: 60, bottom: 60 } // Labels ke liye extra jagah
+    },
+    scales: {
+        y: {
+            beginAtZero: false, // Isse difference zyada lamba-chhota dikhega
+            // Hum range ko tight rakhenge taaki 12h aur 12.5h me bada farak dikhe
+            suggestedMin: Math.min(...durData) - 1, 
+            suggestedMax: Math.max(...durData) + 1,
+            title: { display: true, text: 'Hours' },
+            ticks: { stepSize: 0.5 }
+        },
+        x: {
+            grid: { display: false }
+        }
+    },
+    plugins: {
+        legend: { display: false },
+        datalabels: {
+            // ... pichla wala datalabels code yaha rahega ...
+            labels: {
+                sunrise: {
+                    align: 'top', anchor: 'end', color: '#f59e0b',
+                    font: { weight: 'bold', size: 13 },
+                    formatter: (v, ctx) => ctx.dataset.sunriseTimes[ctx.dataIndex],
+                    offset: 12
+                },
+                duration: {
+                    align: 'center', anchor: 'center', color: '#ffffff',
+                    font: { weight: '900', size: 16 }, // Hours ko bada kiya
+                    formatter: v => v + 'h'
+                },
+                sunset: {
+                    align: 'bottom', anchor: 'start', color: '#1e293b',
+                    font: { weight: 'bold', size: 13 },
+                    formatter: (v, ctx) => ctx.dataset.sunsetTimes[ctx.dataIndex],
+                    offset: 12
+                }
+            }
+        }
+    }
+}
+
     });
 }
 

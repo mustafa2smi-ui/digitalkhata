@@ -165,7 +165,7 @@ input[type="time"] {
     max-width: 110px;
 }
 
-/* --- Graph Section --- */
+/* --- Graph Section --- *
 #capture-area {
     padding: 15px;
     background: white;
@@ -173,8 +173,25 @@ input[type="time"] {
 
 .chart-container-relative {
     position: relative;
-    height: 60vh; /* Responsive height based on screen */
+    height: 60vh; /* Responsive height based on screen *
     min-height: 400px; /* Minimum height for desktop */
+    width: 100%;
+}
+*/
+/* Graph area ko scrollable banane ke liye */
+.graph-card {
+    overflow-x: auto; /* Side scroll enable karega */
+}
+
+#capture-area {
+    min-width: 1200px; /* Isse graph ko failne ki jagah milegi */
+    padding: 20px;
+    background: white;
+}
+
+.chart-container-relative {
+    position: relative;
+    height: 500px; 
     width: 100%;
 }
 

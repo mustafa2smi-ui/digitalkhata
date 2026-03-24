@@ -394,6 +394,8 @@ options: {
     plugins: {
         legend: { display: false },
         datalabels: {
+            display: true,
+                    textAlign: 'center',
             // ... pichla wala datalabels code yaha rahega ...
             labels: {
                 sunrise: {

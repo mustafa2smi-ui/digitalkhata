@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline History Prophet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo { font-weight: 600; font-size: 1.2rem; color: var(--accent-color); }
+
+        .menu-btn { cursor: pointer; font-size: 1.5rem; }
+
+        /* Timeline Styling */
+        .timeline-container {
+            padding: 40px 20px;
+            position: relative;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        /* Central Vertical Line */
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: var(--accent-color);
+            top: 0; bottom: 0; left: 50%;
+            margin-left: -2px;
+        }
+
+        .timeline-item {
+            padding: 20px 40px;
+            position: relative;
+            width: 50%;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.6s ease-out;
+        }
+
+        .timeline-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-item.left { left: 0; text-align: right; }
+        .timeline-item.right { left: 50%; text-align: left; }
+
+        /* Dots on the line */
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 4px solid var(--accent-color);
+            top: 25px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .left::after { right: -12px; }
+        .right::after { left: -12px; }
+
+        /* Content Card */
+        .content {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .content:hover { transform: scale(1.03); }
+
+        .content h3 { color: var(--accent-color); margin-bottom: 10px; font-size: 1.1rem; }
+        .content img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 10px 0;
+            background: #eee;
+        }
+        .date { font-weight: bold; color: #888; font-size: 0.9rem; }
+
+        /* Share & Footer */
+        .share-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 20px auto;
+            display: block;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        footer {
+            background: #fff;
+            padding: 30px;
+            text-align: center;
+            margin-top: 50px;
+            border-top: 1px solid #ddd;
+        }
+
+        footer a { color: var(--accent-color); text-decoration: none; margin: 0 10px; }
+
+        /* Responsive Mobile View */
+        @media screen and (max-width: 600px) {
+            .timeline-container::after { left: 31px; }
+            .timeline-item { width: 100%; padding-left: 70px; padding-right: 20px; text-align: left !important; }
+            .timeline-item.right { left: 0%; }
+            .timeline-item::after { left: 19px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Timeline History Prophet</div>
+        <div class="menu-btn" onclick="alert('Menu Clicked')">☰</div>
+    </header>
+
+    <div class="timeline-container">
+        
+        <div class="timeline-item left">
+            <div class="content">
+                <span class="date">12 Rabi' al-awwal, 571 AD</span>
+                <h3>The Year of Elephant / Birth</h3>
+                <img src="https://via.placeholder.com/400x200?text=Event+Image+1" alt="History Image">
+                <p>Paigambar Mohammad (PBUH) ki wiladat Makkah shareef me hui. Is saal ko 'Aam al-Fil' bhi kaha jata hai.</p>
+            </div>
+        </div>
+
+        <div class="timeline-item right">
+            <div class="content">
+                <span class="date">577 AD</span>
+                <h3>Stay with Halima Sa'dia</h3>
+                <img src="https://via.placeholder.com/400x200?text=Event+Image+2" alt="History Image">
+                <p>Aapne bachpan ke kuch saal Hazrat Halima Sa'dia (R.A) ke sath guzaare.</p>
+            </div>
+        </div>
+
+        <div class="timeline-item left">
+            <div class="content">
+                <span class="date">610 AD</span>
+                <h3>First Revelation (Wahi)</h3>
+                <img src="https://via.placeholder.com/400x200?text=Event+Image+3" alt="History Image">
+                <p>Ghaar-e-Hira me pehli wahi nazil hui, jaha se Nubuwwat ka silsila shuru hua.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <button class="share-btn" onclick="sharePage()">🔗 Share History</button>
+
+    <footer>
+        <p>&copy; 2026 Timeline History</p>
+        <div style="margin-top:10px;">
+            <a href="#">About Us</a> | <a href="#">Contact</a> | <a href="#">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll Animation logic
+        const observerOptions = { threshold: 0.2 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Share Functionality
+        function sharePage() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Timeline History Prophet',
+                    url: window.location.href
+                }).catch(console.error);
+            } else {
+                alert("URL copied: " + window.location.href);
+            }
+        }
+    </script>
+</body>
+</html>

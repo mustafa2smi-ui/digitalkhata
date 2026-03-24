@@ -231,6 +231,7 @@ async function downloadImage(format) {
     link.click();
 }
 */
+/*
 Chart.register(ChartDataLabels);
 let myChart = null;
 
@@ -370,7 +371,7 @@ function createChart() {
                 }
             }
         }
-        */
+        *
             // createChart function ke andar 'options' section ko update karein:
 options: {
     responsive: true,
@@ -430,5 +431,93 @@ async function downloadImage(format) {
     const link = document.createElement('a');
     link.href = canvas.toDataURL(format === 'png' ? 'image/png' : 'image/jpeg');
     link.download = `Solar_Report.${format}`;
+    link.click();
+}
+*/
+Chart.register(ChartDataLabels);
+let myChart = null;
+
+function generateTable() {
+    const month = document.getElementById('monthSelect').value;
+    const dur = document.getElementById('durationSelect').value;
+    const days = (dur === "30") ? new Date(2026, ["January","February","March","April","May","June","July","August","September","October","November","December"].indexOf(month)+1, 0).getDate() : parseInt(dur);
+
+    document.getElementById('dataEntryCard').style.display = 'block';
+    let h = `<table><tr><th>Day</th><th>Sunrise☀️</th><th>Sunset🌙</th></tr>`;
+    for(let i=1; i<=days; i++) {
+        // Random test data for visual difference
+        let testSS = (18 + (i%2)*0.5).toString().padStart(2,'0')+":00"; 
+        h += `<tr><td>Day ${i}</td><td><input type="time" class="sr" value="06:00"></td><td><input type="time" class="ss" value="${testSS}"></td></tr>`;
+    }
+    document.getElementById('table-wrapper').innerHTML = h + `</table>`;
+}
+
+function createChart() {
+    const srIn = document.querySelectorAll('.sr'), ssIn = document.querySelectorAll('.ss');
+    const labels = [], data = [], sunr = [], suns = [];
+
+    srIn.forEach((el, i) => {
+        const s1 = el.value.split(':'), s2 = ssIn[i].value.split(':');
+        const d1 = new Date(0,0,0,s1[0],s1[1]), d2 = new Date(0,0,0,s2[0],s2[1]);
+        let diff = (d2 - d1) / 3600000;
+        if(diff < 0) diff += 24;
+
+        labels.push("D"+(i+1));
+        data.push(parseFloat(diff.toFixed(2)));
+        sunr.push(el.value); suns.push(ssIn[i].value);
+    });
+
+    // SCROLL FIX: Set width based on number of days
+    const chartWrapper = document.querySelector('.chart-wrapper');
+    chartWrapper.style.width = (labels.length * 80) + "px"; // Har bar ko 80px space milegi
+
+    document.getElementById('graphCard').style.display = 'block';
+    document.getElementById('chartReportTitle').innerText = document.getElementById('monthSelect').value + " Solar Report";
+
+    if(myChart) myChart.destroy();
+    const ctx = document.getElementById('daylightChart').getContext('2d');
+    
+    myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: '#4f46e5',
+                borderRadius: 10,
+                barThickness: 40, // Mota Bar
+                sr: sunr, ss: suns
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { 
+                    beginAtZero: false, 
+                    suggestedMin: Math.min(...data) - 0.5,
+                    suggestedMax: Math.max(...data) + 0.5 
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    anchor: 'center', align: 'center',
+                    labels: {
+                        top: { align: 'top', anchor: 'end', offset: 10, formatter: (v,c)=>c.dataset.sr[c.dataIndex], color: 'orange', font: {weight:'bold'} },
+                        mid: { color: 'white', formatter: v => v+'h', font: {size: 14, weight:'bold'} },
+                        bot: { align: 'bottom', anchor: 'start', offset: 10, formatter: (v,c)=>c.dataset.ss[c.dataIndex], color: 'blue', font: {weight:'bold'} }
+                    }
+                }
+            }
+        }
+    });
+}
+
+async function downloadImage() {
+    const canvas = await html2canvas(document.getElementById('capture-area'));
+    const link = document.createElement('a');
+    link.download = 'SolarReport.png';
+    link.href = canvas.toDataURL();
     link.click();
 }

@@ -307,7 +307,7 @@
         <div id="capture-area">
             <h2 id="chartReportTitle" style="text-align: center; color: #1e293b; margin-bottom: 5px;"></h2>
             <p style="text-align: center; color: #64748b; margin-top: 0; margin-bottom: 25px;">Daylight Hours Analysis (Sunrise | Duration | Sunset)</p>
-            
+            <!--
             <div class="chart-container-relative">
                 <canvas id="daylightChart"></canvas>
             </div>
@@ -317,6 +317,24 @@
             <button class="btn btn-secondary" onclick="downloadImage('jpg')">Download as JPG</button>
         </div>
     </div>
+            -->
+            <div class="card graph-card" id="graphCard" style="display: none;">
+    <div class="chart-scroll-container"> <div id="capture-area">
+            <h2 id="chartReportTitle" style="text-align: center; margin-bottom: 5px;"></h2>
+            <p style="text-align: center; color: #64748b; margin-bottom: 30px;">Sunrise | Duration | Sunset</p>
+            
+            <div class="chart-container-relative">
+                <canvas id="daylightChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="actions download-actions">
+        <button class="btn btn-secondary" onclick="downloadImage('png')">Download PNG</button>
+        <button class="btn btn-secondary" onclick="downloadImage('jpg')">Download JPG</button>
+    </div>
+</div>
+
 </div>
 
 <script src="script.js"></script>

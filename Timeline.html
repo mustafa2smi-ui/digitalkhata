@@ -647,6 +647,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -843,6 +844,166 @@
             alert("Link: " + shareUrl);
         }
     }
+</script>
+
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline History Prophet</title>
+    
+    <meta name="description" content="Prophet Muhammad (PBUH) History Timeline">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕌</text></svg>">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --line: #27ae60; --bg: #ffffff; --text: #333; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        /* Navigation Header */
+        header {
+            padding: 15px 20px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .logo { font-weight: 600; color: var(--line); font-size: 1.2rem; }
+        .menu-icon { font-size: 1.5rem; cursor: pointer; color: var(--line); }
+
+        /* Side Menu */
+        .side-menu {
+            position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
+            background: #fff; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: 0.3s; z-index: 2000; padding: 60px 20px;
+        }
+        .side-menu.active { right: 0; }
+        .side-menu a { display: block; padding: 15px; text-decoration: none; color: #333; border-bottom: 1px solid #eee; }
+        .close-menu { position: absolute; top: 20px; left: 20px; font-size: 1.5rem; cursor: pointer; }
+
+        /* Notebook Timeline */
+        .timeline { position: relative; max-width: 800px; margin: 30px auto; padding-bottom: 50px; }
+        .timeline::before {
+            content: ''; position: absolute; top: 0; bottom: 0; left: 90px;
+            width: 2px; background: var(--line);
+        }
+
+        .event-row { display: flex; margin-bottom: 50px; opacity: 0; transform: translateY(20px); transition: 0.6s; }
+        .event-row.show { opacity: 1; transform: translateY(0); }
+
+        .date-col { width: 80px; text-align: right; padding-right: 15px; color: var(--line); font-weight: 600; font-size: 0.85rem; padding-top: 5px; }
+        
+        .content-col { flex: 1; padding-left: 30px; }
+        .content-col h3 { margin-bottom: 10px; font-size: 1.2rem; color: #2c3e50; }
+        .content-col img { width: 100%; max-width: 500px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .content-col p { font-size: 0.95rem; color: #555; margin-bottom: 15px; text-align: justify; }
+
+        /* Action Buttons */
+        .btn-share {
+            padding: 6px 15px; background: #fff; border: 1px solid var(--line);
+            color: var(--line); border-radius: 20px; cursor: pointer; font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .btn-share:hover { background: var(--line); color: #fff; }
+
+        @media (max-width: 600px) {
+            .timeline::before { left: 60px; }
+            .date-col { width: 55px; font-size: 0.7rem; }
+            .content-col { padding-left: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Timeline History Prophet</div>
+    <div class="menu-icon" onclick="toggleMenu(true)">☰</div>
+</header>
+
+<div class="side-menu" id="sideMenu">
+    <div class="close-menu" onclick="toggleMenu(false)">×</div>
+    <a href="#">Home</a>
+    <a href="#about">About History</a>
+    <a href="#contact">Contact Us</a>
+    <a href="#privacy">Privacy Policy</a>
+</div>
+
+<div class="timeline" id="timelineContainer">
+    </div>
+
+<script>
+    // 1. AAPKA DATA YAHA HAI (Bus yaha badlav karein, naya event add karne ke liye)
+    const historyData = [
+        {
+            date: "1/1/571",
+            title: "Wiladat-e-Bas'saadat (Birth)",
+            img: "https://via.placeholder.com/500x250?text=Birth+of+Prophet",
+            desc: "Aap (PBUH) ki paidaish Makkah ke shareef khandan Banu Hashim mein hui. Ye saal Aam-ul-Feel ke naam se jana jata hai...",
+            page: "event1.html" // Ye link share karne ke liye
+        },
+        {
+            date: "5/6/572",
+            title: "Stay with Hazrat Halima",
+            img: "https://via.placeholder.com/500x250?text=Hazrat+Halima",
+            desc: "Aapne apni zindagi ke shuruati kuch saal Hazrat Halima Saadia (R.A) ke pas dehat mein guzare...",
+            page: "event2.html"
+        }
+        // Naya event add karne ke liye bas upar wala hissa copy-paste karein
+    ];
+
+    // 2. Automatic Card Banane ka logic
+    const container = document.getElementById('timelineContainer');
+
+    historyData.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'event-row';
+        row.innerHTML = `
+            <div class="date-col">${item.date}</div>
+            <div class="content-col">
+                <h3>${item.title}</h3>
+                <img src="${item.img}" alt="${item.title}">
+                <p>${item.desc}</p>
+                <button class="btn-share" onclick="shareEvent('${item.title}', '${item.page}')">📲 Share Event</button>
+            </div>
+        `;
+        container.appendChild(row);
+    });
+
+    // 3. Menu Toggle
+    function toggleMenu(show) {
+        document.getElementById('sideMenu').classList.toggle('active', show);
+    }
+
+    // 4. Share Function (Fixed)
+    function shareEvent(title, pageUrl) {
+        const fullUrl = window.location.origin + "/" + pageUrl;
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: `Check out: ${title}\nDetailed History:`,
+                url: fullUrl
+            }).catch(err => console.log("Sharing failed", err));
+        } else {
+            alert("Sharing not supported. Link: " + fullUrl);
+        }
+    }
+
+    // 5. Scroll Animation
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('show');
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.event-row').forEach(row => observer.observe(row));
 </script>
 
 </body>

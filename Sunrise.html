@@ -436,6 +436,7 @@ function createChart() {
             }
         }
         */
+        /*
         // createChart function ke andar 'options' section ko update karein:
 options: {
     responsive: true,
@@ -484,8 +485,63 @@ options: {
         }
     }
 }
+*/
+                    options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: { top: 60, bottom: 60 } // Labels ke liye space
+            },
+            scales: {
+                y: {
+                    beginAtZero: false, // Height difference saaf dikhane ke liye
+                    suggestedMin: Math.min(...durData) - 0.5, 
+                    suggestedMax: Math.max(...durData) + 0.5,
+                    title: { display: true, text: 'Daylight Hours' },
+                    ticks: { stepSize: 0.5 }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                // --- Yeh hai main fixing part ---
+                datalabels: {
+                    display: true,
+                    textAlign: 'center',
+                    labels: {
+                        // 1. TOP: Sunrise Time
+                        sunrise: {
+                            align: 'top',
+                            anchor: 'end',
+                            color: '#d97706', // Orange color
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (v, ctx) => ctx.dataset.sunriseTimes[ctx.dataIndex],
+                            offset: 10
+                        },
+                        // 2. MIDDLE: Day Difference (Inside Bar)
+                        duration: {
+                            align: 'center',
+                            anchor: 'center',
+                            color: '#ffffff', // White color
+                            font: { weight: '900', size: 14 },
+                            formatter: (v) => v + 'h'
+                        },
+                        // 3. BOTTOM: Sunset Time
+                        sunset: {
+                            align: 'bottom',
+                            anchor: 'start',
+                            color: '#1e293b', // Dark color
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (v, ctx) => ctx.dataset.sunsetTimes[ctx.dataIndex],
+                            offset: 10
+                        }
+                    }
+                }
+            }
+        }
 
-            
     });
 }
 

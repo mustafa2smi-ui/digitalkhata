@@ -849,6 +849,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -1004,6 +1005,129 @@
     }, { threshold: 0.1 });
 
     document.querySelectorAll('.event-row').forEach(row => observer.observe(row));
+</script>
+
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline History Prophet</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕌</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --line: #27ae60; --bg: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); }
+
+        /* Navigation */
+        header { padding: 15px 20px; background: #fff; display: flex; justify-content: space-between; border-bottom: 2px solid #f0f0f0; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-weight: 600; color: var(--line); }
+        .menu-icon { font-size: 1.5rem; cursor: pointer; }
+
+        /* Side Menu */
+        .side-menu { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #fff; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: 0.3s; z-index: 2000; padding: 60px 20px; }
+        .side-menu.active { right: 0; }
+        .side-menu a { display: block; padding: 15px; text-decoration: none; color: #333; border-bottom: 1px solid #eee; }
+
+        /* Notebook Style Timeline */
+        .timeline { position: relative; max-width: 800px; margin: 30px auto; min-height: 400px; }
+        .timeline::before { content: ''; position: absolute; top: 0; bottom: 0; left: 95px; width: 2px; background: var(--line); }
+
+        .event-row { display: flex; margin-bottom: 50px; opacity: 0; transform: translateY(20px); transition: 0.6s; }
+        .event-row.show { opacity: 1; transform: translateY(0); }
+
+        .date-col { width: 85px; text-align: right; padding-right: 15px; color: var(--line); font-weight: 600; font-size: 0.85rem; margin-top: 5px; }
+        .content-col { flex: 1; padding-left: 35px; }
+        .content-col h3 { margin-bottom: 10px; color: #2c3e50; }
+        .content-col img { width: 100%; max-width: 500px; border-radius: 12px; margin-bottom: 15px; display: block; }
+        .content-col p { font-size: 0.95rem; color: #555; text-align: justify; margin-bottom: 15px; }
+
+        .btn-share { padding: 6px 15px; background: #fff; border: 1px solid var(--line); color: var(--line); border-radius: 20px; cursor: pointer; }
+
+        @media (max-width: 600px) {
+            .timeline::before { left: 65px; }
+            .date-col { width: 60px; font-size: 0.7rem; }
+            .content-col { padding-left: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Timeline History Prophet</div>
+    <div class="menu-icon" onclick="document.getElementById('sideMenu').classList.add('active')">☰</div>
+</header>
+
+<div class="side-menu" id="sideMenu">
+    <div style="cursor:pointer; margin-bottom:20px;" onclick="document.getElementById('sideMenu').classList.remove('active')">× Close</div>
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+</div>
+
+<div class="timeline" id="mainTimeline">
+    </div>
+
+<script>
+    // === SIRF YE LIST UPDATE KAREIN ===
+    const eventFiles = ['event1.html', 'event2.html']; 
+
+    async function loadEvents() {
+        const container = document.getElementById('mainTimeline');
+
+        for (const file of eventFiles) {
+            try {
+                // Background mein file ko fetch karna
+                const response = await fetch(file);
+                const htmlText = await response.text();
+                
+                // Content ko parse karna (Title, Date, Image, Text nikalna)
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+
+                const date = doc.querySelector('.date')?.innerText.replace('📅 Date: ', '') || 'No Date';
+                const title = doc.querySelector('h1')?.innerText || 'No Title';
+                const imgSrc = doc.querySelector('img')?.src || '';
+                const desc = doc.querySelector('p')?.innerText || '';
+
+                // Card bana kar index.html mein daalna
+                const row = document.createElement('div');
+                row.className = 'event-row';
+                row.innerHTML = `
+                    <div class="date-col">${date}</div>
+                    <div class="content-col">
+                        <h3>${title}</h3>
+                        <img src="${imgSrc}" alt="${title}">
+                        <p>${desc.substring(0, 200)}...</p>
+                        <button class="btn-share" onclick="shareIt('${title}', '${file}')">📲 Share Event</button>
+                    </div>
+                `;
+                container.appendChild(row);
+                
+                // Animation trigger
+                setTimeout(() => row.classList.add('show'), 100);
+
+            } catch (error) {
+                console.error("Error loading file: " + file, error);
+            }
+        }
+    }
+
+    function shareIt(title, url) {
+        const fullUrl = window.location.origin + '/' + url;
+        if (navigator.share) {
+            navigator.share({ title: title, url: fullUrl });
+        } else {
+            alert("Link: " + fullUrl);
+        }
+    }
+
+    window.onload = loadEvents;
 </script>
 
 </body>

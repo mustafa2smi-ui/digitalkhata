@@ -180,7 +180,11 @@ input[type="time"] {
 */
 /* Graph area ko scrollable banane ke liye */
 .graph-card {
-    overflow-x: auto; /* Side scroll enable karega */
+   /* overflow-x: auto; /* Side scroll enable karega */
+    padding: 10px;
+    background: var(--card);
+    border-radius: 16px;
+    margin-top: 20px;
 }
 
 #capture-area {
@@ -194,7 +198,14 @@ input[type="time"] {
     height: 500px; 
     width: 100%;
 }
-
+/* Ye main container hai jo scroll bar dikhayega */
+.chart-scroll-container {
+    width: 100%;
+    overflow-x: auto; /* Horizontal Scroll Enable */
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+}
 .actions {
     display: flex;
     gap: 10px;
@@ -216,3 +227,32 @@ input[type="time"] {
     input[type="time"] { font-size: 0.8rem; padding: 4px;}
     .chart-container-relative { height: 50vh; min-height: 350px;}
 }
+/* Graph Card ko scrollable banane ke liye *
+.graph-card {
+    padding: 10px;
+    background: var(--card);
+    border-radius: 16px;
+    margin-top: 20px;
+}
+
+/* Ye main container hai jo scroll bar dikhayega *
+.chart-scroll-container {
+    width: 100%;
+    overflow-x: auto; /* Horizontal Scroll Enable *
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+/* Iski width ko hum badhayenge taaki bars ko failne ki jagah mile *
+#capture-area {
+    min-width: 1500px; /* Bars ko mota rakhne ke liye width badha di *
+    padding: 30px 20px;
+}
+
+.chart-container-relative {
+    position: relative;
+    height: 550px; /* Graph ki height thodi aur badha di *
+    width: 100%;
+}
+*/

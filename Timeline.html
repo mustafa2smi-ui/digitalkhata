@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -216,6 +217,429 @@
                 }).catch(console.error);
             } else {
                 alert("URL copied: " + window.location.href);
+            }
+        }
+    </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Timeline History Prophet | Seerat-e-Nabi (PBUH)</title>
+    <meta name="description" content="Explore the comprehensive timeline history of Prophet Muhammad (PBUH) in a beautiful, easy-to-scroll format.">
+    <link rel="icon" href="https://via.placeholder.com/32" type="image/png"> <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourwebsite.com/"> <meta property="og:title" content="Timeline History Prophet - Life of Muhammad (PBUH)">
+    <meta property="og:description" content="Learn about the key events in the history of Prophet Muhammad (PBUH) chronologically.">
+    <meta property="og:image" content="https://via.placeholder.com/600x315?text=Main+Site+Image"> <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://yourwebsite.com/">
+    <meta property="twitter:title" content="Timeline History Prophet - Life of Muhammad (PBUH)">
+    <meta property="twitter:description" content="Learn about the key events in the history of Prophet Muhammad (PBUH) chronologically.">
+    <meta property="twitter:image" content="https://via.placeholder.com/600x315?text=Main+Site+Image">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60; /* Mast Green */
+            --bg-color: #f9fbf9; /* Very light greenish white */
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --date-bg: #e8f5e9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo { font-weight: 600; font-size: 1.3rem; color: var(--accent-color); }
+
+        .menu-btn { cursor: pointer; font-size: 1.5rem; color: var(--primary-color); transition: 0.3s; }
+        .menu-btn:hover { color: var(--accent-color); }
+
+        /* Side Navbar (Drawer) */
+        .side-nav {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            right: 0;
+            background-color: var(--card-bg);
+            overflow-x: hidden;
+            transition: 0.4s;
+            padding-top: 60px;
+            box-shadow: -2px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .side-nav a {
+            padding: 10px 30px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid #eee;
+        }
+
+        .side-nav a:hover { background-color: var(--date-bg); color: var(--accent-color); }
+
+        .side-nav .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #888;
+        }
+        
+        /* Overlay when menu is open */
+        .overlay {
+            position: fixed;
+            display: none;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1500;
+            cursor: pointer;
+        }
+
+        /* Timeline Styling */
+        .timeline-container {
+            padding: 50px 20px;
+            position: relative;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        /* Central Vertical Line */
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: var(--accent-color);
+            top: 0; bottom: 0; left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            padding: 20px 40px;
+            position: relative;
+            width: 50%;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.6s ease-out;
+            margin-bottom: 20px;
+        }
+
+        /* Animation class trigger by JS */
+        .timeline-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-item.left { left: 0; text-align: right; }
+        .timeline-item.right { left: 50%; text-align: left; }
+
+        /* Date Label ON the line */
+        .date-label {
+            position: absolute;
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            top: 25px;
+            z-index: 10;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .left .date-label { right: -60px; /* Adjust based on average date length */ }
+        .right .date-label { left: -60px; }
+
+        /* Content Card */
+        .content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            border: 1px solid #eee;
+        }
+
+        .content:hover { 
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+        }
+
+        .content h3 { color: var(--primary-color); margin-bottom: 10px; font-size: 1.2rem; font-weight: 600; }
+        .content img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 12px 0;
+            background: #eee;
+        }
+        .content p {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        /* Per-Event Small Share Button */
+        .event-share-btn {
+            background: none;
+            border: 1px solid #ddd;
+            color: #777;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .event-share-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background-color: var(--date-bg);
+        }
+
+        /* Main Big Share Button */
+        .main-share-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            margin: 40px auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            transition: 0.3s;
+        }
+
+        .main-share-btn:hover {
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        footer {
+            background: #fff;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 50px;
+            border-top: 1px solid #eee;
+        }
+
+        footer p { color: #888; font-size: 0.9rem; }
+        .footer-links { margin-top: 15px; }
+        .footer-links a { color: var(--primary-color); text-decoration: none; margin: 0 10px; font-size: 0.9rem; transition: 0.3s; }
+        .footer-links a:hover { color: var(--accent-color); }
+
+        /* Responsive Mobile View */
+        @media screen and (max-width: 700px) {
+            .timeline-container::after { left: 20px; }
+            .timeline-item { width: 100%; padding-left: 50px; padding-right: 10px; text-align: left !important; }
+            .timeline-item.right { left: 0%; }
+            
+            .date-label {
+                position: relative;
+                display: inline-block;
+                top: 0; left: 0 !important; right: 0 !important;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay" onclick="closeNav()"></div>
+
+    <div id="mySidenav" class="side-nav">
+        <span class="close-btn" onclick="closeNav()">&times;</span>
+        <a href="#">Home</a>
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy Policy</a>
+    </div>
+
+    <header>
+        <div class="logo">Timeline History Prophet</div>
+        <div class="menu-btn" onclick="openNav()">☰</div>
+    </header>
+
+    <div class="timeline-container">
+        
+        <div class="timeline-item left">
+            <span class="date-label">571 AD</span> <div class="content" id="event1">
+                <h3 class="event-title">The Year of Elephant / Birth</h3>
+                <img src="https://via.placeholder.com/500x250?text=Birth+in+Makkah" alt="Wiladat-e-Nabi" class="event-img">
+                <p class="event-desc">Paigambar Mohammad (PBUH) ki wiladat Makkah shareef me hui. Is saal ko 'Aam al-Fil' bhi kaha jata hai kyunki isi saal Abrahah ne Kaaba par hathi le kar hamla kiya tha.</p>
+                
+                <button class="event-share-btn" onclick="shareEvent('event1')">
+                    📩 Share this Event
+                </button>
+            </div>
+        </div>
+
+        <div class="timeline-item right">
+            <span class="date-label">610 AD</span>
+            <div class="content" id="event2">
+                <h3 class="event-title">First Revelation (Wahi)</h3>
+                <img src="https://via.placeholder.com/500x250?text=Cave+Hira" alt="Ghaar-e-Hira" class="event-img">
+                <p class="event-desc">Jabal-e-Noor ke Ghaar-e-Hira me Hazrat Jibraeel (A.S) nazil hue aur Surah Al-Alaq ki shuruati aayat nazil huin. Ye Nubuwwat ka aaghaz tha.</p>
+                
+                <button class="event-share-btn" onclick="shareEvent('event2')">
+                    📩 Share this Event
+                </button>
+            </div>
+        </div>
+
+        <div class="timeline-item left">
+            <span class="date-label">622 AD</span>
+            <div class="content" id="event3">
+                <h3 class="event-title">Hijrat to Madinah</h3>
+                <img src="https://via.placeholder.com/500x250?text=Migration+to+Madinah" alt="Hijrat" class="event-img">
+                <p class="event-desc">Makkah ke kuffar ke zulm se tang aakar Allah ke hukm se Aap (PBUH) ne apne sahaba ke sath Madinah (Yathrib) ki taraf hijrat ki.</p>
+                
+                <button class="event-share-btn" onclick="shareEvent('event3')">
+                    📩 Share this Event
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <button class="main-share-btn" onclick="shareMainPage()">
+        🔗 Share Full Timeline
+    </button>
+
+    <footer id="about">
+        <p>&copy; 2026 Timeline History | Dedicated to Seerat-e-Nabi (PBUH)</p>
+        <div class="footer-links">
+            <a href="#about">About Us</a> | 
+            <a href="#contact" id="contact">Contact</a> | 
+            <a href="#privacy" id="privacy">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        // === Side Navigation Logic ===
+        function openNav() {
+            document.getElementById("mySidenav").style.width = "280px";
+            document.getElementById("overlay").style.display = "block";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidenav").style.width = "0";
+            document.getElementById("overlay").style.display = "none";
+        }
+
+        // === Scroll Animation logic ===
+        const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // === Helper: Truncate Text to ~100 words ===
+        function getTruncatedDesc(element) {
+            const fullText = element.innerText;
+            const words = fullText.split(/\s+/); // Split by spaces
+            if (words.length > 100) {
+                return words.slice(0, 100).join(' ') + '...';
+            }
+            return fullText;
+        }
+
+        // === 1. Per-Event Share Functionality ===
+        function shareEvent(eventId) {
+            const eventCard = document.getElementById(eventId);
+            const title = eventCard.querySelector('.event-title').innerText;
+            const desc = getTruncatedDesc(eventCard.querySelector('.event-desc'));
+            const imgUrl = eventCard.querySelector('.event-img').src;
+            const pageUrl = window.location.href;
+
+            // Custom Message format for Event
+            const shareText = `📜 *${title}*\n\n📖 ${desc}\n\n🖼️ View Image: ${imgUrl}\n\n🔗 Read full timeline here:`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: shareText,
+                    url: pageUrl // Adds page link at the end
+                }).catch(console.error);
+            } else {
+                // Fallback for desktop/unsupported browsers
+                alert("Sharing not supported on this browser. Copy URL: " + pageUrl);
+            }
+        }
+
+        // === 2. Main Page Share Functionality ===
+        function shareMainPage() {
+            const pageTitle = document.title;
+            const pageUrl = window.location.href;
+            
+            // Custom Message format for Main Share
+            const mainShareText = `Assalamu Alaikum. Explore the beautiful Timeline History of Prophet Muhammad (PBUH). Extremely informative and well designed. Check it out:`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: pageTitle,
+                    text: mainShareText,
+                    url: pageUrl
+                }).catch(console.error);
+            } else {
+                // Fallback (Copy to clipboard or simple alert)
+                navigator.clipboard.writeText(`${mainShareText} ${pageUrl}`).then(() => {
+                    alert("Share link copied to clipboard!");
+                });
             }
         }
     </script>

@@ -1,8 +1,8 @@
-/* --- Global Styles & Layout Fixes --- */
+/* --- Global Styles & Layout Fixes --- *
 :root {
-    --primary: #4f46e5; /* Indigo */
-    --success: #10b981; /* Emerald */
-    --secondary: #64748b; /* Slate */
+    --primary: #4f46e5; /* Indigo *
+    --success: #10b981; /* Emerald *
+    --secondary: #64748b; /* Slate *
     --bg: #f1f5f9;
     --card: #ffffff;
     --text-main: #1e293b;
@@ -11,20 +11,20 @@
 }
 
 * {
-    box-sizing: border-box; /* Layout constraints fix */
+    box-sizing: border-box; /* Layout constraints fix *
 }
 
 body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg);
     margin: 0;
-    padding: 10px; /* Small padding for mobile */
+    padding: 10px; /* Small padding for mobile *
     color: var(--text-main);
     line-height: 1.5;
 }
 
 .container {
-    max-width: 1000px; /* Thoda wide kiya chart ke liye */
+    max-width: 1000px; /* Thoda wide kiya chart ke liye *
     margin: 0 auto;
     width: 100%;
 }
@@ -45,7 +45,7 @@ body {
     color: var(--text-muted);
 }
 
-/* --- Card Styles --- */
+/* --- Card Styles --- *
 .card {
     background: var(--card);
     padding: 20px;
@@ -54,7 +54,7 @@ body {
     margin-bottom: 20px;
     border: 1px solid var(--border);
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
-    overflow: hidden; /* Prevent content spilling */
+    overflow: hidden; /* Prevent content spilling *
 }
 
 .card:hover {
@@ -70,18 +70,18 @@ body {
     padding-bottom: 10px;
 }
 
-/* --- Controls Section (Setup) --- */
+/* --- Controls Section (Setup) --- *
 .controls {
     display: flex;
     gap: 15px;
-    flex-wrap: wrap; /* Mobile responsive wrap */
+    flex-wrap: wrap; /* Mobile responsive wrap *
     align-items: flex-end;
 }
 
 .control-group {
     display: flex;
     flex-direction: column;
-    flex: 1; /* Equal width */
+    flex: 1; /* Equal width *
     min-width: 150px;
 }
 
@@ -108,7 +108,7 @@ select:focus {
     ring: 2px rgba(79, 70, 229, 0.2);
 }
 
-/* --- Buttons --- */
+/* --- Buttons --- *
 .btn {
     padding: 10px 20px;
     border-radius: 8px;
@@ -132,16 +132,16 @@ select:focus {
 .btn-secondary { background: #e2e8f0; color: var(--text-main); border: 1px solid #cbd5e1; }
 .btn-secondary:hover { background: #cbd5e1; }
 
-/* --- Data Entry Table (Responsiveness) --- */
+/* --- Data Entry Table (Responsiveness) --- *
 #table-wrapper {
-    overflow-x: auto; /* Scrollbar if table is wide */
+    overflow-x: auto; /* Scrollbar if table is wide *
     margin-top: 10px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 300px; /* Smallest table width */
+    min-width: 300px; /* Smallest table width *
 }
 
 th, td {
@@ -161,7 +161,7 @@ input[type="time"] {
     padding: 6px;
     border-radius: 6px;
     border: 1px solid var(--border);
-    width: 100%; /* Important for mobile */
+    width: 100%; /* Important for mobile *
     max-width: 110px;
 }
 
@@ -178,9 +178,9 @@ input[type="time"] {
     width: 100%;
 }
 */
-/* Graph area ko scrollable banane ke liye */
+/* Graph area ko scrollable banane ke liye *
 .graph-card {
-   /* overflow-x: auto; /* Side scroll enable karega */
+   /* overflow-x: auto; /* Side scroll enable karega *
     padding: 10px;
     background: var(--card);
     border-radius: 16px;
@@ -188,7 +188,7 @@ input[type="time"] {
 }
 
 #capture-area {
-    min-width: 1200px; /* Isse graph ko failne ki jagah milegi */
+    min-width: 1200px; /* Isse graph ko failne ki jagah milegi *
     padding: 20px;
     background: white;
 }
@@ -198,10 +198,10 @@ input[type="time"] {
     height: 500px; 
     width: 100%;
 }
-/* Ye main container hai jo scroll bar dikhayega */
+/* Ye main container hai jo scroll bar dikhayega *
 .chart-scroll-container {
     width: 100%;
-    overflow-x: auto; /* Horizontal Scroll Enable */
+    overflow-x: auto; /* Horizontal Scroll Enable *
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     background: #ffffff;
@@ -217,7 +217,7 @@ input[type="time"] {
     flex-wrap: wrap;
 }
 
-/* Mobile Adjustments */
+/* Mobile Adjustments *
 @media (max-width: 600px) {
     .header h1 { font-size: 1.5rem; }
     .card { padding: 15px; }
@@ -256,3 +256,33 @@ input[type="time"] {
     width: 100%;
 }
 */
+:root { --primary: #4f46e5; --bg: #f8fafc; }
+body { font-family: sans-serif; background: var(--bg); padding: 15px; }
+.container { max-width: 900px; margin: 0 auto; }
+.card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+/* Table Scroll */
+#table-wrapper { overflow-x: auto; margin-bottom: 15px; }
+table { width: 100%; border-collapse: collapse; min-width: 400px; }
+th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+input { padding: 5px; border-radius: 5px; border: 1px solid #ccc; }
+
+/* GRAPH SCROLL FIX */
+.scroll-box {
+    width: 100%;
+    overflow-x: auto; /* Force horizontal scroll */
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 500px; /* Fixed Height */
+    width: 2000px; /* Dynamic width hum JS se set karenge */
+}
+
+.btn { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-success { background: #10b981; color: white; width: 100%; }
+.btn-secondary { background: #64748b; color: white; margin-top: 10px; }

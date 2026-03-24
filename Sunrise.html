@@ -4,13 +4,214 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visual Solar Tracker | Sunrise, Sunset & Daylight</title>
-    
-    <link rel="stylesheet" href="style.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+    /* --- Global Styles & Layout Fixes --- */
+:root {
+    --primary: #4f46e5; /* Indigo */
+    --success: #10b981; /* Emerald */
+    --secondary: #64748b; /* Slate */
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+}
+
+* {
+    box-sizing: border-box; /* Layout constraints fix */
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    margin: 0;
+    padding: 10px; /* Small padding for mobile */
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1000px; /* Thoda wide kiya chart ke liye */
+    margin: 0 auto;
+    width: 100%;
+}
+
+.header {
+    text-align: center;
+    margin: 20px 0 30px 0;
+}
+
+.header h1 {
+    margin: 0 0 5px 0;
+    font-size: 2rem;
+    color: var(--text-main);
+}
+
+.header p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+/* --- Card Styles --- */
+.card {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    overflow: hidden; /* Prevent content spilling */
+}
+
+.card:hover {
+    border-color: #c7d2fe;
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1), 0 4px 6px -4px rgba(79, 70, 229, 0.1);
+}
+
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--text-main);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+}
+
+/* --- Controls Section (Setup) --- */
+.controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap; /* Mobile responsive wrap */
+    align-items: flex-end;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Equal width */
+    min-width: 150px;
+}
+
+.control-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+select {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+    ring: 2px rgba(79, 70, 229, 0.2);
+}
+
+/* --- Buttons --- */
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s ease, transform 0.1s ease;
+    font-size: 1rem;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #4338ca; }
+
+.btn-success { background: var(--success); color: white; width: 100%; margin-top: 15px;}
+.btn-success:hover { background: #059669; }
+
+.btn-secondary { background: #e2e8f0; color: var(--text-main); border: 1px solid #cbd5e1; }
+.btn-secondary:hover { background: #cbd5e1; }
+
+/* --- Data Entry Table (Responsiveness) --- */
+#table-wrapper {
+    overflow-x: auto; /* Scrollbar if table is wide */
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 300px; /* Smallest table width */
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+}
+
+th {
+    font-weight: 600;
+    background-color: #f8fafc;
+    color: var(--text-main);
+    font-size: 0.9rem;
+}
+
+input[type="time"] {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    width: 100%; /* Important for mobile */
+    max-width: 110px;
+}
+
+/* --- Graph Section --- */
+#capture-area {
+    padding: 15px;
+    background: white;
+}
+
+.chart-container-relative {
+    position: relative;
+    height: 60vh; /* Responsive height based on screen */
+    min-height: 400px; /* Minimum height for desktop */
+    width: 100%;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.download-actions {
+    flex-wrap: wrap;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+    .header h1 { font-size: 1.5rem; }
+    .card { padding: 15px; }
+    .controls { flex-direction: column; align-items: stretch; gap: 10px;}
+    .control-group { width: 100%; }
+    th, td { padding: 6px; font-size: 0.8rem; }
+    input[type="time"] { font-size: 0.8rem; padding: 4px;}
+    .chart-container-relative { height: 50vh; min-height: 350px;}
+}
+</style>
 </head>
 <body>
 
@@ -77,7 +278,159 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+    Chart.register(ChartDataLabels);
+let myChart = null;
+
+// Sahi dino ki sankhya nikalne ke liye function
+function getDaysInMonth(month, year) {
+    const monthIndex = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ].indexOf(month);
+    
+    // February ke liye 28 ya 29 check karega, baaki ke liye sahi din
+    return new Date(year, monthIndex + 1, 0).getDate();
+}
+
+function generateTable() {
+    const month = document.getElementById('monthSelect').value;
+    const durationType = document.getElementById('durationSelect').value;
+    const currentYear = new Date().getFullYear();
+    
+    let days;
+    if (durationType === "30") {
+        days = getDaysInMonth(month, currentYear); // February fix yaha hai
+    } else {
+        days = parseInt(durationType);
+    }
+
+    document.getElementById('selectedReportTitle').innerText = `${month} (${days} Days)`;
+    document.getElementById('chartReportTitle').innerText = `${month} Daylight Analysis`;
+    document.getElementById('dataEntryCard').style.display = 'block';
+    document.getElementById('graphCard').style.display = 'none';
+
+    let html = `<table><thead><tr><th>Day</th><th>Sunrise☀️</th><th>Sunset🌙</th></tr></thead><tbody>`;
+    for(let i=1; i<=days; i++) {
+        html += `<tr>
+            <td><strong>Day ${i}</strong></td>
+            <td><input type="time" class="sunrise-input" value="06:00"></td>
+            <td><input type="time" class="sunset-input" value="18:00"></td>
+        </tr>`;
+    }
+    html += `</tbody></table>`;
+    document.getElementById('table-wrapper').innerHTML = html;
+}
+
+function timeToDecimal(timeStr) {
+    if(!timeStr) return 0;
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours + (minutes / 60);
+}
+
+function formatTimeAP(decimalHours) {
+    let hours = Math.floor(decimalHours);
+    let minutes = Math.round((decimalHours - hours) * 60);
+    if (minutes === 60) { hours += 1; minutes = 0; }
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    let h = hours % 12; h = h ? h : 12;
+    return `${h}:${minutes < 10 ? '0'+minutes : minutes}${ampm}`;
+}
+
+function createChart() {
+    const sunriseInputs = document.querySelectorAll('.sunrise-input');
+    const sunsetInputs = document.querySelectorAll('.sunset-input');
+    const labels = [], durData = [], rawSunrise = [], rawSunset = [];
+
+    sunriseInputs.forEach((input, index) => {
+        const srDec = timeToDecimal(input.value);
+        let ssDec = timeToDecimal(sunsetInputs[index].value);
+        if(ssDec < srDec) ssDec += 24; 
+        const diff = (ssDec - srDec).toFixed(2);
+
+        labels.push(`D-${index + 1}`);
+        durData.push(parseFloat(diff));
+        rawSunrise.push(formatTimeAP(srDec));
+        rawSunset.push(formatTimeAP(ssDec));
+    });
+
+    document.getElementById('graphCard').style.display = 'block';
+    if(myChart) myChart.destroy();
+
+    const ctx = document.getElementById('daylightChart').getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, '#818cf8');
+    gradient.addColorStop(1, '#4f46e5');
+
+    myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: durData,
+                backgroundColor: gradient,
+                borderColor: '#4338ca',
+                borderWidth: 1,
+                borderRadius: 8,
+                barPercentage: 0.8,      // Bar ko mota karne ke liye
+                categoryPercentage: 0.9, // Bars ke beech gap kam karne ke liye
+                sunriseTimes: rawSunrise, 
+                sunsetTimes: rawSunset
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { top: 50, bottom: 50 } },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    max: Math.max(...durData) * 1.3,
+                    ticks: { callback: v => v + 'h' }
+                },
+                x: { grid: { display: false } }
+            },
+            plugins: {
+                legend: { display: false },
+                datalabels: {
+                    display: true,
+                    textAlign: 'center',
+                    labels: {
+                        sunrise: {
+                            align: 'top', anchor: 'end', color: '#d97706', // Orange for sun
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (v, ctx) => ctx.dataset.sunriseTimes[ctx.dataIndex],
+                            offset: 10
+                        },
+                        duration: {
+                            align: 'center', anchor: 'center', color: '#ffffff',
+                            font: { weight: 'bold', size: 14 },
+                            formatter: v => v + ' hrs'
+                        },
+                        sunset: {
+                            align: 'bottom', anchor: 'start', color: '#1e293b',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (v, ctx) => ctx.dataset.sunsetTimes[ctx.dataIndex],
+                            offset: 10
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Download function remains same
+async function downloadImage(format) {
+    const element = document.getElementById('capture-area');
+    const canvas = await html2canvas(element, { scale: 2 });
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL(format === 'png' ? 'image/png' : 'image/jpeg');
+    link.download = `Solar_Report.${format}`;
+    link.click();
+}
+
+</script>
 
 </body>
 </html>

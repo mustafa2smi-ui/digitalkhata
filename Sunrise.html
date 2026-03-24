@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -235,6 +236,90 @@
         pdf.save("Daylight_Analysis.pdf");
     }
 </script>
+
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Solar Tracker | Sunrise, Sunset & Daylight</title>
+    
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>☀️ Visual Solar Tracker</h1>
+        <p>Apna data bharein aur custom Bar Chart generate karein.</p>
+    </div>
+
+    <div class="card config-card">
+        <h3>1. Setup Report</h3>
+        <div class="controls">
+            <div class="control-group">
+                <label>Month:</label>
+                <select id="monthSelect">
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Days:</label>
+                <select id="durationSelect">
+                    <option value="7">7 Days</option>
+                    <option value="10">10 Days</option>
+                    <option value="30">Full Month (30 Days)</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="generateTable()">Set & Start</button>
+        </div>
+    </div>
+
+    <div class="card data-card" id="dataEntryCard" style="display: none;">
+        <h3>2. Enter Data for <span id="selectedReportTitle"></span></h3>
+        <div id="table-wrapper">
+            </div>
+        <div class="actions">
+            <button class="btn btn-success" onclick="createChart()">Create Visual Chart</button>
+        </div>
+    </div>
+
+    <div class="card graph-card" id="graphCard" style="display: none;">
+        <div id="capture-area">
+            <h2 id="chartReportTitle" style="text-align: center; color: #1e293b; margin-bottom: 5px;"></h2>
+            <p style="text-align: center; color: #64748b; margin-top: 0; margin-bottom: 25px;">Daylight Hours Analysis (Sunrise | Duration | Sunset)</p>
+            
+            <div class="chart-container-relative">
+                <canvas id="daylightChart"></canvas>
+            </div>
+        </div>
+        <div class="actions download-actions">
+            <button class="btn btn-secondary" onclick="downloadImage('png')">Download as Image (PNG)</button>
+            <button class="btn btn-secondary" onclick="downloadImage('jpg')">Download as JPG</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>

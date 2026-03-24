@@ -1010,6 +1010,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -1124,6 +1125,156 @@
             navigator.share({ title: title, url: fullUrl });
         } else {
             alert("Link: " + fullUrl);
+        }
+    }
+
+    window.onload = loadEvents;
+</script>
+
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Timeline History Prophet</title>
+    <meta name="description" content="History of Prophet Muhammad (PBUH) in Notebook Timeline style.">
+    <meta property="og:title" content="Timeline History Prophet">
+    <meta property="og:description" content="Explore the life and history of Prophet Muhammad (PBUH).">
+    <meta property="og:image" content="https://yourlink.com/main-banner.jpg"> <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕌</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --line: #27ae60; --bg: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); }
+
+        header { padding: 15px 20px; background: #fff; display: flex; justify-content: space-between; border-bottom: 2px solid #f0f0f0; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-weight: 600; color: var(--line); }
+
+        /* Floating Share Button */
+        .float-share {
+            position: fixed; bottom: 30px; right: 30px; 
+            background: var(--line); color: white; border: none;
+            width: 60px; height: 60px; border-radius: 50%;
+            font-size: 24px; cursor: pointer; z-index: 2000;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Timeline Layout */
+        .timeline { position: relative; max-width: 800px; margin: 30px auto; }
+        .timeline::before { content: ''; position: absolute; top: 0; bottom: 0; left: 95px; width: 2px; background: var(--line); }
+
+        .event-row { display: flex; margin-bottom: 50px; opacity: 0; transform: translateY(20px); transition: 0.6s; }
+        .event-row.show { opacity: 1; transform: translateY(0); }
+
+        .date-col { width: 85px; text-align: right; padding-right: 15px; color: var(--line); font-weight: 600; font-size: 0.85rem; padding-top: 5px; }
+        .content-col { flex: 1; padding-left: 35px; }
+        
+        /* Image Style & Lightbox Trigger */
+        .content-col img { 
+            width: 100%; max-width: 600px; aspect-ratio: 16/9; object-fit: cover;
+            border-radius: 12px; margin-bottom: 15px; cursor: zoom-in;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .content-col p { font-size: 0.95rem; color: #555; text-align: justify; margin-bottom: 15px; line-height: 1.7; }
+        .btn-card-share { padding: 6px 15px; border: 1px solid var(--line); color: var(--line); background: #fff; border-radius: 20px; cursor: pointer; }
+
+        /* Lightbox Style */
+        #lightbox {
+            display: none; position: fixed; z-index: 3000; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); align-items: center; justify-content: center;
+        }
+        #lightbox img { max-width: 90%; max-height: 80%; border-radius: 10px; }
+        #lightbox.active { display: flex; }
+
+        @media (max-width: 600px) {
+            .timeline::before { left: 65px; }
+            .date-col { width: 60px; font-size: 0.7rem; }
+            .content-col { padding-left: 25px; }
+            .float-share { bottom: 20px; right: 20px; width: 50px; height: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Timeline History Prophet</div>
+    <div style="font-size: 1.5rem; cursor: pointer;">☰</div>
+</header>
+
+<button class="float-share" onclick="shareMain()" title="Share Website">🔗</button>
+
+<div id="lightbox" onclick="this.classList.remove('active')">
+    <img src="" id="lightboxImg">
+</div>
+
+<div class="timeline" id="mainTimeline">
+    </div>
+
+<script>
+    // 1. Files List
+    const eventFiles = ['event1.html', 'event2.html']; 
+
+    async function loadEvents() {
+        const container = document.getElementById('mainTimeline');
+        for (const file of eventFiles) {
+            try {
+                const response = await fetch(file);
+                const htmlText = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+
+                const date = doc.querySelector('.date')?.innerText.replace('📅 Date: ', '') || 'N/A';
+                const title = doc.querySelector('h1')?.innerText || 'Title';
+                const imgSrc = doc.querySelector('img')?.src || '';
+                const desc = doc.querySelector('p')?.innerText || '';
+
+                const row = document.createElement('div');
+                row.className = 'event-row';
+                row.innerHTML = `
+                    <div class="date-col">${date}</div>
+                    <div class="content-col">
+                        <h3>${title}</h3>
+                        <img src="${imgSrc}" onclick="openLightbox('${imgSrc}')">
+                        <p>${desc}</p> <button class="btn-card-share" onclick="shareCard('${title}', '${desc}', '${file}')">📲 Share Event</button>
+                    </div>
+                `;
+                container.appendChild(row);
+                setTimeout(() => row.classList.add('show'), 150);
+            } catch (e) { console.log(e); }
+        }
+    }
+
+    // Lightbox Function
+    function openLightbox(src) {
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('lightbox').classList.add('active');
+    }
+
+    // Main Site Share
+    function shareMain() {
+        if (navigator.share) {
+            navigator.share({ title: 'Timeline History Prophet', url: window.location.href });
+        }
+    }
+
+    // Event Card Share (Text + 100 Words)
+    function shareCard(title, text, file) {
+        const cleanText = text.split(' ').slice(0, 50).join(' ') + "..."; // Pehle 50-60 words share honge
+        const shareUrl = window.location.origin + '/' + file;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: `📜 ${title}\n\n${cleanText}\n\nRead more at:`,
+                url: shareUrl
+            });
         }
     }
 

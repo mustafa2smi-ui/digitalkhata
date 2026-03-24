@@ -1,0 +1,201 @@
+/* --- Global Styles & Layout Fixes --- */
+:root {
+    --primary: #4f46e5; /* Indigo */
+    --success: #10b981; /* Emerald */
+    --secondary: #64748b; /* Slate */
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+}
+
+* {
+    box-sizing: border-box; /* Layout constraints fix */
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    margin: 0;
+    padding: 10px; /* Small padding for mobile */
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1000px; /* Thoda wide kiya chart ke liye */
+    margin: 0 auto;
+    width: 100%;
+}
+
+.header {
+    text-align: center;
+    margin: 20px 0 30px 0;
+}
+
+.header h1 {
+    margin: 0 0 5px 0;
+    font-size: 2rem;
+    color: var(--text-main);
+}
+
+.header p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+/* --- Card Styles --- */
+.card {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    overflow: hidden; /* Prevent content spilling */
+}
+
+.card:hover {
+    border-color: #c7d2fe;
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1), 0 4px 6px -4px rgba(79, 70, 229, 0.1);
+}
+
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--text-main);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+}
+
+/* --- Controls Section (Setup) --- */
+.controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap; /* Mobile responsive wrap */
+    align-items: flex-end;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Equal width */
+    min-width: 150px;
+}
+
+.control-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+select {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+    ring: 2px rgba(79, 70, 229, 0.2);
+}
+
+/* --- Buttons --- */
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s ease, transform 0.1s ease;
+    font-size: 1rem;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #4338ca; }
+
+.btn-success { background: var(--success); color: white; width: 100%; margin-top: 15px;}
+.btn-success:hover { background: #059669; }
+
+.btn-secondary { background: #e2e8f0; color: var(--text-main); border: 1px solid #cbd5e1; }
+.btn-secondary:hover { background: #cbd5e1; }
+
+/* --- Data Entry Table (Responsiveness) --- */
+#table-wrapper {
+    overflow-x: auto; /* Scrollbar if table is wide */
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 300px; /* Smallest table width */
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+}
+
+th {
+    font-weight: 600;
+    background-color: #f8fafc;
+    color: var(--text-main);
+    font-size: 0.9rem;
+}
+
+input[type="time"] {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    width: 100%; /* Important for mobile */
+    max-width: 110px;
+}
+
+/* --- Graph Section --- */
+#capture-area {
+    padding: 15px;
+    background: white;
+}
+
+.chart-container-relative {
+    position: relative;
+    height: 60vh; /* Responsive height based on screen */
+    min-height: 400px; /* Minimum height for desktop */
+    width: 100%;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.download-actions {
+    flex-wrap: wrap;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+    .header h1 { font-size: 1.5rem; }
+    .card { padding: 15px; }
+    .controls { flex-direction: column; align-items: stretch; gap: 10px;}
+    .control-group { width: 100%; }
+    th, td { padding: 6px; font-size: 0.8rem; }
+    input[type="time"] { font-size: 0.8rem; padding: 4px;}
+    .chart-container-relative { height: 50vh; min-height: 350px;}
+}

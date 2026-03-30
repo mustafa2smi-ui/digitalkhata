@@ -1222,6 +1222,17 @@
     background: rgba(255,255,255,0.2); color: white; border: none;
     font-size: 30px; cursor: pointer; padding: 10px; position: absolute; z-index: 5001;
 }
+       .audio-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+ 
 .prev { left: -50px; }
 .next { right: -50px; }
 .close-overlay { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
@@ -1259,6 +1270,10 @@
 
 <div id="lightbox" onclick="this.classList.remove('active')">
     <img src="" id="lightboxImg">
+    <div id="audioControls" style="margin-top:10px;">
+    <button onclick="toggleAudio()" class="audio-btn">🔊 Listen History</button>
+</div>
+
 </div>
 <div id="watermarkBox" style="display: none; position: fixed; background: white; padding: 10px; border: 1px solid #eee; border-radius: 8px; text-align: center;">
     <img src="https://yourlink.com/images/logo.png" alt="Logo" style="width: 50px; height: auto;"> <p style="font-size: 0.8rem; color: #777; margin: 0;">Timeline History Prophet</p>
@@ -1384,6 +1399,15 @@
             }
         }
     }
+let currentAudio = new Audio(); // Global audio object
+
+function playRecording(audioUrl) {
+    currentAudio.pause(); // Purana gaana band
+    if(audioUrl) {
+        currentAudio.src = audioUrl;
+        currentAudio.play();
+    }
+}
 
     // 3. Lightbox functions
     function openLightbox(index) {
@@ -1435,6 +1459,24 @@
     }
 }
 */
+        /*
+        function updateLightboxContent() {
+    const data = allEventsData[currentSlideIndex];
+    
+    // 1. Content load karna (Pehle wala logic)
+    // ... (aapka title, image, desc wala code) ...
+
+    // 2. Audio Logic
+    const recordingUrl = data.audio; // Agar aapne fetch mein audio link nikala hai
+    
+    if (recordingUrl) {
+        playRecording(recordingUrl);
+    } else {
+        playTTS(data.desc); // Recording nahi mili to Google TTS padhega
+    }
+}
+
+        */
     function changeSlide(direction) {
         currentSlideIndex += direction;
         if (currentSlideIndex >= allEventsData.length) currentSlideIndex = 0;

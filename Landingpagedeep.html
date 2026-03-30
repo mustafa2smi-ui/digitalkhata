@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>Mufliha | Islamic Content, Tools & Education for Muslims Worldwide</title>
+  <meta name="description" content="Mufliha provides authentic Islamic tools, Quranic resources, Dua, Salah times, Hijri calendar, and educational articles to nurture your spiritual journey.">
+  <meta name="keywords" content="Islamic, Quran, Dua, Salah, Prayer Times, Hijri Calendar, Dhikr, Prophet Muhammad, Islamic articles, Muslim lifestyle, Islamic education, Mufliha">
+  <meta name="author" content="Mufliha">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.mufliha.com">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.mufliha.com">
+  <meta property="og:title" content="Mufliha - Islamic Tools & Knowledge for Every Muslim">
+  <meta property="og:description" content="Access prayer times, Hijri calendar, duas, Prophet timeline, tasbeeh counter, and enriching Islamic articles.">
+  <meta property="og:image" content="https://via.placeholder.com/1200x630?text=Mufliha+Islamic">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://www.mufliha.com">
+  <meta property="twitter:title" content="Mufliha - Islamic Tools & Knowledge for Every Muslim">
+  <meta property="twitter:description" content="Prayer times, Hijri calendar, duas, Prophet timeline, and more. All in one Islamic platform.">
+  <meta property="twitter:image" content="https://via.placeholder.com/1200x630?text=Mufliha+Islamic">
+  
+  <!-- Favicon (temp) -->
+  <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2327ae60'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E">
+  
+  <!-- Google Fonts & Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background: #f9fafb;
+      color: #1f2937;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+    /* Islamic Gradient Theme */
+    .gradient-bg {
+      background: linear-gradient(135deg, #0f2b1d 0%, #1e4a2f 50%, #2c7a47 100%);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #1e4a2f, #3b9e62);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2c7a47, #1e4a2f);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    /* Cards & UI */
+    .card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03), 0 2px 6px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1);
+    }
+    /* Hamburger Menu */
+    .mobile-menu {
+      transition: transform 0.3s ease-in-out;
+      transform: translateX(100%);
+    }
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+    /* Tasbeeh Button */
+    .tasbeeh-btn {
+      transition: all 0.1s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .tasbeeh-btn:active {
+      transform: scale(0.96);
+    }
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      touch-action: pan-y pinch-zoom;
+    }
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }
+    .lightbox-nav {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: white;
+      font-size: 14px;
+    }
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .animate-fadeUp {
+      animation: fadeUp 0.8s ease forwards;
+    }
+    .hero-overlay {
+      background: linear-gradient(135deg, rgba(15,43,29,0.85), rgba(28,78,48,0.75));
+    }
+    /* container */
+    .container-custom {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    @media (max-width: 768px) {
+      .container-custom {
+        padding: 0 1rem;
+      }
+    }
+    /* Quote color picker */
+    .color-palette {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s;
+      border: 2px solid white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .color-palette:hover {
+      transform: scale(1.1);
+    }
+    /* Swipe indicator */
+    .swipe-hint {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      pointer-events: none;
+    }
+    @media (min-width: 769px) {
+      .swipe-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="container-custom flex justify-between items-center py-4">
+    <a href="#" class="text-2xl font-bold gradient-text">Mufliha</a>
+    <!-- Desktop Nav -->
+    <div class="hidden md:flex space-x-6 font-medium">
+      <a href="#" class="hover:text-green-700 transition">Home</a>
+      <a href="#about" class="hover:text-green-700 transition">About Us</a>
+      <a href="#privacy" class="hover:text-green-700 transition">Privacy Policy</a>
+    </div>
+    <!-- Hamburger Icon -->
+    <button id="menuBtn" class="md:hidden text-2xl focus:outline-none"><i class="fas fa-bars"></i></button>
+  </div>
+  <!-- Mobile Menu -->
+  <div id="mobileNav" class="mobile-menu fixed top-0 right-0 w-64 h-full bg-white shadow-xl z-50 p-6 flex flex-col space-y-6">
+    <button id="closeMenu" class="self-end text-2xl"><i class="fas fa-times"></i></button>
+    <a href="#" class="text-lg font-medium py-2 border-b">Home</a>
+    <a href="#about" class="text-lg font-medium py-2 border-b">About Us</a>
+    <a href="#privacy" class="text-lg font-medium py-2 border-b">Privacy Policy</a>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="relative min-h-[500px] flex items-center" style="background-image: url('https://images.pexels.com/photos/713054/pexels-photo-713054.jpeg?auto=compress&cs=tinysrgb&w=1600'); background-size: cover; background-position: center;">
+  <div class="hero-overlay absolute inset-0"></div>
+  <div class="container-custom relative z-10 text-white py-16 animate-fadeUp">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Welcome to Mufliha</h1>
+    <p class="text-xl md:text-2xl max-w-2xl mb-6">Your gateway to authentic Islamic knowledge, tools, and spiritual growth.</p>
+    <div class="max-w-3xl text-gray-100 space-y-3">
+      <p>Mufliha is a modern Islamic platform dedicated to serving Muslims worldwide. We provide accurate prayer times via geolocation, a Hijri calendar, daily duas, an interactive Prophet Muhammad (PBUH) timeline, digital tasbeeh counter, enriching articles, and inspiring Islamic posters. Our vision is to blend tradition with technology—making Islamic education accessible, engaging, and uplifting for every believer. Whether you seek daily dhikr, deeper understanding of Seerah, or simply a moment of reflection, Mufliha is your companion on the journey of faith.</p>
+      <p>Join thousands of Muslims who rely on Mufliha for authentic resources, curated content, and a serene digital environment that respects Islamic values. We continuously update tools and articles to nurture your soul and strengthen your connection with Allah.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content -->
+<main class="container-custom py-12">
+  <!-- Islamic Tools Grid -->
+  <h2 class="text-3xl font-bold mb-8 text-center gradient-text">🌙 Islamic Tools & Features</h2>
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    
+    <!-- Salah Time Card -->
+    <div class="card p-5">
+      <div class="flex items-center gap-3 mb-4"><i class="fas fa-mosque text-2xl text-green-700"></i><h3 class="text-xl font-semibold">Live Salah Times</h3></div>
+      <div id="prayerTimes" class="space-y-2 text-sm">Detecting location...</div>
+      <button id="manualLocationBtn" class="mt-3 text-green-700 text-sm underline">Manual Location</button>
+      <input id="cityInput" type="text" placeholder="Enter city" class="hidden mt-2 p-1 border rounded w-full">
+    </div>
+    
+    <!-- Hijri Calendar -->
+    <div class="card p-5">
+      <div class="flex items-center gap-3 mb-4"><i class="fas fa-calendar-alt text-2xl text-green-700"></i><h3 class="text-xl font-semibold">Hijri Calendar</h3></div>
+      <div id="hijriDate" class="text-lg font-medium">Loading Hijri date...</div>
+      <p class="text-xs text-gray-500 mt-2">Based on Umm al-Qura</p>
+    </div>
+    
+    <!-- Tasbeeh Counter -->
+    <div class="card p-5">
+      <div class="flex items-center gap-3 mb-4"><i class="fas fa-hands-praying text-2xl text-green-700"></i><h3 class="text-xl font-semibold">Tasbeeh Counter</h3></div>
+      <div id="tasbeehCount" class="text-4xl font-bold text-center my-3">0</div>
+      <div class="flex gap-3 justify-center">
+        <button id="tasbeehBtn" class="tasbeeh-btn btn-primary text-white px-6 py-2 rounded-full"><i class="fas fa-plus-circle"></i> Tap +1</button>
+        <button id="resetTasbeeh" class="bg-gray-200 px-4 rounded-full hover:bg-gray-300">Reset</button>
+      </div>
+      <p class="text-center text-xs mt-2">SubhanAllah</p>
+    </div>
+    
+    <!-- Dua Section -->
+    <div class="card p-5">
+      <div class="flex items-center gap-3 mb-4"><i class="fas fa-hands text-2xl text-green-700"></i><h3 class="text-xl font-semibold">Daily Dua</h3></div>
+      <div id="duaText" class="italic text-gray-700">“Rabbana atina fid-dunya hasanatan wa fil-akhirati hasanatan wa qina ‘adhaban-nar”</div>
+      <button id="refreshDua" class="mt-3 text-green-600 text-sm">New Dua <i class="fas fa-sync-alt"></i></button>
+    </div>
+    
+    <!-- Prophet Timeline -->
+    <div class="card p-5">
+      <div class="flex items-center gap-3 mb-4"><i class="fas fa-chart-line text-2xl text-green-700"></i><h3 class="text-xl font-semibold">Prophet Life Timeline</h3></div>
+      <ul class="list-disc pl-5 space-y-1 text-sm">
+        <li>570 CE – Birth in Makkah</li>
+        <li>610 CE – First Revelation (Hira)</li>
+        <li>622 CE – Hijrah to Madinah</li>
+        <li>630 CE – Conquest of Makkah</li>
+        <li>632 CE – Farewell Sermon & Passing</li>
+      </ul>
+    </div>
+    
+    <!-- Islamic Quotes WITH COLOR CHANGER -->
+    <div class="card p-5 transition-colors duration-300" id="quoteCard">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <i class="fas fa-quote-right text-2xl text-green-700"></i>
+          <h3 class="text-xl font-semibold">Inspirational Quote</h3>
+        </div>
+        <div id="colorPickerBtn" class="color-palette bg-gradient-to-r from-emerald-500 to-teal-600 cursor-pointer" title="Change background color"></div>
+      </div>
+      <div id="quoteText" class="italic">“Indeed, with hardship comes ease.” (Quran 94:6)</div>
+      <button id="shareQuoteBtn" class="mt-3 text-green-600 text-sm"><i class="fas fa-share-alt"></i> Share as Screenshot</button>
+    </div>
+    
+    <!-- Islamic Posters with Lightbox + Swipe -->
+    <div class="card p-5">
+      <div class="flex items-center gap-3 mb-4"><i class="fas fa-image text-2xl text-green-700"></i><h3 class="text-xl font-semibold">Islamic Posters</h3></div>
+      <div class="grid grid-cols-2 gap-2" id="postersGrid">
+        <img src="https://via.placeholder.com/200x150/2c7a47/white?text=SubhanAllah" class="poster-img rounded-lg cursor-pointer w-full object-cover" data-src="https://via.placeholder.com/800x600/2c7a47/white?text=SubhanAllah" data-index="0">
+        <img src="https://via.placeholder.com/200x150/1e4a2f/white?text=Alhamdulillah" class="poster-img rounded-lg cursor-pointer w-full object-cover" data-src="https://via.placeholder.com/800x600/1e4a2f/white?text=Alhamdulillah" data-index="1">
+        <img src="https://via.placeholder.com/200x150/0f2b1d/white?text=Allahu+Akbar" class="poster-img rounded-lg cursor-pointer w-full object-cover" data-src="https://via.placeholder.com/800x600/0f2b1d/white?text=Allahu+Akbar" data-index="2">
+        <img src="https://via.placeholder.com/200x150/3b9e62/white?text=La+ilaha+illAllah" class="poster-img rounded-lg cursor-pointer w-full object-cover" data-src="https://via.placeholder.com/800x600/3b9e62/white?text=La+ilaha+illAllah" data-index="3">
+      </div>
+    </div>
+  </div>
+  
+  <!-- Islamic Articles Blog Section -->
+  <h2 class="text-3xl font-bold mt-16 mb-6 text-center gradient-text">📚 Islamic Knowledge Blog</h2>
+  <div class="grid md:grid-cols-3 gap-6 mb-12">
+    <div class="card p-4"><h3 class="font-bold text-xl">The Importance of Salah</h3><p class="text-gray-600 mt-2">Prayer is the pillar of faith. Discover its spiritual and practical benefits in daily life...</p><a href="#" class="text-green-700 mt-2 inline-block">Read more →</a></div>
+    <div class="card p-4"><h3 class="font-bold text-xl">Lessons from Hijrah</h3><p class="text-gray-600 mt-2">The migration of Prophet Muhammad (PBUH) teaches reliance on Allah and strategic patience.</p><a href="#" class="text-green-700 mt-2 inline-block">Read more →</a></div>
+    <div class="card p-4"><h3 class="font-bold text-xl">Virtues of Dhikr</h3><p class="text-gray-600 mt-2">Remembrance of Allah brings peace to hearts. Learn morning and evening adhkar.</p><a href="#" class="text-green-700 mt-2 inline-block">Read more →</a></div>
+  </div>
+  
+  <!-- Popular & Recent Posts + Affiliate -->
+  <div class="grid md:grid-cols-2 gap-8 mb-12">
+    <div class="card p-5">
+      <h3 class="text-2xl font-semibold mb-3">⭐ Popular Posts</h3>
+      <ul class="space-y-2">
+        <li>• 10 Steps to Improve Your Khushu in Prayer</li>
+        <li>• Understanding the 99 Names of Allah</li>
+        <li>• The Spiritual Power of Ramadan Fasting</li>
+      </ul>
+      <h3 class="text-2xl font-semibold mt-5 mb-3">🕒 Recent Posts</h3>
+      <ul class="space-y-2">
+        <li>• How to Seek Forgiveness (Istighfar) Daily</li>
+        <li>• The Life of Khadijah (RA): Lessons in Faith</li>
+        <li>• Dua for Anxiety and Grief</li>
+      </ul>
+    </div>
+    <!-- Affiliate Section -->
+    <div class="card p-5 bg-gradient-to-br from-green-50 to-white border border-green-100">
+      <h3 class="text-2xl font-bold text-green-800">📖 Islamic Book Bundle</h3>
+      <p class="mt-2">"Stories of the Prophets" + "Fortress of the Muslim" – essential books for every household. Get authentic Islamic literature set with free shipping.</p>
+      <div class="mt-4"><span class="font-bold">$29.99</span> <span class="line-through text-gray-400">$45</span></div>
+      <button class="btn-primary text-white px-5 py-2 rounded-full mt-3 w-full md:w-auto">Order Now</button>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="gradient-bg text-white mt-16 pt-10 pb-6">
+  <div class="container-custom">
+    <div class="grid md:grid-cols-3 gap-8">
+      <div><h3 class="text-xl font-bold">Mufliha</h3><p class="text-gray-200 mt-2">Nurturing faith through authentic Islamic tools and content.</p></div>
+      <div><h4 class="font-semibold">Quick Links</h4><ul class="mt-2 space-y-1"><li><a href="#" class="hover:underline">Home</a></li><li><a href="#about" class="hover:underline">About Us</a></li><li><a href="#privacy" class="hover:underline">Privacy Policy</a></li></ul></div>
+      <div><h4 class="font-semibold">Connect</h4><div class="flex gap-4 mt-2"><i class="fab fa-facebook-f text-xl"></i><i class="fab fa-twitter text-xl"></i><i class="fab fa-instagram text-xl"></i><i class="fab fa-youtube text-xl"></i></div><p class="mt-4 text-sm">“Remind, for indeed reminder benefits the believers.”</p></div>
+    </div>
+    <div class="border-t border-white/20 mt-6 pt-4 text-center text-sm">© 2025 Mufliha — Islamic Content & Tools. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- Lightbox with swipe support -->
+<div id="lightbox" class="lightbox">
+  <img id="lightboxImg" src="">
+  <span id="closeLightbox" class="absolute top-5 right-8 text-white text-3xl cursor-pointer z-10">&times;</span>
+  <div class="swipe-hint"><i class="fas fa-arrows-alt-h"></i> Swipe to browse</div>
+  <div class="lightbox-nav" id="lightboxNav"></div>
+</div>
+
+<script>
+  // ---------- POSTER ARRAY FOR LIGHTBOX SWIPE ----------
+  const posters = Array.from(document.querySelectorAll('.poster-img')).map(img => img.getAttribute('data-src'));
+  let currentPosterIndex = 0;
+  let touchStartX = 0;
+  let touchEndX = 0;
+  
+  function openLightbox(index) {
+    currentPosterIndex = index;
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    lightboxImg.src = posters[currentPosterIndex];
+    lightbox.style.display = 'flex';
+    document.getElementById('lightboxNav').innerHTML = `${currentPosterIndex+1} / ${posters.length}`;
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function nextPoster() {
+    currentPosterIndex = (currentPosterIndex + 1) % posters.length;
+    document.getElementById('lightboxImg').src = posters[currentPosterIndex];
+    document.getElementById('lightboxNav').innerHTML = `${currentPosterIndex+1} / ${posters.length}`;
+  }
+  
+  function prevPoster() {
+    currentPosterIndex = (currentPosterIndex - 1 + posters.length) % posters.length;
+    document.getElementById('lightboxImg').src = posters[currentPosterIndex];
+    document.getElementById('lightboxNav').innerHTML = `${currentPosterIndex+1} / ${posters.length}`;
+  }
+  
+  // Lightbox open on click
+  document.querySelectorAll('.poster-img').forEach((img, idx) => {
+    img.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openLightbox(idx);
+    });
+  });
+  
+  const lightbox = document.getElementById('lightbox');
+  const closeLightbox = document.getElementById('closeLightbox');
+  function closeLightboxFn() {
+    lightbox.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  closeLightbox.addEventListener('click', closeLightboxFn);
+  lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightboxFn(); });
+  
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (lightbox.style.display === 'flex') {
+      if (e.key === 'ArrowRight') nextPoster();
+      if (e.key === 'ArrowLeft') prevPoster();
+      if (e.key === 'Escape') closeLightboxFn();
+    }
+  });
+  
+  // Touch swipe for mobile
+  lightbox.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+  lightbox.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    if (touchEndX < touchStartX - 50) nextPoster();
+    if (touchEndX > touchStartX + 50) prevPoster();
+  });
+  
+  // ---------- QUOTE CARD BACKGROUND COLOR CHANGER ----------
+  const quoteCard = document.getElementById('quoteCard');
+  const colorPickerBtn = document.getElementById('colorPickerBtn');
+  const colorOptions = [
+    'bg-white', 'bg-emerald-50', 'bg-amber-50', 'bg-sky-50', 'bg-rose-50', 'bg-indigo-50', 'bg-teal-50'
+  ];
+  const colorClasses = [
+    'bg-white', 'bg-emerald-50', 'bg-amber-50', 'bg-sky-50', 'bg-rose-50', 'bg-indigo-50', 'bg-teal-50'
+  ];
+  let colorIdx = 0;
+  // set initial
+  quoteCard.classList.add('bg-white');
+  colorPickerBtn.onclick = () => {
+    colorIdx = (colorIdx + 1) % colorClasses.length;
+    // remove all bg-* classes
+    colorClasses.forEach(c => quoteCard.classList.remove(c));
+    quoteCard.classList.add(colorClasses[colorIdx]);
+  };
+  
+  // ---------- PRAYER TIMES API ----------
+  const prayerDiv = document.getElementById('prayerTimes');
+  const cityInput = document.getElementById('cityInput');
+  const manualBtn = document.getElementById('manualLocationBtn');
+  
+  async function fetchPrayerTimes(city = null, lat = null, lon = null) {
+    let url;
+    if (city) {
+      url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=auto&method=2`;
+    } else if (lat && lon) {
+      url = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`;
+    } else {
+      prayerDiv.innerHTML = 'Unable to load.';
+      return;
+    }
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.code === 200) {
+        const timings = data.data.timings;
+        prayerDiv.innerHTML = `
+          <p><strong>Fajr:</strong> ${timings.Fajr}</p>
+          <p><strong>Dhuhr:</strong> ${timings.Dhuhr}</p>
+          <p><strong>Asr:</strong> ${timings.Asr}</p>
+          <p><strong>Maghrib:</strong> ${timings.Maghrib}</p>
+          <p><strong>Isha:</strong> ${timings.Isha}</p>
+        `;
+      } else throw new Error();
+    } catch(e) { prayerDiv.innerHTML = 'Error fetching prayer times. Try manual.'; }
+  }
+  
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        fetchPrayerTimes(null, pos.coords.latitude, pos.coords.longitude);
+      }, () => { prayerDiv.innerHTML = 'Location denied. Use manual city.'; });
+    } else { prayerDiv.innerHTML = 'Geo not supported. Use manual.'; }
+  }
+  getLocation();
+  manualBtn.onclick = () => {
+    cityInput.classList.toggle('hidden');
+    if(!cityInput.classList.contains('hidden')) cityInput.focus();
+  };
+  cityInput.addEventListener('keypress', (e) => {
+    if(e.key === 'Enter' && cityInput.value.trim()) {
+      fetchPrayerTimes(cityInput.value.trim());
+      cityInput.classList.add('hidden');
+    }
+  });
+  
+  // Hijri Calendar
+  async function loadHijri() {
+    try {
+      const res = await fetch('https://api.aladhan.com/v1/gToH?date='+new Date().toISOString().split('T')[0]);
+      const data = await res.json();
+      if(data.code === 200) {
+        const hijri = data.data.hijri;
+        document.getElementById('hijriDate').innerHTML = `${hijri.day} ${hijri.month.en} ${hijri.year} AH`;
+      } else throw new Error();
+    } catch(e) { document.getElementById('hijriDate').innerHTML = 'Rabi al-Awwal 1447 (approx)'; }
+  }
+  loadHijri();
+  
+  // Tasbeeh
+  let count = 0;
+  const countSpan = document.getElementById('tasbeehCount');
+  document.getElementById('tasbeehBtn').onclick = () => { count++; countSpan.innerText = count; };
+  document.getElementById('resetTasbeeh').onclick = () => { count = 0; countSpan.innerText = 0; };
+  
+  // Dua
+  const duas = [
+    "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ — 'Our Lord, give us good in this world and good in the Hereafter...'",
+    "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ — 'O Allah, I ask You for forgiveness and well-being.'",
+    "حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ ۖ عَلَيْهِ تَوَكَّلْتُ — 'Allah is sufficient for me...'",
+    "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ — 'O Allah, send blessings upon Muhammad...'"
+  ];
+  let duaIndex = 0;
+  const duaElem = document.getElementById('duaText');
+  function setRandomDua() { duaIndex = (duaIndex+1)%duas.length; duaElem.innerText = duas[duaIndex]; }
+  document.getElementById('refreshDua').onclick = setRandomDua;
+  setRandomDua();
+  
+  // Quote share screenshot
+  const quoteElem = document.getElementById('quoteText');
+  const shareQuoteBtn = document.getElementById('shareQuoteBtn');
+  shareQuoteBtn.onclick = async () => {
+    const quote = quoteElem.innerText;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 600; canvas.height = 300;
+    ctx.fillStyle = '#1e4a2f'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#FFFFFF'; ctx.font = 'bold 24px "Inter"'; ctx.fillText('Mufliha', 20, 50);
+    ctx.font = '18px "Inter"'; ctx.fillStyle = '#F3F4F6'; ctx.fillText(quote.slice(0, 100), 20, 120);
+    ctx.font = '12px "Inter"'; ctx.fillStyle = '#D1D5DB'; ctx.fillText('© Mufliha - Share Islamic Wisdom', 20, 270);
+    const dataURL = canvas.toDataURL('image/png');
+    const link = document.createElement('a'); link.download = 'islamic-quote.png'; link.href = dataURL; link.click();
+  };
+  
+  // Mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileNav = document.getElementById('mobileNav');
+  const closeMenu = document.getElementById('closeMenu');
+  menuBtn.onclick = () => mobileNav.classList.add('open');
+  closeMenu.onclick = () => mobileNav.classList.remove('open');
+  document.querySelectorAll('#mobileNav a').forEach(link => link.addEventListener('click', () => mobileNav.classList.remove('open')));
+  
+  // About & Privacy
+  const aboutLink = document.querySelectorAll('a[href="#about"]');
+  const privacyLink = document.querySelectorAll('a[href="#privacy"]');
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if(el) el.scrollIntoView({behavior: 'smooth'});
+    else alert(id === 'about' ? "Mufliha aims to provide authentic Islamic tools for all Muslims." : "We respect your privacy: no personal data is stored.");
+  }
+  aboutLink.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); scrollToSection('about'); }));
+  privacyLink.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); scrollToSection('privacy'); }));
+  
+  const aboutDiv = document.createElement('div'); aboutDiv.id = 'about'; aboutDiv.className = 'container-custom py-10'; aboutDiv.innerHTML = '<h2 class="text-2xl font-bold">About Mufliha</h2><p>Mufliha is a global Islamic platform offering prayer times, hijri calendar, dhikr tools, authentic duas, and enriching articles. Our mission is to make Islamic knowledge accessible with modern technology while preserving traditional values.</p>';
+  const privacyDiv = document.createElement('div'); privacyDiv.id = 'privacy'; privacyDiv.className = 'container-custom py-10'; privacyDiv.innerHTML = '<h2 class="text-2xl font-bold">Privacy Policy</h2><p>We do not share personal data. Location is used only for prayer times. No cookies for tracking. Your privacy is paramount at Mufliha.</p>';
+  document.querySelector('main').after(aboutDiv); aboutDiv.after(privacyDiv);
+  
+  // Rotating quotes
+  const quotes = ['“Indeed, with hardship comes ease.” (Quran 94:6)', '“The best among you are those who have the best manners.” (Bukhari)', '“Verily, in the remembrance of Allah do hearts find rest.” (Quran 13:28)'];
+  let quoteIdx = 1;
+  setInterval(() => { quoteElem.innerText = quotes[quoteIdx % quotes.length]; quoteIdx++; }, 8000);
+</script>
+</body>
+</html>

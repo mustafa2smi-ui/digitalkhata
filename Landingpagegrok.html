@@ -3,101 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Mufliha - Your complete Islamic companion. Live Salah times, Hijri calendar, Tasbeeh counter, Duas, Prophet's timeline, Islamic articles, quotes &amp; posters. Deepen your faith daily.">
-    <meta name="keywords" content="Islamic website, Salah times, Hijri calendar, Tasbeeh counter, Islamic Duas, Prophet Muhammad timeline, Islamic articles, Islamic quotes, Islamic posters, Muslim community, Quran, Hadith, prayer times, Mufliha">
-    <meta name="author" content="Mufliha">
+    <meta name="description" content="Mufliha - Your complete Islamic companion. Live Salah times, Hijri calendar, Tasbeeh counter, Duas, Prophet timeline, Islamic articles, quotes & posters. Deepen your faith daily.">
+    <meta name="keywords" content="Islamic website, Salah times, Hijri calendar, Tasbeeh counter, Islamic Duas, Prophet Muhammad timeline, Islamic articles, Islamic quotes, Islamic posters, Muslim community">
     <meta property="og:title" content="Mufliha - Illuminate Your Faith">
-    <meta property="og:description" content="Your ultimate digital companion for Islamic content, prayer tools, Duas, articles, quotes &amp; more. Live Salah API, Hijri calendar &amp; beautiful Islamic design.">
-    <meta property="og:image" content="https://picsum.photos/id/1015/1200/630"> <!-- Replace with your hero image -->
+    <meta property="og:description" content="Live Salah, Hijri Calendar, Tasbeeh, Duas, Islamic Articles, Quotes & Posters for the Ummah.">
+    <meta property="og:image" content="https://picsum.photos/id/1015/1200/630">
     <meta property="og:url" content="https://mufliha.com">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Mufliha">
     <title>Mufliha - Illuminate Your Faith</title>
     
-    <!-- Favicon (temporary Islamic crescent & star - you can replace later) -->
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23006633' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2C8 2 4 6 4 12s4 10 8 10 8-4 8-10S16 2 12 2z'/%3E%3Ccircle cx='19' cy='10' r='2'/%3E%3C/svg%3E" type="image/svg+xml">
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23006633' stroke-width='2'%3E%3Cpath d='M12 2C8 2 4 6 4 12s4 10 8 10 8-4 8-10S16 2 12 2z'/%3E%3Ccircle cx='19' cy='10' r='2'/%3E%3C/svg%3E" type="image/svg+xml">
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Amiri:wght@400;700&amp;display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Amiri:wght@400;700&display=swap');
         
-        :root {
-            --islamic-green: #006633;
-            --gold: #d4af77;
-        }
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .heading-font { font-family: 'Amiri', serif; }
         
-        body {
-            font-family: 'Inter', system_ui, sans-serif;
-        }
-        
-        .heading-font {
-            font-family: 'Amiri', serif;
-        }
-        
-        .islamic-gradient {
-            background: linear-gradient(135deg, #006633, #00b366, #d4af77);
-        }
-        
+        .islamic-gradient { background: linear-gradient(135deg, #006633, #00b366, #d4af77); }
         .hero-bg {
             background: linear-gradient(rgba(0, 102, 51, 0.85), rgba(0, 102, 51, 0.85)), url('https://picsum.photos/id/1015/2000/1200') center/cover no-repeat;
             animation: heroFade 15s infinite alternate ease-in-out;
         }
+        @keyframes heroFade { 0% { filter: brightness(1); } 100% { filter: brightness(1.12); } }
         
-        @keyframes heroFade {
-            0% { filter: brightness(1); }
-            100% { filter: brightness(1.15); }
+        .quote-card {
+            min-width: 320px;
+            scroll-snap-align: start;
         }
         
-        .nav-link {
-            transition: all 0.3s ease;
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
         }
         
-        .nav-link:hover {
-            color: #d4af77;
-            transform: translateY(-1px);
-        }
-        
-        .card-hover {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgb(0 102 51 / 0.25);
-        }
-        
-        .section-title {
-            position: relative;
-        }
-        
-        .section-title:after {
-            content: '';
+        .watermark {
             position: absolute;
-            width: 60px;
-            height: 3px;
-            background: #d4af77;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 25px;
+            right: 25px;
+            color: rgba(255,255,255,0.65);
+            font-size: 15px;
+            font-weight: 600;
+            pointer-events: none;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
         }
+        
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-[#f8f5f0] text-gray-800">
 
-    <!-- NAVBAR - Google-style clean UI -->
+    <!-- NAVBAR -->
     <nav class="bg-white border-b sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-2xl islamic-gradient flex items-center justify-center text-white text-2xl">🌙</div>
                     <h1 class="text-2xl font-bold heading-font tracking-tight text-[#006633]">Mufliha</h1>
                 </div>
                 
-                <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center gap-8 text-sm font-medium">
                     <a href="#" class="nav-link">Home</a>
                     <a href="#features" class="nav-link">Features</a>
@@ -106,14 +79,12 @@
                     <a href="#" class="nav-link">Privacy Policy</a>
                 </div>
                 
-                <!-- Hamburger -->
                 <button id="hamburger" class="md:hidden text-2xl text-[#006633]">
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
         </div>
         
-        <!-- Mobile Menu -->
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-6 py-4">
             <div class="flex flex-col gap-4 text-sm font-medium">
                 <a href="#" class="py-2">Home</a>
@@ -125,11 +96,10 @@
         </div>
     </nav>
 
-    <!-- HERO SECTION - Animated -->
+    <!-- HERO -->
     <header id="hero" class="hero-bg h-screen flex items-center text-white relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 text-center z-10">
             <div class="max-w-3xl mx-auto">
-                <!-- Animated text -->
                 <div class="mb-6 inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-2 rounded-3xl text-sm font-medium">
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#d4af77] opacity-75"></span>
@@ -138,18 +108,17 @@
                     LIVE SALAH TIMES • HIJRI 1447
                 </div>
                 
-                <h1 class="text-6xl md:text-7xl font-bold heading-font leading-none mb-6 tracking-tighter animate-fade-in">
+                <h1 class="text-6xl md:text-7xl font-bold heading-font leading-none mb-6 tracking-tighter">
                     Illuminate<br>Your Faith
                 </h1>
                 <p class="text-xl md:text-2xl max-w-lg mx-auto opacity-90 mb-10">
-                    Your complete Islamic companion — prayer times, Duas, Tasbeeh, articles, quotes &amp; more.
+                    Your complete Islamic companion — prayer times, Duas, Tasbeeh, articles, quotes & more.
                 </p>
                 
                 <div class="flex flex-wrap gap-4 justify-center">
                     <button onclick="document.getElementById('salah').scrollIntoView({behavior:'smooth'})" 
                             class="bg-white text-[#006633] hover:bg-[#d4af77] hover:text-white px-10 py-4 rounded-3xl font-semibold text-lg flex items-center gap-3 transition-all">
-                        <i class="fa-solid fa-clock"></i>
-                        Check Salah Times
+                        <i class="fa-solid fa-clock"></i> Check Salah Times
                     </button>
                     <button onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})" 
                             class="border-2 border-white hover:bg-white hover:text-[#006633] px-10 py-4 rounded-3xl font-semibold text-lg transition-all">
@@ -159,33 +128,25 @@
             </div>
         </div>
         
-        <!-- Subtle Islamic pattern overlay -->
-        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-8 text-4xl opacity-20">
-            <i class="fa-solid fa-star-and-crescent"></i>
-            <i class="fa-solid fa-mosque"></i>
-            <i class="fa-solid fa-pray"></i>
-        </div>
-        
-        <!-- Scroll indicator -->
         <div class="absolute bottom-8 left-1/2 flex flex-col items-center text-white/70 text-xs tracking-widest">
             <div class="animate-bounce">↓</div>
             <span>Scroll to explore</span>
         </div>
     </header>
 
-    <!-- ABOUT / UNIQUE FEATURES PARAGRAPH -->
+    <!-- ABOUT -->
     <section id="about" class="py-20 bg-white">
         <div class="max-w-4xl mx-auto px-6">
             <h2 class="text-center text-4xl font-bold heading-font mb-12 text-[#006633]">Welcome to Mufliha</h2>
             <div class="prose prose-lg mx-auto text-gray-700 leading-relaxed">
                 <p class="text-xl">
-                    Mufliha is your ultimate digital companion for enriching your Islamic journey. Designed as a comprehensive hub for Muslims worldwide, Mufliha offers a seamless blend of spiritual guidance, daily tools, and inspiring content. Stay connected to your faith with real-time prayer times tailored to your exact location using live APIs, an interactive Hijri calendar, a beautiful digital Tasbeeh counter, and a vast collection of authentic Duas. 
+                    Mufliha is your ultimate digital companion for enriching your Islamic journey. Designed as a comprehensive hub for Muslims worldwide, Mufliha offers a seamless blend of spiritual guidance, daily tools, and inspiring content. Stay connected to your faith with real-time prayer times tailored to your exact location, an interactive Hijri calendar, a beautiful digital Tasbeeh counter, and a vast collection of authentic Duas. 
                 </p>
                 <p class="text-xl mt-6">
-                    Dive deep into the life of Prophet Muhammad ﷺ through an engaging timeline, explore thought-provoking Islamic articles written by scholars, and find daily inspiration through carefully curated Islamic quotes and stunning posters. Whether you want to track your Salah, count your dhikr, read the latest Islamic blog posts, or simply beautify your space with meaningful posters — Mufliha makes it effortless and beautiful. 
+                    Dive deep into the life of Prophet Muhammad ﷺ through an engaging timeline, explore thought-provoking Islamic articles, and find daily inspiration through carefully curated Islamic quotes and stunning posters. Whether you want to track your Salah, count your dhikr, read the latest Islamic blog posts, or simply beautify your space with meaningful posters — Mufliha makes it effortless and beautiful.
                 </p>
                 <p class="text-xl mt-6">
-                    With a clean Google-style interface, elegant Islamic gradients, and powerful APIs for automatic location detection, Mufliha is built for the modern Muslim who wants to live their faith with ease and joy every single day.
+                    With a clean Google-style interface, elegant Islamic gradients, and powerful APIs, Mufliha is built for the modern Muslim who wants to live their faith with ease and joy every single day.
                 </p>
             </div>
         </div>
@@ -194,7 +155,7 @@
     <!-- LIVE SALAH TIMES -->
     <section id="salah" class="py-20 bg-[#f8f5f0]">
         <div class="max-w-7xl mx-auto px-6">
-            <h2 class="section-title text-4xl font-bold heading-font mb-12 text-center text-[#006633]">Live Salah Times</h2>
+            <h2 class="text-4xl font-bold heading-font mb-12 text-center text-[#006633]">Live Salah Times</h2>
             <div class="bg-white rounded-3xl shadow-xl p-8 max-w-2xl mx-auto">
                 <div class="flex justify-between items-center mb-6">
                     <div>
@@ -208,45 +169,39 @@
                         <i class="fa-solid fa-sync"></i> Refresh
                     </button>
                 </div>
-                <div id="prayerTimes" class="grid grid-cols-5 gap-4 text-center">
-                    <!-- JS will populate -->
-                </div>
+                <div id="prayerTimes" class="grid grid-cols-5 gap-4 text-center"></div>
                 <p class="text-xs text-center mt-8 text-gray-500">Powered by Aladhan API • Automatic location detection</p>
             </div>
         </div>
     </section>
 
-    <!-- HIJRI CALENDAR + OTHER FEATURES GRID -->
+    <!-- FEATURES -->
     <section id="features" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-6">
-            <h2 class="section-title text-4xl font-bold heading-font mb-12 text-center text-[#006633]">Powerful Islamic Tools</h2>
+            <h2 class="text-4xl font-bold heading-font mb-12 text-center text-[#006633]">Powerful Islamic Tools</h2>
             
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Hijri Calendar Card -->
-                <div class="card-hover bg-[#f8f5f0] rounded-3xl p-8 text-center">
+                <!-- Hijri -->
+                <div class="bg-[#f8f5f0] rounded-3xl p-8 text-center card-hover">
                     <i class="fa-solid fa-calendar text-5xl text-[#006633] mb-6"></i>
                     <h3 class="text-2xl font-semibold mb-2">Hijri Calendar</h3>
-                    <p class="text-gray-600 mb-6">Live Hijri &amp; Gregorian date with full month view</p>
                     <div id="hijriDate" class="text-4xl font-bold heading-font text-[#006633]"></div>
                     <div id="gregorianDate" class="text-sm text-gray-500 mt-1"></div>
                 </div>
                 
-                <!-- Tasbeeh Counter -->
-                <div class="card-hover bg-[#f8f5f0] rounded-3xl p-8 text-center">
+                <!-- Tasbeeh -->
+                <div class="bg-[#f8f5f0] rounded-3xl p-8 text-center card-hover">
                     <i class="fa-solid fa-pray text-5xl text-[#006633] mb-6"></i>
                     <h3 class="text-2xl font-semibold mb-2">Tasbeeh Counter</h3>
-                    <div class="flex flex-col items-center">
-                        <div id="count" class="text-7xl font-bold text-[#006633] tabular-nums mb-6">0</div>
-                        <div class="flex gap-4">
-                            <button onclick="incrementTasbeeh()" class="w-12 h-12 rounded-2xl bg-[#006633] text-white flex items-center justify-center text-2xl">+</button>
-                            <button onclick="resetTasbeeh()" class="w-12 h-12 rounded-2xl border-2 border-[#006633] text-[#006633] flex items-center justify-center">Reset</button>
-                        </div>
-                        <div class="text-xs text-gray-500 mt-6">Subhanallah • Alhamdulillah • Allahu Akbar</div>
+                    <div id="count" class="text-7xl font-bold text-[#006633] tabular-nums mb-6">0</div>
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="incrementTasbeeh()" class="w-12 h-12 rounded-2xl bg-[#006633] text-white text-2xl">+</button>
+                        <button onclick="resetTasbeeh()" class="w-12 h-12 rounded-2xl border-2 border-[#006633] text-[#006633]">Reset</button>
                     </div>
                 </div>
                 
                 <!-- Dua -->
-                <div class="card-hover bg-[#f8f5f0] rounded-3xl p-8">
+                <div class="bg-[#f8f5f0] rounded-3xl p-8 card-hover">
                     <i class="fa-solid fa-hands-praying text-5xl text-[#006633] mb-6"></i>
                     <h3 class="text-2xl font-semibold mb-4">Daily Dua</h3>
                     <p id="duaArabic" class="text-2xl heading-font text-right mb-4">رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ</p>
@@ -254,103 +209,122 @@
                     <button onclick="newDua()" class="mt-6 text-xs uppercase tracking-widest text-[#006633]">New Dua →</button>
                 </div>
                 
-                <!-- Prophet Timeline -->
-                <div class="card-hover bg-[#f8f5f0] rounded-3xl p-8 flex flex-col">
+                <!-- Timeline -->
+                <div class="bg-[#f8f5f0] rounded-3xl p-8 flex flex-col card-hover">
                     <i class="fa-solid fa-timeline text-5xl text-[#006633] mb-6"></i>
                     <h3 class="text-2xl font-semibold mb-4">Prophet's Life Timeline</h3>
-                    <p class="text-sm text-gray-600 flex-1">Interactive journey through the blessed life of Prophet Muhammad ﷺ — from birth to the Farewell Pilgrimage.</p>
+                    <p class="text-sm text-gray-600 flex-1">Interactive journey through the blessed life of Prophet Muhammad ﷺ.</p>
                     <a href="#" class="text-[#006633] text-sm font-medium inline-flex items-center gap-2 mt-auto">Explore Full Timeline <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ISLAMIC ARTICLES / BLOG -->
-    <section id="blog" class="py-20 bg-[#f8f5f0]">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex justify-between items-baseline mb-12">
-                <h2 class="section-title text-4xl font-bold heading-font text-[#006633]">Islamic Articles</h2>
-                <a href="#" class="text-[#006633] flex items-center gap-2 text-sm font-medium">View all articles <i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Article cards (repeatable) -->
-                <div class="card-hover bg-white rounded-3xl overflow-hidden">
-                    <img src="https://picsum.photos/id/1005/600/400" alt="Understanding the 5 Pillars" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <span class="text-xs bg-[#006633] text-white px-3 py-1 rounded-3xl">Blog</span>
-                        <h3 class="font-semibold text-xl mt-4">Understanding the 5 Pillars of Islam in Modern Life</h3>
-                        <p class="text-gray-600 text-sm mt-3 line-clamp-3">How to practically implement Shahada, Salah, Zakat, Sawm and Hajj in today's fast-paced world.</p>
-                        <div class="flex justify-between text-xs mt-8 text-gray-500">
-                            <span>8 min read</span>
-                            <span>Mar 28, 2026</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- More cards can be duplicated -->
-            </div>
-        </div>
-    </section>
-
-    <!-- ISLAMIC QUOTES -->
+    <!-- ISLAMIC QUOTES - UPDATED -->
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-6">
-            <h2 class="section-title text-4xl font-bold heading-font mb-12 text-center text-[#006633]">Beautiful Islamic Quotes</h2>
-            <div class="grid md:grid-cols-3 gap-8 text-center">
-                <div class="card-hover p-8">
-                    <p class="italic text-2xl heading-font">"The best of you is the one who learns the Qur'an and teaches it."</p>
-                    <p class="text-[#006633] text-sm mt-8">— Prophet Muhammad ﷺ</p>
+            <h2 class="text-4xl font-bold heading-font mb-12 text-center text-[#006633]">Beautiful Islamic Quotes</h2>
+            
+            <div id="quotesContainer" class="flex gap-8 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide">
+                <!-- Quote 1 -->
+                <div class="quote-card bg-[#f8f5f0] rounded-3xl p-8 shadow-sm flex-shrink-0 relative overflow-hidden">
+                    <p class="italic text-2xl heading-font leading-relaxed text-center">"The best of you is the one who learns the Qur'an and teaches it."</p>
+                    <p class="text-[#006633] text-center mt-8 font-medium">— Prophet Muhammad ﷺ</p>
+                    <button onclick="shareQuote(this)" class="absolute top-6 right-6 bg-white shadow-md hover:bg-[#d4af77] hover:text-white w-10 h-10 rounded-2xl flex items-center justify-center text-[#006633]">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </button>
                 </div>
-                <!-- More quotes -->
+                
+                <!-- Quote 2 -->
+                <div class="quote-card bg-[#f8f5f0] rounded-3xl p-8 shadow-sm flex-shrink-0 relative overflow-hidden">
+                    <p class="italic text-2xl heading-font leading-relaxed text-center">"Whoever believes in Allah and the Last Day should speak good or remain silent."</p>
+                    <p class="text-[#006633] text-center mt-8 font-medium">— Prophet Muhammad ﷺ</p>
+                    <button onclick="shareQuote(this)" class="absolute top-6 right-6 bg-white shadow-md hover:bg-[#d4af77] hover:text-white w-10 h-10 rounded-2xl flex items-center justify-center text-[#006633]">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </button>
+                </div>
+                
+                <!-- Quote 3 -->
+                <div class="quote-card bg-[#f8f5f0] rounded-3xl p-8 shadow-sm flex-shrink-0 relative overflow-hidden">
+                    <p class="italic text-2xl heading-font leading-relaxed text-center">"The most beloved of deeds to Allah is the one that is done consistently, even if it is small."</p>
+                    <p class="text-[#006633] text-center mt-8 font-medium">— Prophet Muhammad ﷺ</p>
+                    <button onclick="shareQuote(this)" class="absolute top-6 right-6 bg-white shadow-md hover:bg-[#d4af77] hover:text-white w-10 h-10 rounded-2xl flex items-center justify-center text-[#006633]">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </button>
+                </div>
+                
+                <!-- Quote 4 -->
+                <div class="quote-card bg-[#f8f5f0] rounded-3xl p-8 shadow-sm flex-shrink-0 relative overflow-hidden">
+                    <p class="italic text-2xl heading-font leading-relaxed text-center">"Allah does not look at your appearance or your wealth, but He looks at your hearts and your deeds."</p>
+                    <p class="text-[#006633] text-center mt-8 font-medium">— Prophet Muhammad ﷺ</p>
+                    <button onclick="shareQuote(this)" class="absolute top-6 right-6 bg-white shadow-md hover:bg-[#d4af77] hover:text-white w-10 h-10 rounded-2xl flex items-center justify-center text-[#006633]">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ISLAMIC POSTERS -->
+    <!-- ISLAMIC POSTERS - UPDATED WITH LIGHTBOX -->
     <section class="py-20 bg-[#f8f5f0]">
         <div class="max-w-7xl mx-auto px-6">
-            <h2 class="section-title text-4xl font-bold heading-font mb-12 text-center text-[#006633]">Islamic Posters</h2>
+            <h2 class="text-4xl font-bold heading-font mb-12 text-center text-[#006633]">Islamic Posters</h2>
+            
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <!-- Poster placeholders -->
-                <div class="aspect-square bg-white rounded-3xl overflow-hidden shadow-inner relative group">
-                    <img src="https://picsum.photos/id/1016/600/600" alt="Islamic Poster" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 flex items-end p-6 transition-all">
-                        <button class="w-full bg-white text-[#006633] py-3 rounded-2xl text-sm font-semibold">Download Poster</button>
+                <div onclick="openLightbox(0)" class="aspect-square bg-white rounded-3xl overflow-hidden shadow-inner cursor-pointer group relative">
+                    <img src="https://picsum.photos/id/1016/800/800" alt="Islamic Poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute bottom-4 right-4 bg-white/90 px-4 py-2 rounded-2xl text-xs font-medium text-[#006633] flex items-center gap-2">
+                        <i class="fa-solid fa-expand"></i> View
                     </div>
                 </div>
-                <!-- Repeat 3 more times -->
+                
+                <div onclick="openLightbox(1)" class="aspect-square bg-white rounded-3xl overflow-hidden shadow-inner cursor-pointer group relative">
+                    <img src="https://picsum.photos/id/133/800/800" alt="Islamic Poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute bottom-4 right-4 bg-white/90 px-4 py-2 rounded-2xl text-xs font-medium text-[#006633] flex items-center gap-2">
+                        <i class="fa-solid fa-expand"></i> View
+                    </div>
+                </div>
+                
+                <div onclick="openLightbox(2)" class="aspect-square bg-white rounded-3xl overflow-hidden shadow-inner cursor-pointer group relative">
+                    <img src="https://picsum.photos/id/201/800/800" alt="Islamic Poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute bottom-4 right-4 bg-white/90 px-4 py-2 rounded-2xl text-xs font-medium text-[#006633] flex items-center gap-2">
+                        <i class="fa-solid fa-expand"></i> View
+                    </div>
+                </div>
+                
+                <div onclick="openLightbox(3)" class="aspect-square bg-white rounded-3xl overflow-hidden shadow-inner cursor-pointer group relative">
+                    <img src="https://picsum.photos/id/251/800/800" alt="Islamic Poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute bottom-4 right-4 bg-white/90 px-4 py-2 rounded-2xl text-xs font-medium text-[#006633] flex items-center gap-2">
+                        <i class="fa-solid fa-expand"></i> View
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- POPULAR & RECENT POSTS + AFFILIATE -->
-    <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12">
-            <!-- Popular Posts -->
-            <div class="lg:col-span-5">
-                <h3 class="text-2xl font-semibold mb-8">Popular Posts</h3>
-                <!-- Cards -->
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox">
+        <div class="relative max-w-5xl w-full px-4">
+            <button onclick="closeLightbox()" class="absolute -top-14 right-4 text-white text-5xl hover:text-gray-300 transition-colors">&times;</button>
+            
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img id="lightboxImage" src="" class="max-h-[85vh] w-full object-contain" alt="">
+                <div class="watermark">Mufliha • Illuminate Your Faith</div>
             </div>
             
-            <!-- Recent Posts -->
-            <div class="lg:col-span-4">
-                <h3 class="text-2xl font-semibold mb-8">Recent Posts</h3>
-                <!-- Cards -->
-            </div>
-            
-            <!-- Affiliate Card -->
-            <div class="lg:col-span-3 bg-gradient-to-br from-[#006633] to-[#00b366] text-white rounded-3xl p-8 flex flex-col">
-                <h3 class="text-3xl font-bold heading-font mb-6">Featured Islamic Products</h3>
-                <div class="flex-1">
-                    <p class="opacity-90">Premium prayer mats, digital Qur'an readers &amp; more</p>
-                </div>
-                <button onclick="window.open('https://example.com/affiliate','_blank')" 
-                        class="mt-auto bg-white text-[#006633] py-4 px-10 rounded-3xl font-semibold flex items-center justify-center gap-3">
-                    Order Now <i class="fa-solid fa-arrow-right"></i>
+            <div class="flex justify-between mt-8">
+                <button onclick="prevImage()" class="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-3xl flex items-center gap-3 transition-all">
+                    <i class="fa-solid fa-chevron-left"></i> Previous
+                </button>
+                <button onclick="sharePoster()" class="bg-white text-[#006633] px-8 py-4 rounded-3xl flex items-center gap-3 font-semibold hover:bg-[#d4af77] hover:text-white transition-all">
+                    <i class="fa-solid fa-share-nodes"></i> Share Poster
+                </button>
+                <button onclick="nextImage()" class="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-3xl flex items-center gap-3 transition-all">
+                    Next <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
         </div>
-    </section>
+    </div>
 
     <!-- FOOTER -->
     <footer class="bg-[#006633] text-white py-16">
@@ -393,67 +367,66 @@
     </footer>
 
     <script>
-        // Tailwind script already loaded
-        function initTailwind() {
-            // Already using Tailwind via CDN
-        }
+        // Tailwind already loaded via CDN
         
-        // Hamburger Menu
+        // Hamburger
         document.getElementById('hamburger').addEventListener('click', () => {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('hidden');
+            document.getElementById('mobileMenu').classList.toggle('hidden');
         });
-        
-        // Prayer Times API (Aladhan)
+
+        // Prayer Times
         async function getPrayerTimes() {
             try {
-                // Try automatic location
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
-                        
                         const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=\( {lat}&longitude= \){lon}&method=2`);
                         const data = await res.json();
-                        
-                        document.getElementById('city').innerHTML = `📍 Your City • ${data.data.meta.timezone}`;
+                        document.getElementById('city').innerHTML = `📍 Your Location`;
                         renderPrayerTimes(data.data.timings);
-                    });
+                    }, () => fallbackPrayer());
+                } else {
+                    fallbackPrayer();
                 }
             } catch(e) {
-                // Fallback to default city (Indore, India)
-                const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Indore&country=India&method=2');
-                const data = await res.json();
-                document.getElementById('city').innerHTML = `📍 Indore, India`;
-                renderPrayerTimes(data.data.timings);
+                fallbackPrayer();
             }
         }
-        
+
+        function fallbackPrayer() {
+            fetch('https://api.aladhan.com/v1/timingsByCity?city=Indore&country=India&method=2')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('city').innerHTML = `📍 Indore, India`;
+                    renderPrayerTimes(data.data.timings);
+                });
+        }
+
         function renderPrayerTimes(timings) {
             const container = document.getElementById('prayerTimes');
             container.innerHTML = `
-                <div><p class="text-xs text-gray-500">Fajr</p><p class="font-semibold text-2xl">${timings.Fajr}</p></div>
-                <div><p class="text-xs text-gray-500">Sunrise</p><p class="font-semibold text-2xl">${timings.Sunrise}</p></div>
-                <div class="bg-[#006633] text-white rounded-2xl p-3"><p class="text-xs">Dhuhr</p><p class="font-semibold text-3xl">${timings.Dhuhr}</p></div>
-                <div><p class="text-xs text-gray-500">Asr</p><p class="font-semibold text-2xl">${timings.Asr}</p></div>
-                <div><p class="text-xs text-gray-500">Maghrib</p><p class="font-semibold text-2xl">${timings.Maghrib}</p></div>
-                <div><p class="text-xs text-gray-500">Isha</p><p class="font-semibold text-2xl">${timings.Isha}</p></div>
+                <div><p class="text-xs text-gray-500">Fajr</p><p class="font-semibold">${timings.Fajr}</p></div>
+                <div><p class="text-xs text-gray-500">Sunrise</p><p class="font-semibold">${timings.Sunrise}</p></div>
+                <div class="bg-[#006633] text-white rounded-2xl p-3"><p class="text-xs">Dhuhr</p><p class="font-semibold text-xl">${timings.Dhuhr}</p></div>
+                <div><p class="text-xs text-gray-500">Asr</p><p class="font-semibold">${timings.Asr}</p></div>
+                <div><p class="text-xs text-gray-500">Maghrib</p><p class="font-semibold">${timings.Maghrib}</p></div>
+                <div><p class="text-xs text-gray-500">Isha</p><p class="font-semibold">${timings.Isha}</p></div>
             `;
         }
-        
+
         // Hijri Date
         function showHijriDate() {
             const today = new Date();
-            // Simple Hijri approximation via Aladhan
-            fetch('https://api.aladhan.com/v1/gToH?date=' + today.getDate() + '-' + (today.getMonth()+1) + '-' + today.getFullYear())
+            fetch(`https://api.aladhan.com/v1/gToH?date=\( {today.getDate()}- \){today.getMonth()+1}-${today.getFullYear()}`)
                 .then(r => r.json())
                 .then(data => {
-                    document.getElementById('hijriDate').innerHTML = data.data.hijri.date + '<span class="text-xl ml-2">AH</span>';
-                    document.getElementById('gregorianDate').innerHTML = data.data.gregorian.date;
+                    document.getElementById('hijriDate').innerHTML = data.data.hijri.date + ' <span class="text-xl">AH</span>';
+                    document.getElementById('gregorianDate').textContent = data.data.gregorian.date;
                 });
         }
-        
-        // Tasbeeh Counter
+
+        // Tasbeeh
         let count = 0;
         function incrementTasbeeh() {
             count++;
@@ -463,7 +436,7 @@
             count = 0;
             document.getElementById('count').textContent = '0';
         }
-        
+
         // Random Dua
         const duas = [
             { arabic: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", trans: "Our Lord, give us in this world [that which is] good and in the Hereafter [that which is] good and protect us from the punishment of the Fire." },
@@ -474,15 +447,122 @@
             document.getElementById('duaArabic').textContent = random.arabic;
             document.getElementById('duaTrans').textContent = random.trans;
         }
+
+        // Share Quote with Watermark
+        function shareQuote(btn) {
+            const card = btn.parentElement;
+            const quoteText = card.querySelector('p').innerText;
+            const author = card.querySelector('p:last-child').innerText;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#f8f5f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.font = 'italic 42px Amiri';
+            ctx.fillStyle = '#006633';
+            ctx.textAlign = 'center';
+            wrapText(ctx, quoteText, canvas.width/2, 180, 650, 55);
+
+            ctx.font = '600 28px Inter';
+            ctx.fillStyle = '#006633';
+            ctx.fillText(author, canvas.width/2, 420);
+
+            ctx.font = '600 22px Inter';
+            ctx.fillStyle = 'rgba(0, 102, 51, 0.3)';
+            ctx.fillText('Mufliha • Illuminate Your Faith', canvas.width/2, 550);
+
+            const link = document.createElement('a');
+            link.download = 'mufliha-islamic-quote.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    ctx.fillText(line, x, y);
+                    line = words[n] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, y);
+        }
+
+        // Lightbox
+        let currentPosterIndex = 0;
+        const posterImages = [
+            "https://picsum.photos/id/1016/1200/1200",
+            "https://picsum.photos/id/133/1200/1200",
+            "https://picsum.photos/id/201/1200/1200",
+            "https://picsum.photos/id/251/1200/1200"
+        ];
+
+        function openLightbox(index) {
+            currentPosterIndex = index;
+            document.getElementById('lightbox').style.display = 'flex';
+            document.getElementById('lightboxImage').src = posterImages[currentPosterIndex];
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+            document.body.style.overflow = 'visible';
+        }
+
+        function nextImage() {
+            currentPosterIndex = (currentPosterIndex + 1) % posterImages.length;
+            document.getElementById('lightboxImage').src = posterImages[currentPosterIndex];
+        }
+
+        function prevImage() {
+            currentPosterIndex = (currentPosterIndex - 1 + posterImages.length) % posterImages.length;
+            document.getElementById('lightboxImage').src = posterImages[currentPosterIndex];
+        }
+
+        function sharePoster() {
+            alert("Poster sharing feature coming soon! (You can right-click and save the image for now)");
+            // You can extend this with canvas download similar to quote if needed
+        }
+
+        // Swipe support for lightbox
+        let touchStartX = 0;
+        const lightboxEl = document.getElementById('lightbox');
         
-        // Initialize everything
-        window.onload = function() {
+        lightboxEl.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        lightboxEl.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            if (touchEndX < touchStartX - 50) nextImage();
+            if (touchEndX > touchStartX + 50) prevImage();
+        });
+
+        // Keyboard
+        document.addEventListener('keydown', e => {
+            if (lightboxEl.style.display === 'flex') {
+                if (e.key === 'ArrowRight') nextImage();
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'Escape') closeLightbox();
+            }
+        });
+
+        // Initialize
+        window.onload = () => {
             getPrayerTimes();
             showHijriDate();
-            newDua(); // initial dua
-            
-            // Fake live clock for hero if needed
-            console.log('%c✅ Mufliha landing page ready with all features!', 'color:#006633; font-size:13px; font-family:monospace');
+            newDua();
+            console.log('%c✅ Mufliha Landing Page Loaded Successfully with Quote Share & Lightbox!', 'color:#006633; font-size:14px; font-family:monospace');
         };
     </script>
 </body>

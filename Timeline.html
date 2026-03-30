@@ -1236,6 +1236,20 @@
 .prev { left: -50px; }
 .next { right: -50px; }
 .close-overlay { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
+.bismillah-container {
+    text-align: center;
+    padding: 20px;
+    font-family: 'Amiri', serif;
+    font-size: 2rem;
+    color: #27ae60;
+    text-shadow: 0 0 10px rgba(39, 174, 96, 0.3);
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 5px #27ae60; transform: scale(1); }
+    to { text-shadow: 0 0 20px #2ecc71, 0 0 30px #2ecc71; transform: scale(1.02); }
+}
 
 @keyframes zoomIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
 
@@ -1267,6 +1281,12 @@
 </header>
 
 <button class="float-share" onclick="shareMain()" title="Share Website">🔗</button>
+<div class="bismillah-container">
+    ﷽
+</div>
+<p style="font-size: 0.8rem; margin-top: 10px;">Choose Card Theme:</p>
+<div id="colorPicker" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px;">
+    </div>
 
 <div id="lightbox" onclick="this.classList.remove('active')">
     <img src="" id="lightboxImg">
@@ -1399,6 +1419,44 @@
             }
         }
     }
+        const themes = [
+    { bg: "#ffffff", text: "#2c3e50" }, // Classic White
+    { bg: "#f9f1e7", text: "#5d4037" }, // Vintage Paper
+    { bg: "#e8f5e9", text: "#1b5e20" }, // Islamic Green Light
+    { bg: "#fff9c4", text: "#f57f17" }, // Soft Yellow
+    { bg: "#e3f2fd", text: "#0d47a1" }, // Sky Blue
+    { bg: "#f3e5f5", text: "#4a148c" }, // Spiritual Purple
+    { bg: "#2c3e50", text: "#ffffff" }, // Dark Mode
+    { bg: "#1b5e20", text: "#ffffff" }, // Deep Mosque Green
+    { bg: "#d7ccc8", text: "#3e2723" }, // Earthy Brown
+    { bg: "#fce4ec", text: "#880e4f" }, // Soft Rose
+    { bg: "#e0f2f1", text: "#004d40" }, // Teal
+    { bg: "#efebe9", text: "#4e342e" }  // Sand/Hajj Theme
+];
+
+function setupColorPicker() {
+    const picker = document.getElementById('colorPicker');
+    themes.forEach((theme, index) => {
+        const circle = document.createElement('div');
+        circle.style.width = "25px";
+        circle.style.height = "25px";
+        circle.style.borderRadius = "50%";
+        circle.style.backgroundColor = theme.bg;
+        circle.style.border = "1px solid #ccc";
+        circle.style.cursor = "pointer";
+        circle.onclick = () => applyTheme(theme);
+        picker.appendChild(circle);
+    });
+}
+
+function applyTheme(theme) {
+    const card = document.getElementById('activeCardContent');
+    card.style.backgroundColor = theme.bg;
+    card.style.color = theme.text;
+    // Card ke andar ke saare P aur H2 tags ka color badalna
+    card.querySelectorAll('p, h2, h3, span').forEach(el => el.style.color = theme.text);
+}
+
 let currentAudio = new Audio(); // Global audio object
 
 function playRecording(audioUrl) {

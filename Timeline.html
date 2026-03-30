@@ -1133,6 +1133,10 @@
 
 </body>
 </html>
+<button class="btn-card-share" style="margin-top:20px; width:100%;" 
+                onclick="shareCard('${data.title.replace(/'/g, "\\'")}', '', '${data.file}')">
+                📲 Share This Event
+            </button>
 -->
 <!DOCTYPE html>
 <html lang="hi">
@@ -1146,7 +1150,8 @@
     <meta property="og:description" content="Explore the life and history of Prophet Muhammad (PBUH).">
     <meta property="og:image" content="https://yourlink.com/main-banner.jpg"> <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕌</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root { --line: #27ae60; --bg: #ffffff; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1254,6 +1259,10 @@
 
 <div id="lightbox" onclick="this.classList.remove('active')">
     <img src="" id="lightboxImg">
+</div>
+<div id="watermarkBox" style="display: none; position: fixed; background: white; padding: 10px; border: 1px solid #eee; border-radius: 8px; text-align: center;">
+    <img src="https://yourlink.com/images/logo.png" alt="Logo" style="width: 50px; height: auto;"> <p style="font-size: 0.8rem; color: #777; margin: 0;">Timeline History Prophet</p>
+    <p style="font-size: 0.7rem; color: #aaa; margin: 0;">#PeaceBeUponHim</p>
 </div>
 
 <div class="timeline" id="mainTimeline">
@@ -1394,13 +1403,38 @@
             <p style="text-align:justify; font-size:0.95rem; max-height:200px; overflow-y:auto; padding-right:10px; margin-top:15px;">
                 ${data.desc}
             </p>
+            
             <button class="btn-card-share" style="margin-top:20px; width:100%;" 
-                onclick="shareCard('${data.title.replace(/'/g, "\\'")}', '', '${data.file}')">
-                📲 Share This Event
-            </button>
-        `;
-    }
+    onclick="shareCardAsImage('${data.title.replace(/'/g, "\\'")}')">
+    📩 Share as Image (with Watermark)
+</button>
 
+        `;
+    const recordingUrl = data.audio; // Agar aapne fetch mein audio link nikala hai
+    
+    if (recordingUrl) {
+        playRecording(recordingUrl);
+    } else {
+        playTTS(data.desc); // Recording nahi mili to Google TTS padhega
+    }
+    }
+        /*
+        function updateLightboxContent() {
+    const data = allEventsData[currentSlideIndex];
+    
+    // 1. Content load karna (Pehle wala logic)
+    // ... (aapka title, image, desc wala code) ...
+
+    // 2. Audio Logic
+    const recordingUrl = data.audio; // Agar aapne fetch mein audio link nikala hai
+    
+    if (recordingUrl) {
+        playRecording(recordingUrl);
+    } else {
+        playTTS(data.desc); // Recording nahi mili to Google TTS padhega
+    }
+}
+*/
     function changeSlide(direction) {
         currentSlideIndex += direction;
         if (currentSlideIndex >= allEventsData.length) currentSlideIndex = 0;
@@ -1411,6 +1445,81 @@
     function closeLightbox() {
         document.getElementById('cardLightbox').style.display = 'none';
     }
+// --- Swipe Logic Start ---
+let touchstartX = 0;
+let touchendX = 0;
+
+const sliderZone = document.getElementById('cardLightbox');
+
+sliderZone.addEventListener('touchstart', e => {
+    touchstartX = e.changedTouches[0].screenX;
+});
+
+sliderZone.addEventListener('touchend', e => {
+    touchendX = e.changedTouches[0].screenX;
+    handleGesture();
+});
+
+function handleGesture() {
+    if (touchendX < touchstartX - 50) {
+        // Left Swipe hua -> Next Slide
+        changeSlide(1);
+    }
+    if (touchendX > touchstartX + 50) {
+        // Right Swipe hua -> Previous Slide
+        changeSlide(-1);
+    }
+}
+// --- Swipe Logic End ---
+function playTTS(text) {
+    window.speechSynthesis.cancel(); // Pehle wala speech stop karein
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'hi-IN'; // Hindi voice ke liye
+    utterance.rate = 0.9;     // Thoda dheere bolne ke liye
+    window.speechSynthesis.speak(utterance);
+}
+// Function: Screenshot lekar share karna (Watermark ke sath)
+async function shareCardAsImage(title) {
+    const card = document.getElementById('activeCardContent'); // Lightbox ka card
+    const watermark = document.getElementById('watermarkBox'); // Watermark box
+    
+    // 1. Watermark ko card ke niche jodna temporarily
+    watermark.style.display = 'block'; // Show temporarily
+    card.appendChild(watermark); 
+
+    try {
+        // 2. Card ki photo khinchna (Lightbox effect hatane ke liye useCors true)
+        const canvas = await html2canvas(card, {
+            useCORS: true, // GitHub images fetch karne ke liye
+            backgroundColor: "#ffffff", // Background white rakhein
+            scale: 2 // Quality achi karne ke liye
+        });
+
+        // 3. Canvas ko Image (Blob) mein badalna
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], `${title}.png`, { type: 'image/png' });
+
+            // 4. Native Share Menu kholna
+            if (navigator.share) {
+                navigator.share({
+                    files: [file],
+                    title: title,
+                    text: `📜 Check out this event: ${title}\nRead more at: ${window.location.origin}`
+                }).then(() => console.log('Share successful'))
+                  .catch((error) => console.log('Sharing failed', error));
+            } else {
+                alert("Sharing not supported on this browser.");
+            }
+        });
+        
+    } catch (e) {
+        console.error("Screenshot error: ", e);
+    } finally {
+        // 5. Cleanup: Watermark ko hata kar wapas chhupana
+        watermark.style.display = 'none';
+        document.body.appendChild(watermark); // Wapas body mein bhej dein
+    }
+}
 
     // 4. Sharing Functions
     function shareMain() {

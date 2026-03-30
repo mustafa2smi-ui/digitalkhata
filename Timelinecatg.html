@@ -99,7 +99,7 @@
         { bg: "#ffffff", text: "#2c3e50" }, { bg: "#f9f1e7", text: "#5d4037" },
         { bg: "#e8f5e9", text: "#1b5e20" }, { bg: "#2c3e50", text: "#ffffff" }
     ];
-
+/*
     async function loadEvents() {
         const container = document.getElementById('mainTimeline');
         for (let i = 0; i < eventFiles.length; i++) {
@@ -135,7 +135,52 @@
             } catch (e) { console.error(e); }
         }
     }
+*/
+    // 2. Main Function: Events load aur fetch karna
+    async function loadEvents() {
+        const container = document.getElementById('mainTimeline');
+        
+        for (let i = 0; i < eventFiles.length; i++) {
+            const file = eventFiles[i];
+            try {
+                const response = await fetch(file);
+                const htmlText = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
 
+                const eventObj = {
+                    date: doc.querySelector('.date')?.innerText.replace('📅 Date: ', '') || 'N/A',
+                    title: doc.querySelector('h1')?.innerText || 'Title',
+                    img: doc.querySelector('img')?.src || '',
+                    desc: doc.querySelector('p')?.innerText || '',
+                    file: file
+                };
+                
+                // Slider ke liye data save karna
+                allEventsData.push(eventObj);
+
+                // Timeline Card banana
+                const row = document.createElement('div');
+                row.className = 'event-row';
+                row.innerHTML = `
+                    <div class="date-col">${eventObj.date}</div>
+                    <div class="content-col" onclick="openLightbox(${i})">
+                        <h3>${eventObj.title}</h3>
+                        <img src="${eventObj.img}">
+                        <p>${eventObj.desc.substring(0, 100)}...</p>
+                        <small style="color:var(--line); cursor:pointer;">Tap to read more 📖</small>
+                    </div>
+                `;
+                container.appendChild(row);
+                
+                // Scroll Animation (Fade in effect)
+                setTimeout(() => row.classList.add('show'), 150 * i);
+                
+            } catch (e) { 
+                console.log("Error loading " + file, e); 
+            }
+        }
+    }
     function openLightbox(index) {
         currentSlideIndex = index;
         document.getElementById('cardLightbox').style.display = 'flex';

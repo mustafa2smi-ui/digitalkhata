@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -133,6 +134,256 @@
                     document.getElementById('location').innerText = "Based on your Current Location";
                 });
         });
+    </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IslamTru - Prophet Timeline & Dua Hub</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-bg: #004d40;
+            --secondary-bg: #00796b;
+            --accent: #ffb300;
+            --text-light: #ffffff;
+            --glow: 0 0 15px rgba(0, 188, 212, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #f0f4f3; overflow-x: hidden; }
+
+        /* 1. Hamburger Menu & Navbar */
+        nav {
+            background: var(--primary-bg);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .logo { color: white; font-size: 24px; font-weight: bold; letter-spacing: 1px; }
+        .menu-icon { color: white; font-size: 24px; cursor: pointer; display: block; }
+        .nav-links {
+            position: fixed; top: 60px; right: -100%; width: 70%; height: 100vh;
+            background: var(--secondary-bg); flex-direction: column; 
+            padding: 50px; transition: 0.4s; display: flex;
+        }
+        .nav-links.active { right: 0; }
+        .nav-links a { color: white; text-decoration: none; margin: 15px 0; font-size: 18px; }
+
+        /* 2. Hero Section with Image & Text Animation */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&q=80&w=1470') no-repeat center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            animation: slideUp 1s ease-out forwards;
+            opacity: 0;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            animation: fadeIn 2s ease-in forwards;
+            animation-delay: 0.5s;
+            opacity: 0;
+        }
+
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 4. Islamic Quotes (Side Scroll) */
+        .section-title { padding: 20px 5%; font-size: 22px; color: var(--primary-bg); }
+        .quotes-container {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 5%;
+            gap: 20px;
+            scroll-snap-type: x mandatory;
+        }
+        .quote-card {
+            min-width: 280px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid var(--accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            scroll-snap-align: center;
+        }
+
+        /* 5. Islamic Posters & Cards */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px 5%;
+        }
+        .poster-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+        .poster-card:hover { border-color: var(--accent); box-shadow: var(--glow); transform: scale(1.02); }
+        .poster-card img { width: 100%; height: 200px; object-fit: cover; }
+        .card-content { padding: 15px; }
+
+        /* Order Button */
+        .btn-order {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+
+        /* 3. Footer */
+        footer {
+            background: var(--primary-bg);
+            color: white;
+            padding: 40px 5% 20px;
+            margin-top: 50px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+        .footer-links a { display: block; color: #ccc; text-decoration: none; margin-bottom: 8px; }
+        .footer-note { border-top: 1px solid #444; margin-top: 20px; padding-top: 15px; text-align: center; font-size: 14px; }
+
+        /* Utility */
+        ::-webkit-scrollbar { height: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">IslamTru</div>
+        <div class="menu-icon" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+        <div class="nav-links" id="navLinks">
+            <a href="#">Home</a>
+            <a href="#">Prophet Timeline</a>
+            <a href="#">Duas</a>
+            <a href="#">Blog</a>
+            <a href="#">Contact</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Faith Meets Technology</h1>
+        <p>Explore Prophet Timeline, Duas, and Daily Ibadah Essentials.</p>
+    </section>
+
+    <h2 class="section-title">Daily Inspiration (Quotes)</h2>
+    <div class="quotes-container">
+        <div class="quote-card">
+            <p>"The best among you are those who have the best manners and character."</p>
+            <small>- Prophet Muhammad (PBUH)</small>
+        </div>
+        <div class="quote-card">
+            <p>"Allah does not burden a soul beyond that it can bear."</p>
+            <small>- Quran 2:286</small>
+        </div>
+        <div class="quote-card">
+            <p>"Smile is Sadaqah."</p>
+            <small>- Hadith</small>
+        </div>
+    </div>
+
+    <h2 class="section-title">Islamic Posters & Essentials</h2>
+    <div class="grid-layout">
+        <div class="poster-card">
+            <img src="https://images.unsplash.com/photo-1590076215667-873d17e78167?w=500" alt="Poster 1">
+            <div class="card-content">
+                <h3>Ayatul Kursi Wall Frame</h3>
+                <p>Beautiful calligraphy for your home.</p>
+                <a href="#" class="btn-order">Order Now</a>
+            </div>
+        </div>
+        <div class="poster-card">
+            <img src="https://images.unsplash.com/photo-1584281722572-ca9726207865?w=500" alt="Poster 2">
+            <div class="card-content">
+                <h3>Digital Tasbeeh Pro</h3>
+                <p>Track your dhikr effortlessly.</p>
+                <a href="#" class="btn-order">Order Now</a>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Latest Articles & Blogs</h2>
+    <div class="grid-layout">
+        <article class="poster-card" style="padding:15px">
+            <span style="color:var(--accent); font-size:12px;">ARTICLE</span>
+            <h3>How to Maintain Khushu in Salah</h3>
+            <p>5 practical tips to improve your concentration...</p>
+            <a href="#" style="color:var(--secondary-bg)">Read More...</a>
+        </article>
+        <article class="poster-card" style="padding:15px">
+            <span style="color:var(--accent); font-size:12px;">RECENT POST</span>
+            <h3>Timeline of Prophet's Life</h3>
+            <p>A deep dive into the Meccan period of Islam...</p>
+            <a href="#" style="color:var(--secondary-bg)">Read More...</a>
+        </article>
+    </div>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <h3>IslamTru</h3>
+                <p>Spreading authentic knowledge and digital tools for the Ummah.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="#">Privacy Policy</a>
+                <a href="#">About Us</a>
+                <a href="#">Sitemap</a>
+            </div>
+            <div>
+                <h4>Follow Us</h4>
+                <div style="display:flex; gap:15px; font-size:20px;">
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-whatsapp"></i>
+                    <i class="fab fa-facebook"></i>
+                </div>
+            </div>
+        </div>
+        <div class="footer-note">
+            <p>&copy; 2026 IslamTru. Developed with ❤️ for the Ummah.</p>
+            <p style="font-size:10px; color:#888;">Note: All timings are fetched via Aladhan API.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
     </script>
 </body>
 </html>

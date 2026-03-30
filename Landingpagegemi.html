@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary: #00897b;
+            --accent: #b2dfdb;
+            --glow: 0 0 15px rgba(0, 137, 123, 0.6);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background: #f4f7f6;
+            color: #333;
+        }
+
+        /* Hero Section with Animation */
+        .hero {
+            height: 60vh;
+            background: linear-gradient(135deg, #004d40, #00897b);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: fadeIn 1.5s ease-in;
+        }
+
+        /* Glow Border Card */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px;
+            transition: 0.3s;
+            border: 1px solid transparent;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--glow);
+            transform: translateY(-5px);
+        }
+
+        /* Affiliate/Order Button */
+        .btn-order {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-order:hover {
+            background: #e68900;
+            box-shadow: 0 0 10px rgba(255,152,0,0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Responsive Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        </header>
+
+    <section class="hero">
+        <h1>Welcome to IslamTru</h1>
+        <p>Your Spiritual Journey, Digitized.</p>
+    </section>
+
+    <div class="grid-container">
+        <div class="card" id="salah-card">
+            <h3>Salah Timings</h3>
+            <p id="location">Detecting Location...</p>
+            <div id="times">Fajr: -- | Dhuhr: -- | Asr: -- | Maghrib: -- | Isha: --</div>
+        </div>
+
+        <div class="card">
+            <h3>Tasbeeh Counter</h3>
+            <h2 id="counter">0</h2>
+            <button onclick="countUp()" class="btn-order">Tap</button>
+            <button onclick="reset()" style="background:none; border:none; color:grey; cursor:pointer;">Reset</button>
+        </div>
+
+        <div class="card">
+            <img src="https://via.placeholder.com/150" alt="Islamic Book" style="width:100%; border-radius:10px;">
+            <h3>Premium Prayer Mat</h3>
+            <p>High quality, comfortable mat for your daily prayers.</p>
+            <button class="btn-order">Order Now</button>
+        </div>
+    </div>
+
+    <script>
+        // Tasbeeh Logic
+        let count = 0;
+        function countUp() {
+            count++;
+            document.getElementById('counter').innerText = count;
+        }
+        function reset() {
+            count = 0;
+            document.getElementById('counter').innerText = count;
+        }
+
+        // Salah API Logic (Example)
+        navigator.geolocation.getCurrentPosition(pos => {
+            const {latitude, longitude} = pos.coords;
+            fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`)
+                .then(res => res.json())
+                .then(data => {
+                    const t = data.data.timings;
+                    document.getElementById('times').innerText = 
+                        `Fajr: ${t.Fajr} | Dhuhr: ${t.Dhuhr} | Asr: ${t.Asr} | Maghrib: ${t.Maghrib} | Isha: ${t.Isha}`;
+                    document.getElementById('location').innerText = "Based on your Current Location";
+                });
+        });
+    </script>
+</body>
+</html>

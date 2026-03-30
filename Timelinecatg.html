@@ -92,14 +92,14 @@
 </div>
 
 <script>
-    const eventFiles = ['event1.html', 'dua2.html']; // Apni files yahan add karein
+    const eventFiles = ['event1.html', 'Dua2.html']; // Apni files yahan add karein
     let allEventsData = [];
     let currentSlideIndex = 0;
     const themes = [
         { bg: "#ffffff", text: "#2c3e50" }, { bg: "#f9f1e7", text: "#5d4037" },
         { bg: "#e8f5e9", text: "#1b5e20" }, { bg: "#2c3e50", text: "#ffffff" }
     ];
-/*
+
     async function loadEvents() {
         const container = document.getElementById('mainTimeline');
         for (let i = 0; i < eventFiles.length; i++) {
@@ -135,7 +135,8 @@
             } catch (e) { console.error(e); }
         }
     }
-*/
+
+    /*
     // 2. Main Function: Events load aur fetch karna
     async function loadEvents() {
         const container = document.getElementById('mainTimeline');
@@ -181,6 +182,7 @@
             }
         }
     }
+    */
     function openLightbox(index) {
         currentSlideIndex = index;
         document.getElementById('cardLightbox').style.display = 'flex';

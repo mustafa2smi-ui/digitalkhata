@@ -1222,7 +1222,7 @@
     background: rgba(255,255,255,0.2); color: white; border: none;
     font-size: 30px; cursor: pointer; padding: 10px; position: absolute; z-index: 5001;
 }
-       .audio-btn {
+   /*    .audio-btn {
     background: #27ae60;
     color: white;
     border: none;
@@ -1232,11 +1232,12 @@
     font-weight: 600;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
- 
+ */
 .prev { left: -50px; }
 .next { right: -50px; }
 .close-overlay { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
-.bismillah-container {
+/*
+        .bismillah-container {
     text-align: center;
     padding: 20px;
     font-family: 'Amiri', serif;
@@ -1245,7 +1246,7 @@
     text-shadow: 0 0 10px rgba(39, 174, 96, 0.3);
     animation: glow 2s infinite alternate;
 }
-
+*/
 @keyframes glow {
     from { text-shadow: 0 0 5px #27ae60; transform: scale(1); }
     to { text-shadow: 0 0 20px #2ecc71, 0 0 30px #2ecc71; transform: scale(1.02); }
@@ -1281,28 +1282,30 @@
 </header>
 
 <button class="float-share" onclick="shareMain()" title="Share Website">🔗</button>
-<div class="bismillah-container">
+<!--<div class="bismillah-container">
     ﷽
-</div>
+</div>-->
+    <!--
 <p style="font-size: 0.8rem; margin-top: 10px;">Choose Card Theme:</p>
 <div id="colorPicker" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px;">
     </div>
-
+-->
 <div id="lightbox" onclick="this.classList.remove('active')">
     <img src="" id="lightboxImg">
-    <div id="audioControls" style="margin-top:10px;">
+  <!--  <div id="audioControls" style="margin-top:10px;">
     <button onclick="toggleAudio()" class="audio-btn">🔊 Listen History</button>
 </div>
-
+-->
+    <!--
 </div>
 <div id="watermarkBox" style="display: none; position: fixed; background: white; padding: 10px; border: 1px solid #eee; border-radius: 8px; text-align: center;">
     <img src="https://yourlink.com/images/logo.png" alt="Logo" style="width: 50px; height: auto;"> <p style="font-size: 0.8rem; color: #777; margin: 0;">Timeline History Prophet</p>
     <p style="font-size: 0.7rem; color: #aaa; margin: 0;">#PeaceBeUponHim</p>
 </div>
-
+-->
 <div class="timeline" id="mainTimeline">
     </div>
-<!--
+
 <script>
     // 1. Files List
     const eventFiles = ['event1.html', 'event2.html']; 
@@ -1366,7 +1369,8 @@
 
     window.onload = loadEvents;
 </script>
--->
+
+    <!--
     <script>
     // 1. Files List (Naya event yahan add karein)
     const eventFiles = ['event1.html', 'event2.html']; 
@@ -1419,6 +1423,7 @@
             }
         }
     }
+        /*
         const themes = [
     { bg: "#ffffff", text: "#2c3e50" }, // Classic White
     { bg: "#f9f1e7", text: "#5d4037" }, // Vintage Paper
@@ -1456,7 +1461,8 @@ function applyTheme(theme) {
     // Card ke andar ke saare P aur H2 tags ka color badalna
     card.querySelectorAll('p, h2, h3, span').forEach(el => el.style.color = theme.text);
 }
-
+*/
+        /*
 let currentAudio = new Audio(); // Global audio object
 
 function playRecording(audioUrl) {
@@ -1466,7 +1472,7 @@ function playRecording(audioUrl) {
         currentAudio.play();
     }
 }
-
+*/
     // 3. Lightbox functions
     function openLightbox(index) {
         currentSlideIndex = index;
@@ -1571,6 +1577,7 @@ function handleGesture() {
     }
 }
 // --- Swipe Logic End ---
+        /*
 function playTTS(text) {
     window.speechSynthesis.cancel(); // Pehle wala speech stop karein
     const utterance = new SpeechSynthesisUtterance(text);
@@ -1578,6 +1585,8 @@ function playTTS(text) {
     utterance.rate = 0.9;     // Thoda dheere bolne ke liye
     window.speechSynthesis.speak(utterance);
 }
+        */
+        /*
 // Function: Screenshot lekar share karna (Watermark ke sath)
 async function shareCardAsImage(title) {
     const card = document.getElementById('activeCardContent'); // Lightbox ka card
@@ -1620,7 +1629,7 @@ async function shareCardAsImage(title) {
         document.body.appendChild(watermark); // Wapas body mein bhej dein
     }
 }
-
+*/
     // 4. Sharing Functions
     function shareMain() {
         if (navigator.share) {
@@ -1648,5 +1657,6 @@ async function shareCardAsImage(title) {
     // 5. App start
     window.onload = loadEvents;
     </script>
+    -->
 </body>
 </html>

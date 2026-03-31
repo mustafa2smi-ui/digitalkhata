@@ -1305,8 +1305,9 @@
 -->
 <div class="timeline" id="mainTimeline">
     </div>
-
+<!--
 <script>
+    
     // 1. Files List
     const eventFiles = ['event1.html', 'event2.html']; 
 
@@ -1369,7 +1370,7 @@
 
     window.onload = loadEvents;
 </script>
-
+-->
     <!--
     <script>
     // 1. Files List (Naya event yahan add karein)
@@ -1658,5 +1659,122 @@ async function shareCardAsImage(title) {
     window.onload = loadEvents;
     </script>
     -->
+    <script>
+    // 1. Files List (Naya event yahan add karein)
+    const eventFiles = ['event1.html', 'event2.html']; 
+
+    let currentSlideIndex = 0;
+    let allEventsData = []; // Slider ke liye data yahan save hoga
+
+    // 2. Main Function: Events load aur fetch karna
+    async function loadEvents() {
+        const container = document.getElementById('mainTimeline');
+        
+        for (let i = 0; i < eventFiles.length; i++) {
+            const file = eventFiles[i];
+            try {
+                const response = await fetch(file);
+                const htmlText = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+
+                const eventObj = {
+                    date: doc.querySelector('.date')?.innerText.replace('📅 Date: ', '') || 'N/A',
+                    title: doc.querySelector('h1')?.innerText || 'Title',
+                    img: doc.querySelector('img')?.src || '',
+                    desc: doc.querySelector('p')?.innerText || '',
+                    file: file
+                };
+                
+                // Slider ke liye data save karna
+                allEventsData.push(eventObj);
+
+                // Timeline Card banana
+                const row = document.createElement('div');
+                row.className = 'event-row';
+                row.innerHTML = `
+                    <div class="date-col">${eventObj.date}</div>
+                    <div class="content-col" onclick="openLightbox(${i})">
+                        <h3>${eventObj.title}</h3>
+                        <img src="${eventObj.img}">
+                        <p>${eventObj.desc.substring(0, 100)}...</p>
+                        <small style="color:var(--line); cursor:pointer;">Tap to read more 📖</small>
+                    </div>
+                `;
+                container.appendChild(row);
+                
+                // Scroll Animation (Fade in effect)
+                setTimeout(() => row.classList.add('show'), 150 * i);
+                
+            } catch (e) { 
+                console.log("Error loading " + file, e); 
+            }
+        }
+    }
+
+    // 3. Lightbox functions
+    function openLightbox(index) {
+        currentSlideIndex = index;
+        updateLightboxContent();
+        document.getElementById('cardLightbox').style.display = 'flex';
+    }
+
+    function updateLightboxContent() {
+        const data = allEventsData[currentSlideIndex];
+        const content = document.getElementById('activeCardContent');
+        
+        content.innerHTML = `
+            <span style="color:var(--line); font-weight:bold;">📅 ${data.date}</span>
+            <h2 style="margin:10px 0;">${data.title}</h2>
+            <img src="${data.img}" style="max-height:250px; width:100%; object-fit:cover; border-radius:10px;">
+            <p style="text-align:justify; font-size:0.95rem; max-height:200px; overflow-y:auto; padding-right:10px; margin-top:15px;">
+                ${data.desc}
+            </p>
+            <button class="btn-card-share" style="margin-top:20px; width:100%;" 
+                onclick="shareCard('${data.title.replace(/'/g, "\\'")}', '', '${data.file}')">
+                📲 Share This Event
+            </button>
+        `;
+    }
+
+    function changeSlide(direction) {
+        currentSlideIndex += direction;
+        if (currentSlideIndex >= allEventsData.length) currentSlideIndex = 0;
+        if (currentSlideIndex < 0) currentSlideIndex = allEventsData.length - 1;
+        updateLightboxContent();
+    }
+
+    function closeLightbox() {
+        document.getElementById('cardLightbox').style.display = 'none';
+    }
+
+    // 4. Sharing Functions
+    function shareMain() {
+        if (navigator.share) {
+            navigator.share({ 
+                title: 'Timeline History Prophet', 
+                url: window.location.href 
+            });
+        }
+    }
+
+    function shareCard(title, text, file) {
+        const shareUrl = window.location.origin + '/' + file;
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: `📜 Check out this event: ${title}`,
+                url: shareUrl
+            });
+        } else {
+            alert("Sharing not supported, link copied: " + shareUrl);
+            navigator.clipboard.writeText(shareUrl);
+        }
+    }
+
+    // 5. App start
+    window.onload = loadEvents;
+</script>
+
 </body>
 </html>

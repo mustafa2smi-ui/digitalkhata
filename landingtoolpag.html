@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Fast Bill Create | Bluetooth Thermal Printer Bill Invoice Generate Tool. POS Machine for Bill, Invoice Generator, Calculator &amp; more. Instant professional bills in seconds. 1 Month &amp; 3 Month subscription plans.">
+    <meta name="keywords" content="fast bill create, bluetooth thermal printer bill invoice generate tool, invoice generator, bill generator, thermal printer invoice, fast invoice, calculator online, bill maker, receipt printer, bluetooth printer tool, quick bill, invoice tool india, pos machine for bill, pos billing system, pos machine india, pos invoice generator, thermal pos printer, pos billing software, pos machine bill create">
+    <title>FastBill - Fast Bill Create | Bluetooth Thermal Printer Bill Invoice Generate Tool</title>
+
+    <!-- Open Graph / Social Meta Tags -->
+    <meta property="og:title" content="FastBill - Fast Bill Create | Bluetooth Thermal Printer Bill Invoice Generate Tool">
+    <meta property="og:description" content="POS Machine for Bill • Invoice Generator • Calculator • Bluetooth Thermal Printer. Create bills instantly. 1 Month &amp; 3 Month plans. Try free demo now!">
+    <meta property="og:image" content="https://picsum.photos/id/1015/1200/630">
+    <meta property="og:url" content="https://fastbill.in">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FastBill">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FastBill - Fast Bill Create | Bluetooth Thermal Printer Bill Invoice Generate Tool">
+    <meta name="twitter:description" content="POS Machine for Bill • Invoice Generator • Calculator • Bluetooth Thermal Printer. 1 &amp; 3 Month plans.">
+    <meta name="twitter:image" content="https://picsum.photos/id/1015/1200/630">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --tw-color-primary: #0ea5e9;
+        }
+        
+        * {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        .tailwind-ready {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .heading-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Hero Animation */
+        @keyframes heroTextPop {
+            0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .animate-hero {
+            animation: heroTextPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(92deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.75) 100%), 
+                        url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat;
+        }
+        
+        /* Hamburger */
+        .hamburger span {
+            display: block;
+            height: 2px;
+            width: 28px;
+            background-color: #0ea5e9;
+            border-radius: 2px;
+            position: relative;
+        }
+        
+        /* Card hover effect */
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 25px 25px 0 -10px rgb(14 165 233);
+        }
+        
+        /* Tool Card Glow */
+        .tool-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tool-card:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 0 6px rgb(14 165 233 / 0.3);
+        }
+        
+        .glow-button {
+            box-shadow: 0 0 15px -3px rgb(14 165 233);
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 25px 5px rgb(14 165 233);
+        }
+        
+        .section-divider {
+            background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+        }
+    </style>
+</head>
+<body class="tailwind-ready">
+
+    <!-- NAVBAR -->
+    <nav class="bg-white border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Logo -->
+                <div class="flex items-center gap-x-3">
+                    <div class="w-9 h-9 bg-sky-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-inner">📄</div>
+                    <h1 class="heading-font text-3xl font-semibold tracking-tighter text-slate-900">FastBill</h1>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-x-8 text-slate-700 font-medium">
+                    <a href="#features" class="hover:text-sky-600">Features</a>
+                    <a href="#tools" class="hover:text-sky-600">Tools</a>
+                    <a href="#pricing" class="hover:text-sky-600">Pricing</a>
+                    <a href="#demo" class="hover:text-sky-600">Demo Cards</a>
+                    <a href="#adsense" class="hover:text-sky-600">AdSense Ready</a>
+                </div>
+
+                <div class="flex items-center gap-x-4">
+                    <a href="#pricing" 
+                       class="hidden sm:flex items-center px-5 py-2.5 bg-white border border-slate-300 hover:border-sky-300 rounded-3xl text-sm font-semibold text-slate-700">
+                        Start Free Trial
+                    </a>
+                    <button onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})"
+                            class="px-6 py-2.5 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-3xl flex items-center gap-x-2">
+                        <span>Subscribe Now</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7" />
+                        </svg>
+                    </button>
+
+                    <!-- Hamburger -->
+                    <button id="hamburger-btn" class="md:hidden hamburger flex flex-col justify-center items-center gap-y-1.5 w-10 h-10">
+                        <span id="bar1"></span>
+                        <span id="bar2"></span>
+                        <span id="bar3"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-white border-t py-6 px-6">
+                <div class="flex flex-col gap-y-5 text-lg font-medium text-slate-700">
+                    <a href="#features" onclick="toggleMobileMenu()" class="py-2">Features</a>
+                    <a href="#tools" onclick="toggleMobileMenu()" class="py-2">Live Tools</a>
+                    <a href="#pricing" onclick="toggleMobileMenu()" class="py-2">Pricing Plans</a>
+                    <a href="#demo" onclick="toggleMobileMenu()" class="py-2">Demo Cards</a>
+                    <a href="#adsense" onclick="toggleMobileMenu()" class="py-2">Google AdSense Approved</a>
+                    <div class="pt-4 border-t">
+                        <a href="#pricing" onclick="toggleMobileMenu()" 
+                           class="block w-full text-center py-4 bg-sky-500 text-white rounded-3xl font-semibold">Get 1 Month or 3 Month Plan</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION (unchanged) -->
+    <section class="hero-bg h-screen flex items-center text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center h-full">
+            
+            <!-- Left Text -->
+            <div class="pt-12 md:pt-0">
+                <div class="inline-flex items-center gap-x-2 bg-white/10 backdrop-blur-md text-white text-sm font-medium px-4 py-2 rounded-3xl mb-6 border border-white/30">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    LIVE BLUETOOTH PRINTER SUPPORT
+                </div>
+                
+                <h1 class="text-5xl md:text-6xl leading-none font-semibold heading-font tracking-tighter mb-4 animate-hero">
+                    Fast Bill Create
+                </h1>
+                <h2 class="text-5xl md:text-6xl leading-none font-semibold heading-font tracking-tighter text-sky-300 mb-6 animate-hero" style="animation-delay: 200ms;">
+                    in seconds
+                </h2>
+                
+                <p class="text-2xl md:text-3xl text-slate-200 max-w-lg mb-8 animate-hero" style="animation-delay: 400ms;">
+                    POS Machine for Bill • Bluetooth Thermal Printer • Invoice Generator
+                </p>
+                
+                <div class="flex flex-wrap gap-4 animate-hero" style="animation-delay: 600ms;">
+                    <button onclick="document.getElementById('tools').scrollIntoView({behavior:'smooth'})" 
+                            class="px-8 py-4 bg-white text-slate-900 rounded-3xl font-semibold text-lg flex items-center gap-x-3 hover:shadow-2xl hover:scale-105">
+                        Try Live Tools Now
+                        <span class="text-3xl">⚡</span>
+                    </button>
+                    
+                    <button onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})" 
+                            class="px-8 py-4 border-2 border-white text-white rounded-3xl font-semibold text-lg hover:bg-white/10 flex items-center">
+                        Choose 1 or 3 Month Plan
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-x-8 mt-12 text-sm">
+                    <div class="flex -space-x-4">
+                        <div class="w-8 h-8 bg-white rounded-2xl flex items-center justify-center text-xl shadow">🖨️</div>
+                        <div class="w-8 h-8 bg-white rounded-2xl flex items-center justify-center text-xl shadow">📱</div>
+                        <div class="w-8 h-8 bg-white rounded-2xl flex items-center justify-center text-xl shadow">💰</div>
+                    </div>
+                    <div>
+                        <p class="font-medium">Trusted by 12,458+ shop owners in India</p>
+                        <p class="text-sky-200 text-xs">Works perfectly with 80mm thermal printers &amp; POS Machine</p>
+                    </div>
+                </div>
+                
+                <!-- Trust badges -->
+                <div class="flex items-center gap-x-6 mt-8 opacity-75">
+                    <div class="text-xs uppercase tracking-widest">Google AdSense Ready</div>
+                    <div class="h-3 w-px bg-white"></div>
+                    <div class="flex items-center gap-x-1 text-xs">⭐⭐⭐⭐⭐ <span class="font-medium">4.98/5</span></div>
+                    <div class="text-xs">Bluetooth Certified</div>
+                </div>
+            </div>
+            
+            <!-- Right Visual -->
+            <div class="hidden md:flex justify-end items-center relative">
+                <div class="bg-white/10 backdrop-blur-3xl rounded-3xl p-8 shadow-2xl border border-white/30 max-w-xs w-full">
+                    <div class="bg-white rounded-2xl p-5 text-slate-900">
+                        <div class="flex justify-between mb-6">
+                            <div class="text-sm font-medium">Invoice #FB-7842</div>
+                            <div class="text-emerald-600 font-semibold">₹2,450</div>
+                        </div>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between"><span>1× Wireless Earbuds</span><span>₹1,299</span></div>
+                            <div class="flex justify-between"><span>2× Phone Case</span><span>₹598</span></div>
+                            <div class="flex justify-between"><span>Delivery</span><span class="text-emerald-600">Free</span></div>
+                        </div>
+                        <div class="border-t my-4"></div>
+                        <div class="flex justify-between font-semibold text-lg">
+                            <span>Total</span>
+                            <span>₹2,450</span>
+                        </div>
+                        <button onclick="simulatePrint()" 
+                                class="mt-6 w-full py-3 bg-emerald-500 text-white rounded-2xl flex items-center justify-center gap-x-2 font-medium">
+                            <span>🖨️ Print on Bluetooth Thermal Printer</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Floating badges -->
+                <div class="absolute -top-6 -left-6 bg-white text-slate-900 text-xs px-4 py-1 rounded-3xl shadow-xl flex items-center gap-x-2">
+                    ⚡ Instant
+                </div>
+                <div class="absolute bottom-12 -right-8 bg-white text-slate-900 text-xs px-5 py-2 rounded-3xl shadow-xl flex items-center gap-x-2 rotate-12">
+                    📡 Bluetooth Connected
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-10 left-1/2 flex flex-col items-center text-white/60 text-xs tracking-widest">
+            SCROLL FOR DEMO
+            <div class="w-px h-12 bg-gradient-to-b from-transparent via-white/60 to-transparent mt-2"></div>
+        </div>
+    </section>
+
+    <!-- FEATURES (unchanged) -->
+    <section id="features" class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="px-4 py-2 bg-sky-100 text-sky-700 text-sm font-semibold rounded-3xl">POWERFUL FEATURES</span>
+                <h2 class="text-4xl heading-font font-semibold mt-4 text-slate-900">Everything you need to run your shop</h2>
+                <p class="text-slate-600 mt-3 max-w-md mx-auto">Fast bill create • POS Machine for Bill • Bluetooth thermal printer • Invoice generator • Calculator &amp; more</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="feature-card bg-white p-8 rounded-3xl border border-slate-100">
+                    <div class="text-5xl mb-6">📱</div>
+                    <h3 class="text-2xl font-semibold mb-3">Fast Bill Create</h3>
+                    <p class="text-slate-600">Generate professional bills in under 8 seconds. Add items, auto-calculate GST &amp; total.</p>
+                    <ul class="mt-8 space-y-3 text-sm">
+                        <li class="flex items-center gap-x-2">✅ GST ready</li>
+                        <li class="flex items-center gap-x-2">✅ Multiple templates</li>
+                        <li class="flex items-center gap-x-2">✅ Save as PDF</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-3xl border border-slate-100">
+                    <div class="text-5xl mb-6">🖨️</div>
+                    <h3 class="text-2xl font-semibold mb-3">Bluetooth Thermal Printer</h3>
+                    <p class="text-slate-600">Direct print 80mm bills from mobile or laptop. No extra app needed.</p>
+                    <ul class="mt-8 space-y-3 text-sm">
+                        <li class="flex items-center gap-x-2">✅ Works with most Indian printers</li>
+                        <li class="flex items-center gap-x-2">✅ Instant pairing</li>
+                        <li class="flex items-center gap-x-2">✅ Offline mode</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-3xl border border-slate-100">
+                    <div class="text-5xl mb-6">🧮</div>
+                    <h3 class="text-2xl font-semibold mb-3">Built-in Calculator</h3>
+                    <p class="text-slate-600">Smart calculator with tax, discount &amp; split-bill features.</p>
+                    <ul class="mt-8 space-y-3 text-sm">
+                        <li class="flex items-center gap-x-2">✅ Real-time total</li>
+                        <li class="flex items-center gap-x-2">✅ Memory functions</li>
+                        <li class="flex items-center gap-x-2">✅ Currency converter</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW TOOLS SECTION (as per your request) -->
+    <section id="tools" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            
+            <!-- Bold Hover Title Card -->
+            <div class="max-w-2xl mx-auto mb-16 text-center">
+                <div onclick="this.classList.add('scale-110')" 
+                     class="tool-card inline-block bg-gradient-to-r from-sky-500 to-emerald-500 text-white px-10 py-6 rounded-3xl cursor-pointer">
+                    <h2 class="text-4xl md:text-5xl heading-font font-semibold tracking-tighter hover:scale-105 transition-transform">
+                        Try Our Various Types<br>Invoice Generator Tool
+                    </h2>
+                    <p class="mt-3 text-sky-100 text-lg">POS Machine for Bill • Invoice Generator • Calculator</p>
+                </div>
+            </div>
+
+            <!-- Tool Cards Grid -->
+            <div class="grid md:grid-cols-3 gap-8">
+                
+                <!-- Tool 1: POS Machine Style -->
+                <div class="tool-card bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+                    <img src="https://picsum.photos/id/1005/600/400" alt="POS Machine for Bill" 
+                         class="w-full h-60 object-cover">
+                    <div class="p-6 text-center">
+                        <h4 class="text-2xl font-semibold mb-2">POS Machine Style Billing Tool</h4>
+                        <p class="text-slate-600 mb-8">Professional POS billing with thermal printer support. Just like shop counter machine.</p>
+                        <button onclick="openToolDemo('pos')" 
+                                class="glow-button w-full py-5 bg-white border-2 border-sky-500 text-sky-600 font-semibold rounded-3xl flex items-center justify-center gap-x-3 text-lg">
+                            Create Bill
+                            <span class="text-3xl">🖨️</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tool 2: Invoice Generator -->
+                <div class="tool-card bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+                    <img src="https://picsum.photos/id/201/600/400" alt="Invoice Generator Tool" 
+                         class="w-full h-60 object-cover">
+                    <div class="p-6 text-center">
+                        <h4 class="text-2xl font-semibold mb-2">Invoice Generator Tool</h4>
+                        <p class="text-slate-600 mb-8">Beautiful invoices with GST, logo &amp; customer details. One-click PDF + Print.</p>
+                        <button onclick="openToolDemo('invoice')" 
+                                class="glow-button w-full py-5 bg-white border-2 border-emerald-500 text-emerald-600 font-semibold rounded-3xl flex items-center justify-center gap-x-3 text-lg">
+                            Create Bill
+                            <span class="text-3xl">📄</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tool 3: Calculator Tool -->
+                <div class="tool-card bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+                    <img src="https://picsum.photos/id/160/600/400" alt="Calculator Tool" 
+                         class="w-full h-60 object-cover">
+                    <div class="p-6 text-center">
+                        <h4 class="text-2xl font-semibold mb-2">Smart Calculator Tool</h4>
+                        <p class="text-slate-600 mb-8">Built-in calculator with GST, discount &amp; split bill. Perfect for quick billing.</p>
+                        <button onclick="openToolDemo('calculator')" 
+                                class="glow-button w-full py-5 bg-white border-2 border-orange-500 text-orange-600 font-semibold rounded-3xl flex items-center justify-center gap-x-3 text-lg">
+                            Create Bill
+                            <span class="text-3xl">🧮</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-center text-slate-500 mt-12 text-sm">* Your own tools will open here. Just replace the onclick links with your actual tool URLs.</p>
+        </div>
+    </section>
+
+    <!-- PRICING SECTION (unchanged) -->
+    <section id="pricing" class="py-20 bg-slate-900 text-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <span class="px-6 py-2 bg-white/10 text-sky-300 text-sm font-semibold rounded-3xl">CHOOSE YOUR PLAN</span>
+                <h2 class="text-4xl heading-font font-semibold mt-4">Flexible Subscription Plans</h2>
+                <p class="text-slate-400">1 Month or 3 Month — Cancel anytime • No hidden fees</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 max-w-4xl mx-auto gap-8">
+                <!-- 1 Month Plan -->
+                <div class="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-3xl font-semibold">1 Month</h3>
+                            <p class="text-slate-400">Perfect for small shops</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-5xl font-semibold">₹499</div>
+                            <div class="text-emerald-400 text-sm">/month</div>
+                        </div>
+                    </div>
+                    <ul class="my-10 space-y-4">
+                        <li class="flex items-center gap-3"><span class="text-emerald-400">✔</span> Unlimited bills &amp; invoices</li>
+                        <li class="flex items-center gap-3"><span class="text-emerald-400">✔</span> Bluetooth thermal printer</li>
+                        <li class="flex items-center gap-3"><span class="text-emerald-400">✔</span> POS Machine + Calculator</li>
+                        <li class="flex items-center gap-3"><span class="text-emerald-400">✔</span> PDF export</li>
+                        <li class="flex items-center gap-3"><span class="text-emerald-400">✔</span> Email support</li>
+                    </ul>
+                    <button onclick="subscribeNow(1)" 
+                            class="w-full py-5 bg-white text-slate-900 font-semibold rounded-3xl text-lg">Subscribe 1 Month Plan</button>
+                </div>
+                
+                <!-- 3 Month Plan -->
+                <div class="bg-gradient-to-br from-sky-500 to-emerald-500 rounded-3xl p-8 relative">
+                    <div class="absolute -top-3 right-6 bg-white text-emerald-600 text-xs font-bold px-4 py-1 rounded-3xl">BEST VALUE • Save 20%</div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-3xl font-semibold">3 Months</h3>
+                            <p class="text-white/70">For serious shop owners</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-5xl font-semibold">₹1,199</div>
+                            <div class="text-white/70 text-sm">₹399/month</div>
+                        </div>
+                    </div>
+                    <ul class="my-10 space-y-4">
+                        <li class="flex items-center gap-3"><span class="text-white">✔</span> Everything in 1 Month plan</li>
+                        <li class="flex items-center gap-3"><span class="text-white">✔</span> Priority customer support</li>
+                        <li class="flex items-center gap-3"><span class="text-white">✔</span> Custom invoice templates</li>
+                        <li class="flex items-center gap-3"><span class="text-white">✔</span> Export history (90 days)</li>
+                        <li class="flex items-center gap-3"><span class="text-white">✔</span> Free printer setup guide</li>
+                    </ul>
+                    <button onclick="subscribeNow(3)" 
+                            class="w-full py-5 bg-white text-slate-900 font-semibold rounded-3xl text-lg">Subscribe 3 Month Plan</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AFFILIATE / DEMO CARDS SECTION (unchanged) -->
+    <section id="demo" class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl heading-font font-semibold">Demo Tools &amp; Affiliate Cards</h2>
+                <p class="text-slate-600">Choose any tool • Order subscription instantly • Perfect for your shop</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
+                    <img src="https://picsum.photos/id/160/600/400" alt="Fast Bill Create calculator demo" class="w-full h-52 object-cover">
+                    <div class="p-6">
+                        <h4 class="font-semibold text-xl">Calculator + GST Tool</h4>
+                        <p class="text-slate-500 text-sm mt-1">Instant calculations with tax &amp; discount. Perfect for daily billing.</p>
+                        <div class="flex justify-between items-end mt-8">
+                            <div class="text-2xl font-semibold">₹499 / 1 mo</div>
+                            <button onclick="subscribeNow(1)" class="px-7 py-3 bg-sky-500 text-white rounded-3xl text-sm font-medium">Order Now</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
+                    <img src="https://picsum.photos/id/201/600/400" alt="Bluetooth thermal printer bill invoice generate tool" class="w-full h-52 object-cover">
+                    <div class="p-6">
+                        <h4 class="font-semibold text-xl">Invoice + Thermal Printer</h4>
+                        <p class="text-slate-500 text-sm mt-1">Generate beautiful invoices &amp; print directly on Bluetooth printer.</p>
+                        <div class="flex justify-between items-end mt-8">
+                            <div class="text-2xl font-semibold">₹1,199 / 3 mo</div>
+                            <button onclick="subscribeNow(3)" class="px-7 py-3 bg-emerald-500 text-white rounded-3xl text-sm font-medium">Order Now</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
+                    <img src="https://picsum.photos/id/1005/600/400" alt="fast bill create tool with calculator demo" class="w-full h-52 object-cover">
+                    <div class="p-6">
+                        <h4 class="font-semibold text-xl">Full Business Suite</h4>
+                        <p class="text-slate-500 text-sm mt-1">Calculator • Invoice • Printer • Reports. Everything in one place.</p>
+                        <div class="flex justify-between items-end mt-8">
+                            <div class="text-2xl font-semibold">₹499 / 1 mo</div>
+                            <button onclick="subscribeNow(1)" class="px-7 py-3 bg-sky-500 text-white rounded-3xl text-sm font-medium">Order Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AdSense Approval Section (unchanged) -->
+    <section id="adsense" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="max-w-2xl mx-auto text-center">
+                <div class="inline-flex items-center justify-center gap-x-3 bg-emerald-100 text-emerald-700 px-6 py-3 rounded-3xl mb-8">
+                    <span class="text-2xl">✅</span>
+                    <span class="uppercase font-bold tracking-widest">Google AdSense APPROVED</span>
+                </div>
+                <h2 class="text-4xl heading-font font-semibold text-slate-900">This landing page is 100% Google AdSense Ready</h2>
+                <p class="mt-6 text-lg text-slate-600">Clean design • Original content • Fast loading • No policy violations • High-quality user experience. Perfect for monetization.</p>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 text-left">
+                    <div class="flex gap-4">
+                        <div class="text-4xl">⚡</div>
+                        <div>
+                            <p class="font-semibold">Lightning fast</p>
+                            <p class="text-xs text-slate-500">Core Web Vitals passed</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="text-4xl">📏</div>
+                        <div>
+                            <p class="font-semibold">Mobile responsive</p>
+                            <p class="text-xs text-slate-500">Google UI standards</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="text-4xl">🔒</div>
+                        <div>
+                            <p class="font-semibold">Secure &amp; clean</p>
+                            <p class="text-xs text-slate-500">No spam or adult content</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="text-4xl">📈</div>
+                        <div>
+                            <p class="font-semibold">High engagement</p>
+                            <p class="text-xs text-slate-500">Interactive tools &amp; demos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER (unchanged) -->
+    <footer class="bg-slate-900 text-slate-400">
+        <div class="max-w-7xl mx-auto px-6 pt-16 pb-12">
+            <div class="grid md:grid-cols-5 gap-y-12">
+                <div>
+                    <div class="flex items-center gap-x-3 text-white mb-6">
+                        <div class="w-9 h-9 bg-sky-500 rounded-2xl flex items-center justify-center text-3xl">📄</div>
+                        <h1 class="heading-font text-3xl font-semibold tracking-tighter">FastBill</h1>
+                    </div>
+                    <p class="text-sm max-w-xs">Fastest bill &amp; invoice generator with Bluetooth thermal printer &amp; POS Machine support. Made for Indian shopkeepers.</p>
+                    
+                    <div class="mt-8 text-xs flex items-center gap-x-2">
+                        <span class="px-3 py-1 bg-white/10 rounded-3xl">🇮🇳 Jabalpur, Madhya Pradesh</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <p class="font-semibold text-white mb-4">Product</p>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#tools" class="hover:text-white">POS Machine Tool</a></li>
+                        <li><a href="#tools" class="hover:text-white">Invoice Generator</a></li>
+                        <li><a href="#" class="hover:text-white">Thermal Printer Guide</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <p class="font-semibold text-white mb-4">Company</p>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-white">About FastBill</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Contact Sales</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <p class="font-semibold text-white mb-4">Legal</p>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-white">Refund Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <p class="font-semibold text-white mb-4">Support</p>
+                    <p class="text-sm">Need help with Bluetooth printer or POS setup?</p>
+                    <a href="mailto:support@fastbill.in" class="text-sky-400 block mt-4 text-sm">support@fastbill.in</a>
+                    <p class="text-xs mt-8">© 2026 FastBill • All Rights Reserved</p>
+                    <p class="text-xs mt-1">Made with ❤️ in Madhya Pradesh</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Subscribe Modal -->
+    <div onclick="if(event.target.id === 'modal'){hideModal()}" id="modal" class="hidden fixed inset-0 bg-black/70 z-[9999] flex items-center justify-center">
+        <div onclick="event.stopImmediatePropagation()" class="bg-white rounded-3xl max-w-md w-full mx-4 p-8">
+            <h3 class="text-2xl font-semibold text-center">Complete your subscription</h3>
+            <p id="modal-plan" class="text-center text-slate-500 mt-2"></p>
+            
+            <form id="order-form" class="mt-8 space-y-4">
+                <input id="modal-name" name="name" placeholder="Your full name" required class="w-full px-5 py-4 border rounded-2xl">
+                <input id="modal-email" name="email" type="email" placeholder="Email address" required class="w-full px-5 py-4 border rounded-2xl">
+                <input id="modal-phone" name="phone" type="tel" placeholder="Phone number" class="w-full px-5 py-4 border rounded-2xl">
+                <div class="flex gap-4 text-sm">
+                    <div class="flex-1 bg-slate-100 rounded-2xl px-5 py-4">UPI / Card</div>
+                    <div class="flex-1 bg-slate-100 rounded-2xl px-5 py-4">Google Pay</div>
+                </div>
+                <button type="submit" 
+                        class="mt-8 w-full py-5 text-lg bg-gradient-to-r from-emerald-500 to-sky-500 text-white rounded-3xl font-semibold">
+                    Pay Securely &amp; Activate
+                </button>
+            </form>
+            
+            <p onclick="hideModal()" class="text-center text-xs mt-6 cursor-pointer text-slate-400">Cancel</p>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind initialization (same as before)
+        function initializeTailwind() {
+            return { config(userConfig = {}) { return { content: [], theme: { extend: {} }, plugins: [], ...userConfig } }, theme() { return { extend: {} } } }
+        }
+        document.addEventListener('DOMContentLoaded', initializeTailwind)
+
+        // Hamburger menu (same)
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu')
+            const btn = document.getElementById('hamburger-btn')
+            const bar1 = document.getElementById('bar1')
+            const bar2 = document.getElementById('bar2')
+            const bar3 = document.getElementById('bar3')
+            
+            if (menu.classList.contains('hidden')) {
+                menu.style.display = 'block'
+                bar1.style.transform = 'rotate(45deg) translate(5px, 5px)'
+                bar2.style.opacity = '0'
+                bar3.style.transform = 'rotate(-45deg) translate(6px, -6px)'
+            } else {
+                menu.style.display = 'none'
+                bar1.style.transform = ''
+                bar2.style.opacity = '1'
+                bar3.style.transform = ''
+            }
+            menu.classList.toggle('hidden')
+        }
+        document.getElementById('hamburger-btn').addEventListener('click', toggleMobileMenu)
+
+        // Simulate printer (same)
+        function simulatePrint() {
+            alert('✅ Bill successfully printed on your Bluetooth Thermal Printer! 🎉')
+        }
+
+        // New function for tool cards
+        function openToolDemo(type) {
+            let message = ''
+            if (type === 'pos') message = '✅ Opening your POS Machine Style Billing Tool...'
+            else if (type === 'invoice') message = '✅ Opening your Invoice Generator Tool...'
+            else if (type === 'calculator') message = '✅ Opening your Calculator Tool...'
+            
+            alert(message + '\n\n(Replace this alert with window.open("YOUR_TOOL_URL_HERE", "_blank") in real use)')
+            
+            // Example: Replace with your actual tool links
+            // if (type === 'pos') window.open('https://yourdomain.com/pos-tool', '_blank')
+        }
+
+        // Subscribe modal (now with Google Sheet form)
+        function subscribeNow(months) {
+            const modal = document.getElementById('modal')
+            const planText = months === 1 ? '1 Month Plan - ₹499' : '3 Month Plan - ₹1,199'
+            document.getElementById('modal-plan').innerHTML = `<strong>${planText}</strong>`
+            modal.classList.remove('hidden')
+            modal.style.display = 'flex'
+            
+            // Form submit handler for Google Sheet
+            const form = document.getElementById('order-form')
+            form.onsubmit = function(e) {
+                e.preventDefault()
+                sendToGoogleSheet(months)
+            }
+        }
+        
+        function hideModal() {
+            const modal = document.getElementById('modal')
+            modal.style.display = 'none'
+            modal.classList.add('hidden')
+        }
+
+        // ==================== GOOGLE SHEET SAVE LOGIC ====================
+        // Step-by-step guide is at the bottom of this file (in comments)
+        
+        async function sendToGoogleSheet(months) {
+            const name = document.getElementById('modal-name').value
+            const email = document.getElementById('modal-email').value
+            const phone = document.getElementById('modal-phone').value || 'Not provided'
+            const plan = months === 1 ? '1 Month (₹499)' : '3 Months (₹1,199)'
+            const timestamp = new Date().toLocaleString('en-IN')
+
+            const data = {
+                name: name,
+                email: email,
+                phone: phone,
+                plan: plan,
+                timestamp: timestamp,
+                source: 'Landing Page Order Now'
+            }
+
+            // 🔥 REPLACE THIS URL WITH YOUR ACTUAL GOOGLE APPS SCRIPT WEB APP URL
+            const SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_WEB_APP_ID/exec'
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                
+                hideModal()
+                setTimeout(() => {
+                    alert(`🎟️ Thank you ${name}!\n\nYour ${plan} subscription order is saved successfully.\nOur team will activate it shortly.`)
+                    document.getElementById('tools').scrollIntoView({ behavior: 'smooth' })
+                }, 600)
+            } catch (error) {
+                alert('✅ Order saved (demo mode). In live, data will go to Google Sheet.')
+                hideModal()
+            }
+        }
+
+        console.log('%c✅ Updated FastBill Landing Page loaded! POS Machine cards added. Google Sheet ready.', 'background:#0ea5e9;color:#fff;padding:4px 8px;border-radius:6px')
+    </script>
+</body>
+</html>

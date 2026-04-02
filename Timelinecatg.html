@@ -159,6 +159,8 @@
                 <div id="colorPicker"></div>
                 <button class="audio-btn" onclick="playTTS()">🔊 Listen Dua</button>
                 <button class="btn-card-share" onclick="shareAsImage()">📸 Share Image</button>
+                <button class="btn-card-share" style="background:#27ae60; border:none;" onclick="shareAsText()">
+        ✍️ Share as Text (WhatsApp)</button>
             </div>
         `;
         setupColorPicker();
@@ -187,6 +189,29 @@
             picker.appendChild(div);
         });
     }
+function shareAsText() {
+    const data = allEventsData[currentSlideIndex];
+    const siteUrl = window.location.origin; // Aapki website ka link
+
+    // Text ko sajane ka tarika (\n matlab New Line)
+    const shareMessage = `✨ *Dua Number:* ${data.no}\n` +
+                         `📅 *Date:* ${data.date || 'Today'}\n\n` +
+                         `🕌 *${data.title}*\n\n` +
+                         `${data.hindi}\n\n` +
+                         `🌐 *Read more at:* ${siteUrl}\n` +
+                         `#DuaApp #ProphetHistory`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: data.title,
+            text: shareMessage
+        }).catch(err => console.log("Sharing failed", err));
+    } else {
+        // Agar browser support nahi karta to clipboard mein copy ho jayega
+        navigator.clipboard.writeText(shareMessage);
+        alert("Dua Text Copied to Clipboard!");
+    }
+}
 
     async function shareAsImage() {
         const ui = document.getElementById('ui-elements');

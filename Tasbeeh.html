@@ -146,6 +146,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -305,6 +306,195 @@
         document.getElementById('arabicDua').innerText = azkarList[0].ar;
         document.getElementById('hindiDua').innerText = azkarList[0].hi;
         updateUI();
+    }
+</script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Swipe Tasbeeh - Islamic Virasat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Amiri&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #27ae60; --dark: #2c3e50; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #f4f7f4; color: var(--dark); overflow: hidden; touch-action: none; }
+
+        header { background: #fff; padding: 15px; display: flex; justify-content: space-between; align-items:center; border-bottom: 1px solid #eee; }
+        
+        /* 1 & 2: Dua Card & Custom Input Area */
+        .dua-section { margin: 15px auto; width: 92%; max-width: 450px; }
+        .dua-card {
+            background: white; padding: 20px; border-radius: 20px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06); border-top: 5px solid var(--primary);
+            min-height: 140px; display: flex; flex-direction: column; justify-content: center;
+        }
+        .dua-card h2 { font-family: 'Amiri', serif; font-size: 2rem; color: var(--primary); margin-bottom: 8px; }
+        .dua-card p { font-size: 0.9rem; font-weight: 600; color: #666; }
+
+        .custom-input-box {
+            display: flex; gap: 5px; margin-top: 10px;
+        }
+        .custom-input-box input {
+            flex: 1; padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd; font-size: 0.8rem;
+        }
+        .add-btn { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 10px; cursor: pointer; }
+
+        /* Swipe Zone */
+        .swipe-area { height: 45vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        #countDisplay { font-size: 7rem; font-weight: 800; color: var(--primary); opacity: 0.15; position: absolute; }
+        .bead {
+            width: 90px; height: 90px; background: radial-gradient(circle at 30% 30%, #2ecc71, #27ae60);
+            border-radius: 50%; box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            position: absolute; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2; border: 5px solid #fff;
+        }
+
+        /* 4: Combo Box & Controls */
+        .controls-row { display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px; }
+        .target-select { padding: 8px; border-radius: 15px; border: 1px solid #ddd; font-size: 0.8rem; }
+        .icon-btn { width: 45px; height: 45px; border-radius: 50%; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        
+        .share-btn { 
+            background: #27ae60; color: white; border: none; padding: 12px 25px; 
+            border-radius: 30px; font-weight: 600; margin: 10px auto; display: block; width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-weight:600; color:var(--primary);">Islamic Virasat</div>
+    <button id="vibeBtn" onclick="toggleVibe()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">📳</button>
+</header>
+
+<div class="dua-section">
+    <div class="dua-card" id="azkarCard">
+        <h2 id="arabicDua">سُبْحَانَ ٱللَّٰهِ</h2>
+        <p id="hindiDua">SubhanAllah (Allah Pak Hai)</p>
+    </div>
+    <div class="custom-input-box">
+        <input type="text" id="customInput" placeholder="Apni Dua yahan paste karein...">
+        <button class="add-btn" onclick="setCustomDua()">Set</button>
+    </div>
+</div>
+
+<div class="swipe-area" id="swipeZone">
+    <div id="countDisplay">00</div>
+    <div class="bead" id="mainBead"></div>
+</div>
+
+<div class="controls-row">
+    <select class="target-select" id="targetSelect" onchange="setTarget()">
+        <option value="33">Target: 33</option>
+        <option value="100">Target: 100</option>
+        <option value="1000">Unlimited</option>
+    </select>
+    <div style="font-weight:600;">Total: <span id="totalCount">0</span></div>
+    <button class="icon-btn" onclick="resetAll()" style="background:#e74c3c;">🔄</button>
+</div>
+
+<button class="share-btn" onclick="shareTasbeeh()">📢 Share Tasbeeh Progress</button>
+
+<script>
+    let count = 0;
+    let totalCount = 0;
+    let azkarIndex = 0;
+    let target = 33;
+    let vibrateOn = true;
+    
+    // 1: Yahan aap apni default Duayein add kar sakte hain
+    const azkarList = [
+        { ar: "سُبْحَانَ ٱللَّٰهِ", hi: "SubhanAllah" },
+        { ar: "ٱلْحَمْدُ لِلَّٰهِ", hi: "Alhamdulillah" },
+        { ar: "ٱللَّٰهُ أَكْبَرُ", hi: "Allahu Akbar" }
+    ];
+
+    const swipeZone = document.getElementById('swipeZone');
+    const bead = document.getElementById('mainBead');
+    let startY = 0;
+
+    swipeZone.addEventListener('touchstart', e => startY = e.touches[0].clientY);
+    swipeZone.addEventListener('touchend', e => {
+        if (startY - e.changedTouches[0].clientY > 50) handleCount();
+    });
+
+    function handleCount() {
+        count++; totalCount++;
+        if (vibrateOn && navigator.vibrate) navigator.vibrate(40);
+        
+        // Animation Logic
+        bead.style.transform = "translateY(-150px) opacity(0)";
+        setTimeout(() => {
+            bead.style.transition = "none";
+            bead.style.transform = "translateY(150px)";
+            updateUI();
+            setTimeout(() => {
+                bead.style.transition = "0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+                bead.style.transform = "translateY(0)";
+            }, 50);
+        }, 200);
+
+        if (count >= target) {
+            count = 0;
+            if (target == 33) {
+                azkarIndex = (azkarIndex + 1) % azkarList.length;
+                animateCard();
+            }
+            if (vibrateOn) navigator.vibrate([100, 50, 100]);
+        }
+    }
+
+    // 2: Custom Dua Set karne ka function
+    function setCustomDua() {
+        const val = document.getElementById('customInput').value;
+        if(val) {
+            document.getElementById('arabicDua').innerText = val;
+            document.getElementById('hindiDua').innerText = "Custom Zikar";
+            count = 0; updateUI();
+        }
+    }
+
+    function toggleVibe() {
+        vibrateOn = !vibrateOn;
+        document.getElementById('vibeBtn').innerText = vibrateOn ? '📳' : '🔇';
+    }
+
+    function setTarget() {
+        target = parseInt(document.getElementById('targetSelect').value);
+        count = 0; updateUI();
+    }
+
+    // 3: Custom Share Message
+    function shareTasbeeh() {
+        const msg = `Assalamu Alaikum! Kya aapne aaj ka Tasbeeh poora kiya? Maine abhi ${totalCount} martaba zikar kiya hai. Zikar ke liye best Tasbeeh Counter abhi visit karein: ${window.location.href}`;
+        if (navigator.share) {
+            navigator.share({ title: 'Tasbeeh Counter', text: msg, url: window.location.href });
+        } else {
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+        }
+    }
+
+    function animateCard() {
+        const card = document.getElementById('azkarCard');
+        card.style.transform = "scale(0.8) opacity(0)";
+        setTimeout(() => {
+            document.getElementById('arabicDua').innerText = azkarList[azkarIndex].ar;
+            document.getElementById('hindiDua').innerText = azkarList[azkarIndex].hi;
+            card.style.transform = "scale(1) opacity(1)";
+        }, 300);
+    }
+
+    function updateUI() {
+        document.getElementById('countDisplay').innerText = count.toString().padStart(2, '0');
+        document.getElementById('totalCount').innerText = totalCount;
+    }
+
+    function resetAll() {
+        count = 0; totalCount = 0; updateUI();
     }
 </script>
 </body>

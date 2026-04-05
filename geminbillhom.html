@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MdInvoice - Free Quick Bill Generator | Thermal & GST Invoices</title>
+    
+    <meta name="description" content="MdInvoice: India's fastest no-login billing tool. Create professional thermal bills, GST invoices instantly. Offline capable and secure.">
+    <meta name="keywords" content="MdInvoice, Quick Bill Maker, Thermal Printer Bill, Online Invoice Generator India, Free Billing Tool, Mobile Billing App, No Login Bill Maker">
+    <meta name="author" content="MdInvoice Team">
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00d2ff">
+
+    <meta property="og:title" content="MdInvoice - Instant Billing">
+    <meta property="og:description" content="Generate professional bills in seconds. Secure, fast, and offline capable.">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=MdInvoice">
+    <meta property="og:type" content="website">
+    
+    <link rel="icon" type="image/png" href="https://via.placeholder.com/32">
+
+    <style>
+        :root {
+            --primary-glow: #00d2ff;
+            --secondary-glow: #3a7bd5;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --dark-bg: #121212;
+            --text-color: #e0e0e0;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), 
+                        url('https://images.unsplash.com/photo-1616077168079-7e09a677fb2c?q=80&w=2070') no-repeat center center fixed;
+            background-size: cover;
+            overflow-x: hidden;
+        }
+
+        /* Navbar & Hamburg Menu */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.9);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-glow); text-transform: uppercase; letter-spacing: 1px; }
+        .menu-icon { font-size: 24px; cursor: pointer; color: white; }
+
+        /* Hero Section with Animation */
+        .hero { text-align: center; padding: 100px 20px 60px; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 10px; animation: fadeInDown 1.5s ease-out; color: white; text-shadow: 0 0 10px var(--primary-glow); }
+        @keyframes fadeInDown { 0% { opacity: 0; transform: translateY(-30px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* Main Content Boxes */
+        .content-box {
+            max-width: 900px;
+            margin: 30px auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 40px;
+            border-radius: 20px;
+            line-height: 1.8;
+            text-align: justify;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .content-box h2, .content-box h3 { color: white; border-bottom: 2px solid var(--primary-glow); display: inline-block; padding-bottom: 5px; margin-bottom: 20px; }
+
+        /* Tools Card Section */
+        .tools-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 50px 10px; }
+        .tool-card {
+            width: 320px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #333;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .tool-card:hover { transform: translateY(-10px); border-color: var(--primary-glow); box-shadow: 0 0 25px rgba(0, 210, 255, 0.5); }
+        .tool-card img { width: 100%; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; }
+        .tool-card h3 { color: white; margin-bottom: 10px; }
+        .btn-start {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(45deg, var(--secondary-glow), var(--primary-glow));
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 30px;
+            margin-top: 15px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .btn-start:hover { box-shadow: 0 0 15px var(--primary-glow); transform: scale(1.05); }
+
+        /* Tutorial Section */
+        .tutorial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
+        .step-card { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .step-card img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
+        .step-card p { font-size: 0.9rem; margin: 0; color: #ccc; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 15px; border: 2px solid #333; margin-bottom: 30px; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* Affiliate Ads Scroll */
+        .ad-section-title { text-align: center; color: white; margin-top: 60px; font-size: 2rem; }
+        .ad-scroll { overflow-x: auto; display: flex; gap: 25px; padding: 30px 20px; scroll-behavior: smooth; }
+        .ad-scroll::-webkit-scrollbar { height: 8px; }
+        .ad-scroll::-webkit-scrollbar-thumb { background: var(--primary-glow); border-radius: 10px; }
+        
+        .ad-card {
+            min-width: 320px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.3s;
+        }
+        .ad-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.3); }
+        .ad-card h4 { color: white; margin: 0 0 10px; font-size: 1.2rem; }
+        .ad-card p { font-size: 0.9rem; color: #bbb; margin-bottom: 15px; flex-grow: 1; }
+        
+        .btn-order {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: var(--primary-glow);
+            border: 2px solid var(--primary-glow);
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        .btn-order:hover { background: var(--primary-glow); color: black; }
+
+        /* Slidedown Order Form */
+        .order-form-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+            margin-top: 20px;
+            padding: 0 20px; /* Adjust padding for animation */
+        }
+        .order-form-container.open { max-height: 1000px; padding: 20px; border: 1px solid var(--secondary-glow); }
+
+        .order-form h3 { color: white; text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; color: #ccc; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 5px;
+            color: white;
+            box-sizing: border-box; /* Crucial for padding */
+        }
+        .form-group textarea { resize: vertical; height: 80px; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-glow); }
+        
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: var(--secondary-glow);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .btn-submit:hover { background: var(--primary-glow); color: black; }
+        .close-form { text-align: center; margin-top: 10px; color: #888; cursor: pointer; font-size: 0.9rem; }
+
+        footer { text-align: center; padding: 30px; background: rgba(0,0,0,0.9); margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.1); }
+        footer p { margin: 5px 0; font-size: 0.9rem; color: #aaa; }
+        footer a { color: var(--primary-glow); text-decoration: none; }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .content-box { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">MdInvoice</div>
+        <div class="menu-icon">☰</div>
+    </nav>
+
+    <section class="hero">
+        <h1>MdInvoice</h1>
+        <p>Aapka Apna Digital Billing Assistant - Fast. Free. Secure.</p>
+    </section>
+
+    <div class="content-box">
+        <h2>Digital Kranti: Fast & Secure Billing</h2>
+        <p>
+            Aaj ke fast-paced business world mein, samay hi sabkuch hai. **MdInvoice** (formerly Bill Fast Banao) ek aisa platform hai jo khas taur par un retailers aur small business owners ke liye banaya gaya hai jo bina kisi jhanjhat ke turant bill generate karna chahte hain. Hamne pichle mahino mein kai tools par kaam kiya hai, jaise thermal printer support, automatic inventory counting, aur custom business cards. In sabhi tools ka maksad ek hi hai—aapke vyapar ko digital banana bina kisi mehange subscription ya complex login system ke. Hamari website poori tarah se **Privacy-First** hai, jiska matlab hai ki aapka data aapke device par hi secure rehta hai. Yeh tools mobile-friendly hain aur offline bhi kaam karte hain, taaki network na hone par bhi aapka kaam na ruke. Ek click mein PDF save karein ya WhatsApp par share karein, MdInvoice har kadam par aapke sath hai.
+        </p>
+    </div>
+
+    <div class="tools-container">
+        <div class="tool-card">
+            <img src="https://via.placeholder.com/300x180?text=Thermal+Bill" alt="Thermal Bill Tool">
+            <h3>Thermal Print Bill</h3>
+            <p>Direct Bluetooth thermal printer support ke sath fast billing.</p>
+            <a href="#" class="btn-start">Start To Create Bill</a>
+        </div>
+        <div class="tool-card">
+            <img src="https://via.placeholder.com/300x180?text=Inventory+Tool" alt="Inventory Tool">
+            <h3>Inventory Bill Maker</h3>
+            <p>Stock management aur automatic calculation ek hi jagah.</p>
+            <a href="#" class="btn-start">Start To Create Bill</a>
+        </div>
+        <div class="tool-card">
+            <img src="https://via.placeholder.com/300x180?text=Visiting+Card" alt="Visiting Card">
+            <h3>3D Business Card</h3>
+            <p>Professional visiting cards banayein bina kisi photo upload ke.</p>
+            <a href="#" class="btn-start">Start To Create Bill</a>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h3>How to Use & Print</h3>
+        <p>MdInvoice ko use karna bahut aasaan hai. Neeche diya gaya video dekhein ya step-by-step photos ko follow karein.</p>
+        
+        <div class="video-container">
+            <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_VIDEO_ID" title="How to use MdInvoice" allowfullscreen></iframe>
+        </div>
+
+        <h3>Step-by-Step Guide (10-12 Steps)</h3>
+        <div class="tutorial-grid">
+            <div class="step-card">
+                <img src="https://via.placeholder.com/250x150?text=Step+1" alt="Step 1">
+                <p><strong>Step 1:</strong> Tool select karein aur customer details bharein.</p>
+            </div>
+            <div class="step-card">
+                <img src="https://via.placeholder.com/250x150?text=Step+2" alt="Step 2">
+                <p><strong>Step 2:</strong> Items add karein (Name, Qty, Price).</p>
+            </div>
+            <div class="step-card">
+                <img src="https://via.placeholder.com/250x150?text=Step+3" alt="Step 3">
+                <p><strong>Step 3:</strong> Discount ya Tax apply karein.</p>
+            </div>
+            <div class="step-card">
+                <img src="https://via.placeholder.com/250x150?text=Step+4" alt="Step 4">
+                <p><strong>Step 4:</strong> 'Generate Bill' button par click karein.</p>
+            </div>
+            <div class="step-card">
+                <img src="https://via.placeholder.com/250x150?text=Print+Step" alt="Print Step">
+                <p><strong>Print:</strong> Print icon par click karein aur printer select karein.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-box">
+        <h3>Why Choose Us?</h3>
+        <p>Hum provide karte hain no-login access, fast speed aur mobile-ready design jo kisi bhi browser par smoothly chalta hai.</p>
+        
+        <h3>Is it Free?</h3>
+        <p>Ji haan! Hamare sabhi tools 100% free hain aur hamesha rahenge. Hum ads aur affiliate support se ise chalate hain.</p>
+
+        <h3>Is it Safe?</h3>
+        <p>Security hamari priority hai. Hacker-proof code aur local storage ka use karke hum ensure karte hain ki aapka data leak na ho.</p>
+    </div>
+
+    <h3 class="ad-section-title">Recommended Products</h3>
+    <div class="ad-scroll">
+        <div class="ad-card" id="product1">
+            <div>
+                <h4>Bluetooth Thermal Printer</h4>
+                <p>High-speed printing for shop bills. Compatible with MdInvoice.</p>
+            </div>
+            <button class="btn-order" onclick="toggleOrderForm('Bluetooth Printer')">Order Now</button>
+        </div>
+        <div class="ad-card" id="product2">
+            <div>
+                <h4>Thermal Paper Rolls (Pack of 10)</h4>
+                <p>Premium quality paper for clear printing. 58mm size.</p>
+            </div>
+            <button class="btn-order" onclick="toggleOrderForm('Paper Rolls 10 Pack')">Order Now</button>
+        </div>
+        <div class="ad-card" id="product3">
+            <div>
+                <h4>Wireless Barcode Scanner</h4>
+                <p>Fast scanning for inventory management.</p>
+            </div>
+            <button class="btn-order" onclick="toggleOrderForm('Barcode Scanner')">Order Now</button>
+        </div>
+    </div>
+
+    <div class="order-form-container content-box" id="orderFormContainer">
+        <div class="order-form">
+            <h3>Place Your Order</h3>
+            <p style="text-align:center; color: var(--primary-glow);" id="orderingProductHint"></p>
+            
+            <form id="googleSheetForm">
+                <input type="hidden" name="ProductName" id="hiddenProductName">
+                
+                <div class="form-group">
+                    <label>Customer Name*</label>
+                    <input type="text" name="CustomerName" required placeholder="Full Name">
+                </div>
+                <div class="form-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Email Address*</label>
+                        <input type="email" name="Email" required placeholder="email@example.com">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Contact Number*</label>
+                        <input type="tel" name="Contact" required placeholder="10-digit mobile">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Delivery Address*</label>
+                    <textarea name="Address" required placeholder="House No., Building, Street, Area"></textarea>
+                </div>
+
+                <div class="form-row" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 120px;">
+                        <label>Pincode*</label>
+                        <input type="text" name="Pincode" required placeholder="6 digits">
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 120px;">
+                        <label>District*</label>
+                        <input type="text" name="District" required>
+                    </div>
+                    <div class="form-group" style="flex: 1; min-width: 120px;">
+                        <label>State*</label>
+                        <input type="text" name="State" required>
+                    </div>
+                    <div class="form-group" style="width: 80px;">
+                        <label>Qty*</label>
+                        <input type="number" name="Qty" value="1" min="1" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">Confirm Order</button>
+                <div class="close-form" onclick="closeOrderForm()">[ Close Form ]</div>
+            </form>
+            <div id="responseMessage" style="text-align:center; margin-top:15px; display:none;"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 MdInvoice Team | All Rights Reserved</p>
+        <p><a href="#">Privacy Policy</a> | <a href="#">Contact Support</a></p>
+    </footer>
+
+    <script>
+        // Hamburg Menu Logic (Simplified for now)
+        document.querySelector('.menu-icon').addEventListener('click', () => {
+            alert('Menu feature coming soon! You can add links here.');
+        });
+
+        // Order Form Slidedown Logic
+        const formContainer = document.getElementById('orderFormContainer');
+        const productHint = document.getElementById('orderingProductHint');
+        const hiddenProductInput = document.getElementById('hiddenProductName');
+
+        function toggleOrderForm(productName) {
+            if (formContainer.classList.contains('open') && hiddenProductInput.value === productName) {
+                closeOrderForm();
+            } else {
+                productHint.innerText = "Ordering: " + productName;
+                hiddenProductInput.value = productName;
+                formContainer.classList.add('open');
+                // Scroll to form smoothly
+                setTimeout(() => {
+                    formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        }
+
+        function closeOrderForm() {
+            formContainer.classList.remove('open');
+        }
+
+        // --- GOOGLE SHEET INTEGRATION LOGIC ---
+        // 1. Paste your Google Apps Script Web App URL here
+        const scriptURL = 'YOUR_GOOGLE_SCRIPT_URL';
+        
+        const form = document.forms['googleSheetForm'];
+        const submitBtn = document.getElementById('submitBtn');
+        const responseMessage = document.getElementById('responseMessage');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            // Basic UI feedback
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Submitting...";
+            responseMessage.style.display = "block";
+            responseMessage.style.color = "#ccc";
+            responseMessage.innerText = "Sending your order...";
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Confirm Order";
+                    responseMessage.style.color = var(--primary-glow);
+                    responseMessage.innerText = "Order Placed Successfully! We will contact you soon.";
+                    form.reset(); // Clear form
+                    setTimeout(closeOrderForm, 3000); // Close after 3 seconds
+                })
+                .catch(error => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Confirm Order";
+                    responseMessage.style.color = "#ff4444";
+                    responseMessage.innerText = "Error! Something went wrong. Please try again.";
+                    console.error('Error!', error.message);
+                });
+        });
+
+        // Service Worker Registration for Offline Use
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('MdInvoice PWA Ready.'))
+                .catch(err => console.log('PWA Setup Failed.'));
+            });
+        }
+    </script>
+</body>
+</html>

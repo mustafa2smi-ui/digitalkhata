@@ -485,7 +485,7 @@ function triggerLogin() {
     const savedEmail = localStorage.getItem('userEmail');
     if (savedEmail) {
         // Agar pehle se login hai, toh direct tool page par bhej do
-        window.location.href = "https://yourname.blogspot.com/p/billing-tool.html";
+        window.location.href = "billing-tool.html";
     } else {
         // Agar login nahi hai, toh Google Login prompt dikhao
         google.accounts.id.prompt(); 

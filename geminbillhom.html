@@ -18,6 +18,7 @@
     <meta property="og:type" content="website">
     
     <link rel="icon" type="image/png" href="https://via.placeholder.com/32">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         :root {
@@ -225,7 +226,7 @@
             Aaj ke fast-paced business world mein, samay hi sabkuch hai. **MdInvoice** (formerly Bill Fast Banao) ek aisa platform hai jo khas taur par un retailers aur small business owners ke liye banaya gaya hai jo bina kisi jhanjhat ke turant bill generate karna chahte hain. Hamne pichle mahino mein kai tools par kaam kiya hai, jaise thermal printer support, automatic inventory counting, aur custom business cards. In sabhi tools ka maksad ek hi hai—aapke vyapar ko digital banana bina kisi mehange subscription ya complex login system ke. Hamari website poori tarah se **Privacy-First** hai, jiska matlab hai ki aapka data aapke device par hi secure rehta hai. Yeh tools mobile-friendly hain aur offline bhi kaam karte hain, taaki network na hone par bhi aapka kaam na ruke. Ek click mein PDF save karein ya WhatsApp par share karein, MdInvoice har kadam par aapke sath hai.
         </p>
     </div>
-
+<!--
     <div class="tools-container">
         <div class="tool-card">
             <img src="https://via.placeholder.com/300x180?text=Thermal+Bill" alt="Thermal Bill Tool">
@@ -246,6 +247,35 @@
             <a href="#" class="btn-start">Start To Create Bill</a>
         </div>
     </div>
+-->
+    <div class="tools-container">
+    <div class="tool-card">
+        <img src="https://via.placeholder.com/300x180?text=Thermal+Bill" alt="Thermal Bill Tool">
+        <h3>Thermal Print Bill</h3>
+        <p>Direct Bluetooth thermal printer support ke sath fast billing.</p>
+        <button onclick="triggerLogin()" class="btn-start" style="width:100%; border:none; cursor:pointer;">Start To Create Bill</button>
+    </div>
+
+    <div class="tool-card">
+        <img src="https://via.placeholder.com/300x180?text=Inventory+Tool" alt="Inventory Tool">
+        <h3>Inventory Bill Maker</h3>
+        <p>Stock management aur automatic calculation ek hi jagah.</p>
+        <button onclick="triggerLogin()" class="btn-start" style="width:100%; border:none; cursor:pointer;">Start To Create Bill</button>
+    </div>
+
+    <div class="tool-card">
+        <img src="https://via.placeholder.com/300x180?text=Visiting+Card" alt="Visiting Card">
+        <h3>3D Business Card</h3>
+        <p>Professional visiting cards banayein bina kisi photo upload ke.</p>
+        <button onclick="triggerLogin()" class="btn-start" style="width:100%; border:none; cursor:pointer;">Start To Create Bill</button>
+    </div>
+</div>
+
+<div id="g_id_onload"
+     data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse"
+     data-auto_prompt="false">
+</div>
 
     <div class="content-box">
         <h3>How to Use & Print</h3>
@@ -449,5 +479,43 @@
             });
         }
     </script>
+    <script>
+// 1. Jab user button par click karega
+function triggerLogin() {
+    const savedEmail = localStorage.getItem('userEmail');
+    if (savedEmail) {
+        // Agar pehle se login hai, toh direct tool page par bhej do
+        window.location.href = "https://yourname.blogspot.com/p/billing-tool.html";
+    } else {
+        // Agar login nahi hai, toh Google Login prompt dikhao
+        google.accounts.id.prompt(); 
+    }
+}
+
+// 2. Google Login hone ke baad ye function chalega
+function handleCredentialResponse(response) {
+    const payload = parseJwt(response.credential);
+    console.log("Logged in as: " + payload.email);
+    
+    // Email ko LocalStorage mein save karein
+    localStorage.setItem('userEmail', payload.email);
+    localStorage.setItem('userName', payload.name);
+
+    // User ko Tool Page par bhej dein
+    window.location.href = "https://yourname.blogspot.com/p/billing-tool.html";
+}
+
+// 3. JWT Token ko padhne ke liye helper function
+function parseJwt(token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
+</script>
+
 </body>
 </html>

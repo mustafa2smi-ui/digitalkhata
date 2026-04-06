@@ -1,0 +1,53 @@
+<div id="auth-overlay" class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
+    <div id="loading-status">Checking Subscription... ⏳</div>
+    
+    <div id="lock-section" class="hidden text-center p-6">
+        <h2 class="text-red-600 font-bold text-2xl">TRIAL EXPIRED! 🔒</h2>
+        <img src="YOUR_QR_CODE_URL" class="w-48 mx-auto my-4">
+        <p>Rs.100 for 3 Months. WhatsApp screenshot for activation.</p>
+        <a id="wa-link" href="#" class="bg-green-500 text-white p-3 rounded block mt-4">WhatsApp Admin</a>
+    </div>
+</div>
+
+<div id="main-tool-content" class="hidden">
+   </div>
+
+<script>
+const SCRIPT_URL = "YOUR_GAS_WEB_APP_URL";
+
+async function verifyAccess() {
+    const email = localStorage.getItem('userEmail');
+    
+    if (!email) {
+        // Agar login nahi hai toh wapas landing page par bhej do
+        window.location.href = "https://yourname.blogspot.com"; 
+        return;
+    }
+
+    try {
+        const res = await fetch(`${SCRIPT_URL}?email=${email}`);
+        const data = await res.json();
+
+        if (data.access) {
+            // SUCCESS: Tool load karo
+            document.getElementById('auth-overlay').classList.add('hidden');
+            document.getElementById('main-tool-content').classList.remove('hidden');
+            initApp(); // Is function mein aapka poora billing logic wrap hona chahiye
+        } else {
+            // EXPIRED: Lock screen dikhao
+            document.getElementById('loading-status').classList.add('hidden');
+            document.getElementById('lock-section').classList.remove('hidden');
+            document.getElementById('wa-link').href = "https://wa.me/91XXXXXXXXXX?text=Renew%20" + email;
+        }
+    } catch (e) {
+        alert("Internet Required!");
+    }
+}
+
+// Billing Tool ka poora JS yahan wrap hoga
+function initApp() {
+    // Inventory, Camera, Printer functions yahan paste karein...
+}
+
+window.onload = verifyAccess;
+</script>

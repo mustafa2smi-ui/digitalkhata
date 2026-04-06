@@ -485,7 +485,7 @@ function triggerLogin() {
     const savedEmail = localStorage.getItem('userEmail');
     if (savedEmail) {
         // Agar pehle se login hai, toh direct tool page par bhej do
-        window.location.href = "https://github.com/mustafa2smi-ui/digitalkhata/blob/main/billing-tool.html";
+        window.location.href = "https://mustafa2smi-ui.github.io/digitalkhata/billing-tool.html";
     } else {
         // Agar login nahi hai, toh Google Login prompt dikhao
         google.accounts.id.prompt(); 
@@ -502,7 +502,7 @@ function handleCredentialResponse(response) {
     localStorage.setItem('userName', payload.name);
 
     // User ko Tool Page par bhej dein
-    window.location.href = "https://github.com/mustafa2smi-ui/digitalkhata/blob/main/billing-tool.html";
+    window.location.href = "https://mustafa2smi-ui.github.io/digitalkhata/billing-tool.html";
 }
 
 // 3. JWT Token ko padhne ke liye helper function

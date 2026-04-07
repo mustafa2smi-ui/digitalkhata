@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Spin Audio Pro</title>
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.8);
+            --light-bg: #fdfcf0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            margin: 0;
+        }
+
+        /* Category Menu */
+        .category-menu { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
+        .cat-btn {
+            background: white; border: 2px solid var(--gold); padding: 8px 12px;
+            border-radius: 12px; cursor: pointer; font-weight: bold; color: var(--gold);
+        }
+        .cat-btn.active { background: var(--gold); color: white; }
+
+        /* Game Card */
+        .game-card {
+            background: white; border: 3px solid var(--gold); border-radius: 25px;
+            box-shadow: 0 0 25px var(--gold-glow); padding: 20px;
+            width: 90%; max-width: 380px; text-align: center;
+        }
+
+        .question-row {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .audio-icon {
+            cursor: pointer; font-size: 1.5rem; background: none; border: none; color: var(--gold);
+        }
+
+        /* Wheel */
+        .wheel-container { position: relative; width: 260px; height: 260px; margin: 15px auto; }
+        #wheel {
+            width: 100%; height: 100%; border-radius: 50%; border: 6px solid var(--gold);
+            position: relative; overflow: hidden;
+            background: conic-gradient(#FFD700 0deg 72deg, #FFA500 72deg 144deg, #FF6347 144deg 216deg, #DA70D6 216deg 288deg, #87CEEB 288deg 360deg);
+            transform: rotate(0deg); transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1);
+        }
+
+        .label {
+            position: absolute; width: 100%; height: 100%; text-align: center;
+            font-weight: bold; font-size: 1.1rem; color: #fff; text-shadow: 1px 1px 3px #000;
+        }
+        .label:nth-child(1) { transform: rotate(36deg) translateY(15px); }
+        .label:nth-child(2) { transform: rotate(108deg) translateY(15px); }
+        .label:nth-child(3) { transform: rotate(180deg) translateY(15px); }
+        .label:nth-child(4) { transform: rotate(252deg) translateY(15px); }
+        .label:nth-child(5) { transform: rotate(324deg) translateY(15px); }
+
+        .marker {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 30px solid var(--gold); z-index: 20;
+        }
+
+        /* Buttons */
+        .controls { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .btn {
+            background: linear-gradient(145deg, #d4af37, #b8860b); color: white;
+            border: none; padding: 12px; border-radius: 50px; font-weight: bold; cursor: pointer;
+        }
+        .btn-next { background: #4CAF50; }
+
+        /* Updated Table Style */
+        .score-table {
+            width: 95%; max-width: 420px; margin-top: 25px;
+            border-collapse: collapse; background: #fff;
+            border: 2px solid var(--gold); border-radius: 10px; overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .score-table th { background: var(--gold); color: white; padding: 12px 8px; font-size: 0.9rem; }
+        .score-table td { border: 1px solid #eee; padding: 10px 5px; text-align: center; font-size: 0.85rem; }
+        .status-badge { padding: 4px 8px; border-radius: 10px; font-weight: bold; color: white; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+
+    <div class="category-menu" id="catMenu">
+        <button class="cat-btn active" onclick="changeCategory('Math')">Math</button>
+        <button class="cat-btn" onclick="changeCategory('G.K')">G.K</button>
+    </div>
+
+    <div class="game-card">
+        <div class="question-row">
+            <h2 id="question-box" style="margin:0;">Loading...</h2>
+            <button class="audio-icon" onclick="speakQuestion()">🔊</button>
+        </div>
+
+        <div class="wheel-container">
+            <div class="marker"></div>
+            <div id="wheel"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="spinBtn" onclick="startSpin()">SPIN FOR SCORE</button>
+            <button class="btn btn-next" onclick="nextQuestion()">NEXT QUESTION</button>
+        </div>
+        <p id="feedback" style="font-weight: bold; color: var(--gold);"></p>
+    </div>
+
+    <table class="score-table">
+        <thead>
+            <tr>
+                <th>Quest.</th>
+                <th>Your Pick</th>
+                <th>Status</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody id="score-history"></tbody>
+    </table>
+
+<script>
+    const quizData = {
+        'Math': [
+            { q: "What is 5 plus 5?", a: "10", opts: ["10", "4", "0", "8", "2"] },
+            { q: "What is 10 minus 3?", a: "7", opts: ["7", "5", "0", "9", "3"] }
+        ],
+        'G.K': [
+            { q: "Capital of India?", a: "Delhi", opts: ["Delhi", "Goa", "0", "Mumbai", "Pune"] }
+        ]
+    };
+
+    let currentCat = 'Math';
+    let qIdx = 0;
+    let totalScore = 0;
+    let isSpinning = false;
+    let currentRotation = 0;
+
+    function loadGame() {
+        const data = quizData[currentCat][qIdx];
+        document.getElementById('question-box').innerText = data.q;
+        const wheel = document.getElementById('wheel');
+        wheel.innerHTML = '';
+        data.opts.forEach(opt => {
+            const div = document.createElement('div');
+            div.className = 'label';
+            div.innerText = opt;
+            wheel.appendChild(div);
+        });
+        document.getElementById('feedback').innerText = "";
+    }
+
+    // 1) Audio Feature: Question Play
+    function speakQuestion() {
+        const text = quizData[currentCat][qIdx].q;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // 1) Audio Feature: Result Play (Wrong/Right only)
+    function speakResult(type) {
+        const utterance = new SpeechSynthesisUtterance(type);
+        utterance.pitch = type === "Right" ? 1.2 : 0.8;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function startSpin() {
+        if (isSpinning) return;
+        isSpinning = true;
+        const extraDegree = Math.floor(Math.random() * 360) + 1440;
+        currentRotation += extraDegree;
+        document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            isSpinning = false;
+            const finalDeg = currentRotation % 360;
+            const segmentIdx = Math.floor(((360 - finalDeg) % 360) / 72);
+            const selected = quizData[currentCat][qIdx].opts[segmentIdx];
+            checkResult(selected);
+        }, 3000);
+    }
+
+    function checkResult(selected) {
+        const qObj = quizData[currentCat][qIdx];
+        let points = 0;
+        let statusText = "";
+        let audioType = "";
+        let color = "";
+
+        if (selected === qObj.a) {
+            points = 10; statusText = "Right"; audioType = "Right"; color = "#4CAF50";
+        } else {
+            points = (selected === "0") ? -5 : 0;
+            statusText = "Wrong"; audioType = "Wrong"; color = "#f44336";
+        }
+
+        totalScore += points;
+        speakResult(audioType); // Only speaks "Right" or "Wrong"
+
+        // Update Table with requested columns
+        const tbody = document.getElementById('score-history');
+        const row = `<tr>
+            <td>${qObj.q}</td>
+            <td><b>${selected}</b></td>
+            <td><span class="status-badge" style="background:${color}">${statusText}</span></td>
+            <td><b>${totalScore}</b></td>
+        </tr>`;
+        tbody.innerHTML = row + tbody.innerHTML;
+    }
+
+    function changeCategory(cat) {
+        currentCat = cat; qIdx = 0;
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        loadGame();
+    }
+
+    function nextQuestion() {
+        qIdx = (qIdx + 1) % quizData[currentCat].length;
+        loadGame();
+    }
+
+    loadGame();
+</script>
+</body>
+</html>

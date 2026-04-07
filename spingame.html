@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -229,6 +230,268 @@
         loadGame();
     }
 
+    loadGame();
+</script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Spin Ultra Pro</title>
+    <style>
+        :root {
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.8);
+            --light-bg: #fdfcf0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            margin: 0;
+        }
+
+        /* 2) Watermark Style for Category */
+        .category-container {
+            position: relative;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: rgba(212, 175, 55, 0.1);
+            font-weight: 900;
+            z-index: -1;
+            white-space: nowrap;
+        }
+
+        .category-menu { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; z-index: 1; }
+        .cat-btn {
+            background: white; border: 2px solid var(--gold); padding: 8px 12px;
+            border-radius: 12px; cursor: pointer; font-weight: bold; color: var(--gold);
+        }
+        .cat-btn.active { background: var(--gold); color: white; }
+
+        .game-card {
+            background: white; border: 3px solid var(--gold); border-radius: 25px;
+            box-shadow: 0 0 25px var(--gold-glow); padding: 20px;
+            width: 90%; max-width: 380px; text-align: center;
+        }
+
+        /* 1) Question Position Style */
+        .q-position {
+            font-size: 0.8rem; color: #888; font-weight: bold; margin-bottom: 5px;
+        }
+
+        .question-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+        .audio-icon { cursor: pointer; font-size: 1.5rem; background: none; border: none; color: var(--gold); }
+
+        .wheel-container { position: relative; width: 260px; height: 260px; margin: 15px auto; }
+        #wheel {
+            width: 100%; height: 100%; border-radius: 50%; border: 6px solid var(--gold);
+            position: relative; overflow: hidden;
+            background: conic-gradient(#FFD700 0deg 72deg, #FFA500 72deg 144deg, #FF6347 144deg 216deg, #DA70D6 216deg 288deg, #87CEEB 288deg 360deg);
+            transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1);
+        }
+
+        .label {
+            position: absolute; width: 100%; height: 100%; text-align: center;
+            font-weight: bold; font-size: 1rem; color: #fff; text-shadow: 1px 1px 3px #000;
+        }
+        .label:nth-child(1) { transform: rotate(36deg) translateY(15px); }
+        .label:nth-child(2) { transform: rotate(108deg) translateY(15px); }
+        .label:nth-child(3) { transform: rotate(180deg) translateY(15px); }
+        .label:nth-child(4) { transform: rotate(252deg) translateY(15px); }
+        .label:nth-child(5) { transform: rotate(324deg) translateY(15px); }
+
+        .marker {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 30px solid var(--gold); z-index: 20;
+        }
+
+        .controls { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .btn {
+            background: linear-gradient(145deg, #d4af37, #b8860b); color: white;
+            border: none; padding: 12px; border-radius: 50px; font-weight: bold; cursor: pointer;
+        }
+
+        .score-table {
+            width: 95%; max-width: 420px; margin-top: 25px;
+            border-collapse: collapse; background: #fff;
+            border: 2px solid var(--gold); border-radius: 10px; overflow: hidden;
+        }
+        .score-table th { background: var(--gold); color: white; padding: 10px; font-size: 0.8rem; }
+        .score-table td { border: 1px solid #eee; padding: 8px; text-align: center; font-size: 0.8rem; }
+        
+        /* 3) Truncate Text Style */
+        .truncate {
+            display: inline-block; max-width: 100px; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="category-container">
+        <div id="cat-watermark" class="watermark">MATH: 0</div>
+        <div class="category-menu" id="catMenu">
+            <button class="cat-btn active" onclick="changeCategory('Math')">Math</button>
+            <button class="cat-btn" onclick="changeCategory('G.K')">G.K</button>
+        </div>
+    </div>
+
+    <div class="game-card">
+        <div id="q-count" class="q-position">1/20</div>
+        <div class="question-row">
+            <h2 id="question-box" style="margin:0; font-size: 1.2rem;">Loading...</h2>
+            <button class="audio-icon" onclick="speakQuestion()">🔊</button>
+        </div>
+
+        <div class="wheel-container">
+            <div class="marker"></div>
+            <div id="wheel"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="spinBtn" onclick="startSpin()">SPIN FOR SCORE</button>
+            <button class="btn" style="background:#4CAF50" onclick="nextQuestion()">NEXT QUESTION</button>
+        </div>
+        <p id="feedback" style="font-weight: bold; color: var(--gold); margin:5px;"></p>
+    </div>
+
+    <table class="score-table">
+        <thead>
+            <tr><th>Quest.</th><th>Pick</th><th>Status</th><th>Total</th></tr>
+        </thead>
+        <tbody id="score-history"></tbody>
+    </table>
+
+<script>
+    const quizData = {
+        'Math': [
+            { q: "What is 55 plus 45?", a: "100", opts: ["100", "90", "0", "80", "70"] },
+            { q: "What is 12 multiplied by 2?", a: "24", opts: ["24", "12", "0", "10", "30"] }
+        ],
+        'G.K': [
+            { q: "Who is the Prime Minister of India?", a: "Modi", opts: ["Modi", "Rahul", "0", "Amit", "Kejriwal"] }
+        ]
+    };
+
+    let currentCat = 'Math';
+    let qIdx = 0;
+    let totalScore = 0;
+    let isSpinning = false;
+    let currentRotation = 0;
+
+    function loadGame() {
+        const dataList = quizData[currentCat];
+        const data = dataList[qIdx];
+        
+        // 1) Update Position (1/20)
+        document.getElementById('q-count').innerText = `${qIdx + 1} / ${dataList.length}`;
+        
+        // 2) Update Watermark
+        document.getElementById('cat-watermark').innerText = `${currentCat.toUpperCase()}: ${dataList.length}`;
+        
+        document.getElementById('question-box').innerText = data.q;
+        const wheel = document.getElementById('wheel');
+        wheel.innerHTML = '';
+        data.opts.forEach(opt => {
+            const div = document.createElement('div');
+            div.className = 'label';
+            div.innerText = opt;
+            wheel.appendChild(div);
+        });
+        document.getElementById('feedback').innerText = "";
+    }
+
+    // 5) Male Voice Logic
+    function getMaleVoice() {
+        const voices = window.speechSynthesis.getVoices();
+        // Browser mein male voices aksar "Google US English Male" ya "Microsoft David" hoti hain
+        return voices.find(voice => voice.name.toLowerCase().includes('male')) || voices[0];
+    }
+
+    function speakQuestion() {
+        const text = quizData[currentCat][qIdx].q;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = getMaleVoice();
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // 4) Speak Result + Answer
+    function speakResult(status, answer) {
+        const text = status === "Right" ? `Right! Answer is ${answer}` : `Wrong!`;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = getMaleVoice();
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function startSpin() {
+        if (isSpinning) return;
+        isSpinning = true;
+        currentRotation += Math.floor(Math.random() * 360) + 1440;
+        document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            isSpinning = false;
+            const finalDeg = currentRotation % 360;
+            const segmentIdx = Math.floor(((360 - finalDeg) % 360) / 72);
+            const selected = quizData[currentCat][qIdx].opts[segmentIdx];
+            checkResult(selected);
+        }, 3000);
+    }
+
+    function checkResult(selected) {
+        const qObj = quizData[currentCat][qIdx];
+        let status = selected === qObj.a ? "Right" : "Wrong";
+        let points = (status === "Right") ? 10 : (selected === "0" ? -5 : 0);
+        
+        totalScore += points;
+        speakResult(status, selected); // 4) Auto right + Answer play
+
+        // 3) Truncate logic for long questions
+        const shortQ = qObj.q.length > 15 ? qObj.q.substring(0, 15) + "..." : qObj.q;
+
+        const tbody = document.getElementById('score-history');
+        const row = `<tr>
+            <td><span class="truncate" title="${qObj.q}">${shortQ}</span></td>
+            <td>${selected}</td>
+            <td style="color:${status==='Right'?'green':'red'}">${status}</td>
+            <td>${totalScore}</td>
+        </tr>`;
+        tbody.innerHTML = row + tbody.innerHTML;
+    }
+
+    function changeCategory(cat) {
+        currentCat = cat; qIdx = 0;
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        loadGame();
+    }
+
+    function nextQuestion() {
+        qIdx = (qIdx + 1) % quizData[currentCat].length;
+        loadGame();
+    }
+
+    // Voice load hone mein waqt lagta hai isliye ye event zaroori hai
+    window.speechSynthesis.onvoiceschanged = loadGame;
     loadGame();
 </script>
 </body>

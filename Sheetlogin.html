@@ -2,109 +2,111 @@
 <html>
 <head>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 10px; background: #f4f4f9; }
-    #authScreen { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:100; }
-    #appScreen { display: none; }
-    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .product-card { background: white; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #ddd; cursor: pointer; }
-    .product-card:active { background: #dff0d8; }
-    .bill-box { margin-top: 20px; background: #fff; padding: 15px; border-radius: 10px; border-top: 3px solid #27ae60; }
-    .item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-    .btn { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .qty-btn { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #27ae60; background: none; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; background: #f8f9fa; color: #333; }
+    #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; z-index: 1000; text-align: center; }
+    .auth-box { padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 85%; }
+    .btn-main { padding: 15px 30px; background: #27ae60; color: white; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; margin-top: 20px; cursor: pointer; }
+    #mainApp { display: none; }
+    .header { background: #27ae60; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; }
+    .card:active { background: #e8f5e9; }
+    .footer { position: sticky; bottom: 0; background: white; border-top: 2px solid #27ae60; padding: 15px; margin: 20px -10px -10px -10px; }
+    .item-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f1f1; font-size: 14px; }
+    .qty-btn { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #27ae60; background: white; color: #27ae60; }
   </style>
 </head>
 <body>
 
-<div id="authScreen">
-  <h2>Khan Shop</h2>
-  <p>Billing Access Verification</p>
-  <button class="btn" onclick="login()">Allow Me Create Bill</button>
+<div id="authOverlay">
+  <div class="auth-box">
+    <h1 style="color:#27ae60; margin-bottom: 5px;">Khan Shop</h1>
+    <p style="color:#666;">Mobile Billing System</p>
+    <button class="btn-main" onclick="askEmail()">Allow Me Create Bill</button>
+  </div>
 </div>
 
-<div id="appScreen">
-  <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-    <strong>Khan Shop</strong>
-    <span id="displayUser" style="font-size:12px; color:gray;"></span>
+<div id="mainApp">
+  <div class="header">
+    <strong>KHAN SHOP</strong>
+    <div id="userLabel" style="font-size: 11px; margin-top: 4px; opacity: 0.9;"></div>
   </div>
 
-  <div style="margin-bottom:15px; text-align:center;">
-    <button id="rtBtn" onclick="toggleMode('retail')" style="background:#27ae60; color:white;">Retail</button>
-    <button id="wsBtn" onclick="toggleMode('wholesale')">Wholesale</button>
+  <div style="text-align:center; margin-bottom:15px;">
+    <button id="rtBtn" style="padding:8px 20px; border-radius:20px 0 0 20px; border:1px solid #27ae60; background:#27ae60; color:white;" onclick="changeMode('retail')">Retail</button>
+    <button id="wsBtn" style="padding:8px 20px; border-radius:0 20px 20px 0; border:1px solid #27ae60; background:white;" onclick="changeMode('wholesale')">Wholesale</button>
   </div>
 
-  <div id="grid" class="card-grid">Loading Products...</div>
+  <div id="productGrid" class="grid">Loading Products...</div>
 
-  <div class="bill-box">
-    <h3>Live Bill</h3>
-    <div id="items"></div>
-    <h2 id="totalDisplay">Total: ₹0</h2>
-    <p style="font-size:12px; color:red;">*Email feature is disabled in this version.</p>
+  <div class="footer">
+    <div id="billItems" style="max-height: 120px; overflow-y: auto;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+      <h3 id="grandTotal" style="margin:0;">Total: ₹0</h3>
+      <button class="btn-main" style="margin:0; padding:10px 20px;" onclick="sendBill()">Email Bill</button>
+    </div>
   </div>
 </div>
 
 <script>
   let inventory = [];
   let cart = {};
-  let mode = 'retail';
-  let currentUser = "";
+  let currentMode = 'retail';
+  let userEmail = "";
 
-  function login() {
-    const email = prompt("Enter your Email ID:");
+  function askEmail() {
+    const email = prompt("Kripya apna registered Email ID darj karein:");
     if (!email) return;
-    
+
     google.script.run.withSuccessHandler(res => {
       if (res === true) {
-        currentUser = email;
-        document.getElementById('authScreen').style.display = 'none';
-        document.getElementById('appScreen').style.display = 'block';
-        document.getElementById('displayUser').innerText = email;
-        loadProducts();
+        userEmail = email;
+        document.getElementById('authOverlay').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        document.getElementById('userLabel').innerText = "Logged in: " + email;
+        loadData();
       } else if (res === "NEW_USER") {
-        alert("Verification Request Sent!\nHamari Team Verify karne ke liye 30 mins le sakti hai.");
+        alert("Aapki request bhej di gayi hai.\n\nHamari Team Verify karne ke liye 30 minutes ka samay le sakti hai! Kripya intezar karein.");
       } else {
-        alert("Access Denied! Aapka status 'Block' hai.");
+        alert("Pahunch Manzoor Nahi! Aapka account filhal 'Block' hai. Kripya Admin se sampark karein.");
       }
     }).checkEmailAuth(email);
   }
 
-  function loadProducts() {
+  function loadData() {
     google.script.run.withSuccessHandler(data => {
       inventory = data;
-      render();
+      renderProducts();
     }).getInventoryData();
   }
 
-  function render() {
-    const grid = document.getElementById('grid');
-    grid.innerHTML = inventory.map(p => `
-      <div class="product-card" onclick="add('${p.code}')">
-        <strong>${p.name}</strong><br>
-        <span style="color:#27ae60">₹${mode === 'retail' ? p.retail : p.wholesale}</span>
+  function renderProducts() {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = inventory.map(item => `
+      <div class="card" onclick="addToCart('${item.code}')">
+        <strong>${item.name}</strong><br>
+        <span style="color:#27ae60;">₹${currentMode === 'retail' ? item.retail : item.wholesale}</span>
       </div>
     `).join('');
   }
 
-  function toggleMode(m) {
-    mode = m;
-    document.getElementById('rtBtn').style.background = m === 'retail' ? '#27ae60' : '#eee';
-    document.getElementById('rtBtn').style.color = m === 'retail' ? 'white' : 'black';
-    document.getElementById('wsBtn').style.background = m === 'wholesale' ? '#27ae60' : '#eee';
-    document.getElementById('wsBtn').style.color = m === 'wholesale' ? 'white' : 'black';
-    render();
+  function changeMode(m) {
+    currentMode = m;
+    document.getElementById('rtBtn').style.background = m === 'retail' ? '#27ae60' : 'white';
+    document.getElementById('rtBtn').style.color = m === 'retail' ? 'white' : '#27ae60';
+    document.getElementById('wsBtn').style.background = m === 'wholesale' ? '#27ae60' : 'white';
+    document.getElementById('wsBtn').style.color = m === 'wholesale' ? 'white' : '#27ae60';
+    renderProducts();
     updateBill();
   }
 
-  function add(code) {
-    if (cart[code]) cart[code].qty++;
-    else {
-      let p = inventory.find(i => i.code == code);
-      cart[code] = { ...p, qty: 1 };
-    }
+  function addToCart(code) {
+    if (cart[code]) { cart[code].qty++; } 
+    else { let p = inventory.find(i => i.code == code); cart[code] = { ...p, qty: 1 }; }
     updateBill();
   }
 
-  function changeQty(code, d) {
+  function setQty(code, d) {
     if (cart[code]) {
       cart[code].qty += d;
       if (cart[code].qty <= 0) delete cart[code];
@@ -113,26 +115,39 @@
   }
 
   function updateBill() {
-    const box = document.getElementById('items');
+    const container = document.getElementById('billItems');
     let total = 0;
-    box.innerHTML = "";
-    for (let k in cart) {
-      let item = cart[k];
-      let rate = mode === 'retail' ? item.retail : item.wholesale;
-      let sub = item.qty * rate;
+    container.innerHTML = "";
+    for (let key in cart) {
+      let item = cart[key];
+      let r = currentMode === 'retail' ? item.retail : item.wholesale;
+      let sub = item.qty * r;
       total += sub;
-      box.innerHTML += `
-        <div class="item-row">
-          <span>${item.name}</span>
-          <div>
-            <button class="qty-btn" onclick="changeQty('${k}',-1)">-</button>
-            <span>${item.qty}</span>
-            <button class="qty-btn" onclick="changeQty('${k}',1)">+</button>
-          </div>
-          <span>₹${sub}</span>
-        </div>`;
+      container.innerHTML += `<div class="item-row">
+        <span>${item.name}</span>
+        <div>
+          <button class="qty-btn" onclick="setQty('${key}', -1)">-</button>
+          <span style="margin:0 8px;">${item.qty}</span>
+          <button class="qty-btn" onclick="setQty('${key}', 1)">+</button>
+        </div>
+        <span>₹${sub}</span>
+      </div>`;
     }
-    document.getElementById('totalDisplay').innerText = "Total: ₹" + total;
+    document.getElementById('grandTotal').innerText = "Total: ₹" + total;
+  }
+
+  function sendBill() {
+    const items = Object.values(cart).map(i => ({
+      name: i.name, qty: i.qty, 
+      rate: (currentMode === 'retail' ? i.retail : i.wholesale),
+      total: i.qty * (currentMode === 'retail' ? i.retail : i.wholesale)
+    }));
+    if (items.length === 0) return alert("Pehle products select karein!");
+    
+    google.script.run.withSuccessHandler(res => {
+      alert(res);
+      cart = {}; updateBill();
+    }).processBill(items, userEmail);
   }
 </script>
 </body>

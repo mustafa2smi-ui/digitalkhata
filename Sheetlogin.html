@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Khan Sahab Dukaan</title>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+}
+
+header{
+background:#2c3e50;
+color:white;
+padding:15px;
+font-size:22px;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+cursor:pointer;
+}
+
+#popup{
+display:none;
+position:fixed;
+top:40%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+border:1px solid gray;
+padding:20px;
+}
+
+table{
+margin:auto;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #ccc;
+padding:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+Khan Sahab Dukaan
+</header>
+
+<br>
+
+<button onclick="openLogin()">Login</button>
+
+<div id="popup">
+
+<h3>Enter Email</h3>
+
+<input type="email" id="email">
+
+<br><br>
+
+<button onclick="login()">Submit</button>
+
+</div>
+
+<div id="productList"></div>
+
+<script>
+
+function openLogin(){
+document.getElementById("popup").style.display="block";
+}
+
+function login(){
+
+var email = document.getElementById("email").value;
+
+var url = "PASTE_SCRIPT_URL?email="+email;
+
+fetch(url)
+.then(res=>res.json())
+.then(data=>{
+
+if(data.status=="blocked"){
+alert("Access Denied");
+return;
+}
+
+var html = "<table>";
+
+html+="<tr><th>Code</th><th>Name</th><th>Unit</th><th>Wholesale</th><th>Retail</th></tr>";
+
+data.products.forEach(p=>{
+
+html+="<tr>";
+html+="<td>"+p.code+"</td>";
+html+="<td>"+p.name+"</td>";
+html+="<td>"+p.unit+"</td>";
+html+="<td>"+p.wholesale+"</td>";
+html+="<td>"+p.retail+"</td>";
+html+="</tr>";
+
+});
+
+html+="</table>";
+
+document.getElementById("productList").innerHTML = html;
+
+document.getElementById("popup").style.display="none";
+
+});
+
+}
+
+</script>
+
+</body>
+</html>

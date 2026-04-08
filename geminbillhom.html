@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -247,7 +248,7 @@
             <a href="#" class="btn-start">Start To Create Bill</a>
         </div>
     </div>
--->
+--
     <div class="tools-container">
     <div class="tool-card">
         <img src="https://via.placeholder.com/300x180?text=Thermal+Bill" alt="Thermal Bill Tool">
@@ -516,6 +517,201 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 </script>
+
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>slimbillofficial - Free Quick Bill Generator</title>
+    
+    <style>
+        :root {
+            --primary-glow: #00d2ff;
+            --secondary-glow: #3a7bd5;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --dark-bg: #121212;
+            --text-color: #e0e0e0;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+            /* 1. BACKGROUND IMAGE YAHAN SE CHANGE KAREIN */
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), 
+                        url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2026') no-repeat center center fixed;
+            background-size: cover;
+            overflow-x: hidden;
+        }
+
+        /* Navbar & Sidebar Menu */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.9);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-glow); text-transform: lowercase; }
+        .menu-icon { font-size: 28px; cursor: pointer; color: white; }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 250px;
+            height: 100%;
+            background: #111;
+            transition: 0.3s;
+            z-index: 2000;
+            padding: 20px;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.5);
+        }
+        .sidebar.active { right: 0; }
+        .sidebar a { display: block; color: white; padding: 15px; text-decoration: none; border-bottom: 1px solid #333; }
+        .close-menu { text-align: right; font-size: 30px; cursor: pointer; color: var(--primary-glow); }
+
+        /* Hero Section */
+        .hero { text-align: center; padding: 80px 20px 40px; }
+        .hero h1 { font-size: 3rem; margin-bottom: 10px; color: white; text-shadow: 0 0 10px var(--primary-glow); }
+
+        /* Content Box */
+        .content-box {
+            max-width: 900px;
+            margin: 30px auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .content-box h2 { color: white; border-bottom: 2px solid var(--primary-glow); padding-bottom: 5px; }
+
+        /* Tools Card */
+        .tools-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
+        .tool-card {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .tool-card:hover { border-color: var(--primary-glow); transform: translateY(-5px); }
+        .tool-card img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
+
+        .btn-trial {
+            display: inline-block;
+            width: 90%;
+            padding: 12px;
+            background: linear-gradient(45deg, var(--secondary-glow), var(--primary-glow));
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 30px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        /* Ad Section */
+        .ad-scroll { display: flex; gap: 20px; overflow-x: auto; padding: 20px; }
+        .ad-card { 
+            min-width: 250px; 
+            background: rgba(255,255,255,0.05); 
+            padding: 15px; 
+            border-radius: 15px; 
+            text-align: center;
+        }
+        .ad-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
+        
+        .btn-order {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: var(--primary-glow);
+            border: 1px solid var(--primary-glow);
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        footer { text-align: center; padding: 40px; background: #000; border-top: 1px solid #222; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="close-menu" onclick="toggleMenu()">×</div>
+        <a href="#">Home</a>
+        <a href="#">Billing Tool</a>
+        <a href="#">Inventory Management</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Contact Us</a>
+    </div>
+
+    <nav>
+        <div class="logo">slimbillofficial</div>
+        <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    </nav>
+
+    <section class="hero">
+        <h1>slimbillofficial</h1>
+        <p>Aapka Apna Digital Billing Assistant</p>
+    </section>
+
+    <div class="content-box">
+        <h2>डिजिटल क्रांति: तेज़ और सुरक्षित बिलिंग</h2>
+        <p>
+            आज के समय में अपने व्यापार को डिजिटल बनाना बहुत ज़रूरी है। **slimbillofficial** एक ऐसा माध्यम है जो छोटे दुकानदारों और व्यापारियों को बिना किसी झंझट के तुरंत बिल बनाने की सुविधा देता है। 
+            यहाँ आप थर्मल प्रिंटर सपोर्ट, स्टॉक मैनेजमेंट और प्रोफेशनल बिलिंग टूल्स का उपयोग कर सकते हैं। हमारा लक्ष्य आपके काम को आसान और सुरक्षित बनाना है, ताकि आप अपने व्यापार पर ज़्यादा ध्यान दे सकें।
+        </p>
+    </div>
+
+    <div class="tools-container">
+        <div class="tool-card">
+            <img src="https://via.placeholder.com/300x180?text=Thermal+Print" alt="Tool">
+            <h3>Thermal Print Bill</h3>
+            <p>Bluetooth printer se fast bill nikalein.</p>
+            <a href="https://your-tool-link.com" class="btn-trial">15 Days Free Trial</a>
+        </div>
+        <div class="tool-card">
+            <img src="https://via.placeholder.com/300x180?text=Inventory+Tool" alt="Tool">
+            <h3>Inventory Maker</h3>
+            <p>Stock aur calculation ka poora hisab.</p>
+            <a href="https://your-tool-link.com" class="btn-trial">15 Days Free Trial</a>
+        </div>
+    </div>
+
+    <h3 style="text-align: center;">Recommended Products</h3>
+    <div class="ad-scroll">
+        <div class="ad-card">
+            <img src="https://via.placeholder.com/200x150?text=Printer+Image" alt="Product">
+            <h4>Thermal Printer</h4>
+            <p>Best for shop billing.</p>
+            <a href="https://shopyou.page/yourlink" class="btn-order">Order on Shopyou</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 slimbillofficial | Fast & Secure</p>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+    </script>
 
 </body>
 </html>

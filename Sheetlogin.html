@@ -83,7 +83,7 @@ function login(){
 
 var email = document.getElementById("email").value;
 
-var url = "PASTE_SCRIPT_URL?email="+email;
+var url = "https://script.google.com/macros/s/AKfycbyrN1EZnlfntlEss9GTqCn3dh7wZ5QkIrYnGDzq0-eABF25LihytoERSCkmbh9Fsxw1Fg/exec?email="+email;
 
 fetch(url)
 .then(res=>res.json())

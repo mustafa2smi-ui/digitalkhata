@@ -1,293 +1,139 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>Khan Sahab Dukaan</title>
-
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<style>
-
-body{
-font-family:Arial;
-margin:0;
-background:#f4f4f4;
-}
-
-header{
-background:#2c3e50;
-color:white;
-padding:15px;
-font-size:22px;
-text-align:center;
-}
-
-button{
-padding:6px 10px;
-cursor:pointer;
-}
-
-#loginBtn{
-margin:20px;
-font-size:18px;
-}
-
-#popup{
-display:none;
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:white;
-padding:20px;
-border:1px solid #ccc;
-box-shadow:0 0 10px rgba(0,0,0,0.3);
-}
-
-table{
-border-collapse:collapse;
-width:100%;
-background:white;
-margin-top:10px;
-}
-
-th,td{
-border:1px solid #ddd;
-padding:8px;
-text-align:center;
-}
-
-.productRow{
-cursor:pointer;
-}
-
-.productRow:hover{
-background:#f1f1f1;
-}
-
-#billArea{
-margin-top:20px;
-}
-
-#grandTotal{
-background:#27ae60;
-color:white;
-padding:10px;
-}
-
-</style>
-
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 10px; background: #f4f4f9; }
+    #authScreen { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:100; }
+    #appScreen { display: none; }
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .product-card { background: white; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #ddd; cursor: pointer; }
+    .product-card:active { background: #dff0d8; }
+    .bill-box { margin-top: 20px; background: #fff; padding: 15px; border-radius: 10px; border-top: 3px solid #27ae60; }
+    .item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .btn { padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .qty-btn { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #27ae60; background: none; }
+  </style>
 </head>
-
 <body>
 
-<header>
-
-Khan Sahab Dukaan
-
-</header>
-
-<center>
-
-<button id="loginBtn" onclick="openLogin()">Login</button>
-
-</center>
-
-<div id="popup">
-
-<h3>Enter Email</h3>
-
-<input type="email" id="email">
-
-<br><br>
-
-<button onclick="login()">Submit</button>
-
+<div id="authScreen">
+  <h2>Khan Shop</h2>
+  <p>Billing Access Verification</p>
+  <button class="btn" onclick="login()">Allow Me Create Bill</button>
 </div>
 
-<div id="productList"></div>
+<div id="appScreen">
+  <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+    <strong>Khan Shop</strong>
+    <span id="displayUser" style="font-size:12px; color:gray;"></span>
+  </div>
 
-<div id="billArea">
+  <div style="margin-bottom:15px; text-align:center;">
+    <button id="rtBtn" onclick="toggleMode('retail')" style="background:#27ae60; color:white;">Retail</button>
+    <button id="wsBtn" onclick="toggleMode('wholesale')">Wholesale</button>
+  </div>
 
-<h3>Bill</h3>
+  <div id="grid" class="card-grid">Loading Products...</div>
 
-<table id="billTable">
-
-<tr>
-
-<th>Item</th>
-
-<th>Qty</th>
-
-<th>Price</th>
-
-<th>Total</th>
-
-</tr>
-
-</table>
-
-<h3 id="grandTotal">Total : 0</h3>
-
+  <div class="bill-box">
+    <h3>Live Bill</h3>
+    <div id="items"></div>
+    <h2 id="totalDisplay">Total: ₹0</h2>
+    <p style="font-size:12px; color:red;">*Email feature is disabled in this version.</p>
+  </div>
 </div>
 
 <script>
-
-var scriptURL="https://script.google.com/macros/s/AKfycbxxbvfP0KoYj4pBVUUj0RB5-XMcJx3u5DcwusFNZaHw1kBfjM8YkYBNzQBU36QgC5v1hQ/exec"
-
-var cart={}
-
-function openLogin(){
-
-document.getElementById("popup").style.display="block"
-
-}
-
-function login(){
-
-var email=document.getElementById("email").value
-
-fetch(scriptURL+"?email="+email)
-
-.then(res=>res.json())
-
-.then(data=>{
-
-if(data.status=="pending"){
-
-alert("Your email registered. Wait for approval.")
-
-return
-
-}
-
-if(data.status=="blocked"){
-
-alert("Access blocked by admin")
-
-return
-
-}
-
-if(data.status=="success"){
-
-showProducts(data.products)
-
-document.getElementById("popup").style.display="none"
-
-}
-
-})
-
-}
-
-function showProducts(products){
-
-var html="<table>"
-
-html+="<tr><th>Code</th><th>Name</th><th>Unit</th><th>Retail</th></tr>"
-
-products.forEach(p=>{
-
-html+="<tr class='productRow' onclick=\"addItem('"+p.name+"',"+p.retail+")\">"
-
-html+="<td>"+p.code+"</td>"
-
-html+="<td>"+p.name+"</td>"
-
-html+="<td>"+p.unit+"</td>"
-
-html+="<td>"+p.retail+"</td>"
-
-html+="</tr>"
-
-})
-
-html+="</table>"
-
-document.getElementById("productList").innerHTML=html
-
-}
-
-function addItem(name,price){
-
-if(!cart[name]){
-
-cart[name]={qty:1,price:price}
-
-}else{
-
-cart[name].qty++
-
-}
-
-renderBill()
-
-}
-
-function changeQty(name,val){
-
-cart[name].qty+=val
-
-if(cart[name].qty<=0){
-
-delete cart[name]
-
-}
-
-renderBill()
-
-}
-
-function renderBill(){
-
-var table=document.getElementById("billTable")
-
-table.innerHTML="<tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>"
-
-var total=0
-
-for(var item in cart){
-
-var qty=cart[item].qty
-
-var price=cart[item].price
-
-var t=qty*price
-
-total+=t
-
-table.innerHTML+=`
-
-<tr>
-
-<td>${item}</td>
-
-<td>
-
-<button onclick="changeQty('${item}',-1)">-</button>
-
-${qty}
-
-<button onclick="changeQty('${item}',1)">+</button>
-
-</td>
-
-<td>${price}</td>
-
-<td>${t}</td>
-
-</tr>
-
-`
-
-}
-
-document.getElementById("grandTotal").innerText="Total : "+total
-
-}
-
+  let inventory = [];
+  let cart = {};
+  let mode = 'retail';
+  let currentUser = "";
+
+  function login() {
+    const email = prompt("Enter your Email ID:");
+    if (!email) return;
+    
+    google.script.run.withSuccessHandler(res => {
+      if (res === true) {
+        currentUser = email;
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('appScreen').style.display = 'block';
+        document.getElementById('displayUser').innerText = email;
+        loadProducts();
+      } else if (res === "NEW_USER") {
+        alert("Verification Request Sent!\nHamari Team Verify karne ke liye 30 mins le sakti hai.");
+      } else {
+        alert("Access Denied! Aapka status 'Block' hai.");
+      }
+    }).checkEmailAuth(email);
+  }
+
+  function loadProducts() {
+    google.script.run.withSuccessHandler(data => {
+      inventory = data;
+      render();
+    }).getInventoryData();
+  }
+
+  function render() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = inventory.map(p => `
+      <div class="product-card" onclick="add('${p.code}')">
+        <strong>${p.name}</strong><br>
+        <span style="color:#27ae60">₹${mode === 'retail' ? p.retail : p.wholesale}</span>
+      </div>
+    `).join('');
+  }
+
+  function toggleMode(m) {
+    mode = m;
+    document.getElementById('rtBtn').style.background = m === 'retail' ? '#27ae60' : '#eee';
+    document.getElementById('rtBtn').style.color = m === 'retail' ? 'white' : 'black';
+    document.getElementById('wsBtn').style.background = m === 'wholesale' ? '#27ae60' : '#eee';
+    document.getElementById('wsBtn').style.color = m === 'wholesale' ? 'white' : 'black';
+    render();
+    updateBill();
+  }
+
+  function add(code) {
+    if (cart[code]) cart[code].qty++;
+    else {
+      let p = inventory.find(i => i.code == code);
+      cart[code] = { ...p, qty: 1 };
+    }
+    updateBill();
+  }
+
+  function changeQty(code, d) {
+    if (cart[code]) {
+      cart[code].qty += d;
+      if (cart[code].qty <= 0) delete cart[code];
+      updateBill();
+    }
+  }
+
+  function updateBill() {
+    const box = document.getElementById('items');
+    let total = 0;
+    box.innerHTML = "";
+    for (let k in cart) {
+      let item = cart[k];
+      let rate = mode === 'retail' ? item.retail : item.wholesale;
+      let sub = item.qty * rate;
+      total += sub;
+      box.innerHTML += `
+        <div class="item-row">
+          <span>${item.name}</span>
+          <div>
+            <button class="qty-btn" onclick="changeQty('${k}',-1)">-</button>
+            <span>${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty('${k}',1)">+</button>
+          </div>
+          <span>₹${sub}</span>
+        </div>`;
+    }
+    document.getElementById('totalDisplay').innerText = "Total: ₹" + total;
+  }
 </script>
-
 </body>
 </html>

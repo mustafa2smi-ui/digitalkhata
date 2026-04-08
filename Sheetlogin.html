@@ -1,115 +1,139 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khan Shop Billing</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; background: #f8f9fa; color: #333; }
-    #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; z-index: 1000; text-align: center; }
-    .auth-box { padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 85%; }
-    .btn-main { padding: 15px 30px; background: #27ae60; color: white; border: none; border-radius: 30px; font-weight: bold; font-size: 16px; margin-top: 20px; cursor: pointer; }
-    #mainApp { display: none; }
-    .header { background: #27ae60; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px; }
+    :root { --primary: #27ae60; --secondary: #2ecc71; --dark: #2c3e50; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; }
+    
+    /* Login Style */
+    #loginPage { height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 350px; text-align: center; border: 3px solid var(--primary); }
+    input { width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+    .btn { background: var(--primary); color: white; padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
+    .btn:hover { background: var(--secondary); transform: scale(1.02); }
+
+    /* Billing Style */
+    #billingPage { display: none; padding: 10px; padding-bottom: 200px; }
+    .header { background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 10px; }
+    
+    .cat-bar { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; }
+    .cat-btn { background: white; padding: 8px 15px; border-radius: 20px; border: 1px solid var(--primary); white-space: nowrap; font-size: 13px; font-weight: bold; color: var(--primary); }
+    .cat-active { background: var(--primary); color: white; }
+
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; }
-    .card:active { background: #e8f5e9; }
-    .footer { position: sticky; bottom: 0; background: white; border-top: 2px solid #27ae60; padding: 15px; margin: 20px -10px -10px -10px; }
-    .item-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f1f1; font-size: 14px; }
-    .qty-btn { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #27ae60; background: white; color: #27ae60; }
+    .p-card { background: white; padding: 12px; border-radius: 12px; border-left: 5px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .p-card:active { background: #e8f5e9; }
+
+    .footer-bill { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); border-radius: 20px 20px 0 0; z-index: 100; }
+    .bill-items { max-height: 140px; overflow-y: auto; padding: 10px; }
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .qty-ctrl { display: flex; align-items: center; gap: 8px; }
+    .q-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: #eee; font-weight: bold; }
+    .total-bar { padding: 15px; background: var(--dark); color: white; display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
 
-<div id="authOverlay">
-  <div class="auth-box">
-    <h1 style="color:#27ae60; margin-bottom: 5px;">Khan Shop</h1>
-    <p style="color:#666;">Mobile Billing System</p>
-    <button class="btn-main" onclick="askEmail()">Allow Me Create Bill</button>
+<div id="loginPage">
+  <div class="card">
+    <h2 style="color:var(--primary)">Khan Shop</h2>
+    <p>Staff Login</p>
+    <input type="email" id="emailInput" placeholder="Apna Email Likhein">
+    <button class="btn" onclick="handleLogin()">LOGIN</button>
+    <div id="loginMsg" style="margin-top:10px; font-size:12px;"></div>
   </div>
 </div>
 
-<div id="mainApp">
+<div id="billingPage">
   <div class="header">
-    <strong>KHAN SHOP</strong>
-    <div id="userLabel" style="font-size: 11px; margin-top: 4px; opacity: 0.9;"></div>
+    <strong>KHAN SHOP - BILLING</strong>
+    <div style="margin-top:10px;">
+      <button id="rtBtn" class="cat-btn cat-active" onclick="setMode('retail')">Retail</button>
+      <button id="wsBtn" class="cat-btn" onclick="setMode('ws')">Wholesale</button>
+    </div>
   </div>
 
-  <div style="text-align:center; margin-bottom:15px;">
-    <button id="rtBtn" style="padding:8px 20px; border-radius:20px 0 0 20px; border:1px solid #27ae60; background:#27ae60; color:white;" onclick="changeMode('retail')">Retail</button>
-    <button id="wsBtn" style="padding:8px 20px; border-radius:0 20px 20px 0; border:1px solid #27ae60; background:white;" onclick="changeMode('wholesale')">Wholesale</button>
-  </div>
+  <div id="catBar" class="cat-bar"></div>
+  <div id="prodGrid" class="grid"></div>
 
-  <div id="productGrid" class="grid">Loading Products...</div>
-
-  <div class="footer">
-    <div id="billItems" style="max-height: 120px; overflow-y: auto;"></div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+  <div class="footer-bill">
+    <div id="billItems" class="bill-items"></div>
+    <div class="total-bar">
       <h3 id="grandTotal" style="margin:0;">Total: ₹0</h3>
-      <button class="btn-main" style="margin:0; padding:10px 20px;" onclick="sendBill()">Email Bill</button>
+      <button onclick="location.reload()" style="background:red; color:white; border:none; padding:8px 15px; border-radius:5px;">Clear</button>
     </div>
   </div>
 </div>
 
 <script>
-  let inventory = [];
-  let cart = {};
-  let currentMode = 'retail';
-  let userEmail = "";
+  const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+  let inventory = [], cart = {}, mode = 'retail', selectedCat = 'All';
 
-  function askEmail() {
-    const email = prompt("Kripya apna registered Email ID darj karein:");
-    if (!email) return;
-
-    google.script.run.withSuccessHandler(res => {
-      if (res === true) {
-        userEmail = email;
-        document.getElementById('authOverlay').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('userLabel').innerText = "Logged in: " + email;
-        loadData();
-      } else if (res === "NEW_USER") {
-        alert("Aapki request bhej di gayi hai.\n\nHamari Team Verify karne ke liye 30 minutes ka samay le sakti hai! Kripya intezar karein.");
+  async function handleLogin() {
+    const email = document.getElementById('emailInput').value;
+    if(!email) return alert("Email zaruri hai");
+    
+    document.getElementById('loginMsg').innerText = "Verifying...";
+    
+    try {
+      const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ email: email }) });
+      const data = await response.json();
+      
+      if(data.status === "Allow") {
+        inventory = data.inventory;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('billingPage').style.display = 'block';
+        renderCats();
+        renderGrid();
       } else {
-        alert("Pahunch Manzoor Nahi! Aapka account filhal 'Block' hai. Kripya Admin se sampark karein.");
+        document.getElementById('loginMsg').innerHTML = `<span style="color:red">Status: ${data.status}. Admin se sampark karein.</span>`;
       }
-    }).checkEmailAuth(email);
+    } catch(e) { alert("Connection Error!"); }
   }
 
-  function loadData() {
-    google.script.run.withSuccessHandler(data => {
-      inventory = data;
-      renderProducts();
-    }).getInventoryData();
+  function renderCats() {
+    const cats = ['All', ...new Set(inventory.map(i => i.cat))];
+    document.getElementById('catBar').innerHTML = cats.map(c => `
+      <div class="cat-btn ${selectedCat === c ? 'cat-active' : ''}" onclick="filterCat('${c}')">${c}</div>
+    `).join('');
   }
 
-  function renderProducts() {
-    const grid = document.getElementById('productGrid');
-    grid.innerHTML = inventory.map(item => `
-      <div class="card" onclick="addToCart('${item.code}')">
-        <strong>${item.name}</strong><br>
-        <span style="color:#27ae60;">₹${currentMode === 'retail' ? item.retail : item.wholesale}</span>
+  function filterCat(c) { selectedCat = c; renderCats(); renderGrid(); }
+
+  function renderGrid() {
+    const grid = document.getElementById('prodGrid');
+    const filtered = selectedCat === 'All' ? inventory : inventory.filter(i => i.cat === selectedCat);
+    grid.innerHTML = filtered.map(i => `
+      <div class="p-card" onclick="addToCart('${i.code}')">
+        <strong>${i.name}</strong><br>
+        <span style="color:var(--primary); font-weight:bold;">₹${mode === 'retail' ? i.retail : i.ws}</span>
+        <div style="font-size:10px; color:gray;">${i.unit}</div>
       </div>
     `).join('');
   }
 
-  function changeMode(m) {
-    currentMode = m;
-    document.getElementById('rtBtn').style.background = m === 'retail' ? '#27ae60' : 'white';
-    document.getElementById('rtBtn').style.color = m === 'retail' ? 'white' : '#27ae60';
-    document.getElementById('wsBtn').style.background = m === 'wholesale' ? '#27ae60' : 'white';
-    document.getElementById('wsBtn').style.color = m === 'wholesale' ? 'white' : '#27ae60';
-    renderProducts();
-    updateBill();
+  function setMode(m) {
+    mode = m;
+    document.getElementById('rtBtn').classList.toggle('cat-active', m==='retail');
+    document.getElementById('wsBtn').classList.toggle('cat-active', m==='ws');
+    renderGrid(); updateBill();
   }
 
   function addToCart(code) {
-    if (cart[code]) { cart[code].qty++; } 
-    else { let p = inventory.find(i => i.code == code); cart[code] = { ...p, qty: 1 }; }
+    if(cart[code]) cart[code].qty++;
+    else {
+      const p = inventory.find(i => i.code == code);
+      cart[code] = { ...p, qty: 1 };
+    }
     updateBill();
   }
 
-  function setQty(code, d) {
-    if (cart[code]) {
+  function updateQty(code, d) {
+    if(cart[code]) {
       cart[code].qty += d;
-      if (cart[code].qty <= 0) delete cart[code];
+      if(cart[code].qty <= 0) delete cart[code];
       updateBill();
     }
   }
@@ -118,36 +142,23 @@
     const container = document.getElementById('billItems');
     let total = 0;
     container.innerHTML = "";
-    for (let key in cart) {
+    for(let key in cart) {
       let item = cart[key];
-      let r = currentMode === 'retail' ? item.retail : item.wholesale;
-      let sub = item.qty * r;
+      let rate = mode === 'retail' ? item.retail : item.ws;
+      let sub = item.qty * rate;
       total += sub;
-      container.innerHTML += `<div class="item-row">
-        <span>${item.name}</span>
-        <div>
-          <button class="qty-btn" onclick="setQty('${key}', -1)">-</button>
-          <span style="margin:0 8px;">${item.qty}</span>
-          <button class="qty-btn" onclick="setQty('${key}', 1)">+</button>
-        </div>
-        <span>₹${sub}</span>
-      </div>`;
+      container.innerHTML += `
+        <div class="item-row">
+          <div style="flex:1"><b>${item.name}</b><br><small>₹${rate}</small></div>
+          <div class="qty-ctrl">
+            <button class="q-btn" onclick="updateQty('${key}', -1)">-</button>
+            <span>${item.qty}</span>
+            <button class="q-btn" onclick="updateQty('${key}', 1)">+</button>
+          </div>
+          <div style="width:70px; text-align:right;">₹${sub}</div>
+        </div>`;
     }
     document.getElementById('grandTotal').innerText = "Total: ₹" + total;
-  }
-
-  function sendBill() {
-    const items = Object.values(cart).map(i => ({
-      name: i.name, qty: i.qty, 
-      rate: (currentMode === 'retail' ? i.retail : i.wholesale),
-      total: i.qty * (currentMode === 'retail' ? i.retail : i.wholesale)
-    }));
-    if (items.length === 0) return alert("Pehle products select karein!");
-    
-    google.script.run.withSuccessHandler(res => {
-      alert(res);
-      cart = {}; updateBill();
-    }).processBill(items, userEmail);
   }
 </script>
 </body>

@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>Khan Sahab Dukaan</title>
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <style>
 
 body{
 font-family:Arial;
-text-align:center;
+margin:0;
+background:#f4f4f4;
 }
 
 header{
@@ -15,34 +19,60 @@ background:#2c3e50;
 color:white;
 padding:15px;
 font-size:22px;
+text-align:center;
 }
 
 button{
-padding:10px 20px;
-font-size:16px;
+padding:6px 10px;
 cursor:pointer;
+}
+
+#loginBtn{
+margin:20px;
+font-size:18px;
 }
 
 #popup{
 display:none;
 position:fixed;
-top:40%;
+top:50%;
 left:50%;
 transform:translate(-50%,-50%);
 background:white;
-border:1px solid gray;
 padding:20px;
+border:1px solid #ccc;
+box-shadow:0 0 10px rgba(0,0,0,0.3);
 }
 
 table{
-margin:auto;
-margin-top:20px;
 border-collapse:collapse;
+width:100%;
+background:white;
+margin-top:10px;
 }
 
-td,th{
-border:1px solid #ccc;
+th,td{
+border:1px solid #ddd;
 padding:8px;
+text-align:center;
+}
+
+.productRow{
+cursor:pointer;
+}
+
+.productRow:hover{
+background:#f1f1f1;
+}
+
+#billArea{
+margin-top:20px;
+}
+
+#grandTotal{
+background:#27ae60;
+color:white;
+padding:10px;
 }
 
 </style>
@@ -52,12 +82,16 @@ padding:8px;
 <body>
 
 <header>
+
 Khan Sahab Dukaan
+
 </header>
 
-<br>
+<center>
 
-<button onclick="openLogin()">Login</button>
+<button id="loginBtn" onclick="openLogin()">Login</button>
+
+</center>
 
 <div id="popup">
 
@@ -73,50 +107,183 @@ Khan Sahab Dukaan
 
 <div id="productList"></div>
 
+<div id="billArea">
+
+<h3>Bill</h3>
+
+<table id="billTable">
+
+<tr>
+
+<th>Item</th>
+
+<th>Qty</th>
+
+<th>Price</th>
+
+<th>Total</th>
+
+</tr>
+
+</table>
+
+<h3 id="grandTotal">Total : 0</h3>
+
+</div>
+
 <script>
 
+var scriptURL="https://script.google.com/macros/s/AKfycbxxbvfP0KoYj4pBVUUj0RB5-XMcJx3u5DcwusFNZaHw1kBfjM8YkYBNzQBU36QgC5v1hQ/exec"
+
+var cart={}
+
 function openLogin(){
-document.getElementById("popup").style.display="block";
+
+document.getElementById("popup").style.display="block"
+
 }
 
 function login(){
 
-var email = document.getElementById("email").value;
+var email=document.getElementById("email").value
 
-var url = "https://script.google.com/macros/s/AKfycbyrN1EZnlfntlEss9GTqCn3dh7wZ5QkIrYnGDzq0-eABF25LihytoERSCkmbh9Fsxw1Fg/exec?email="+email;
+fetch(scriptURL+"?email="+email)
 
-fetch(url)
 .then(res=>res.json())
+
 .then(data=>{
 
-if(data.status=="blocked"){
-alert("Access Denied");
-return;
+if(data.status=="pending"){
+
+alert("Your email registered. Wait for approval.")
+
+return
+
 }
 
-var html = "<table>";
+if(data.status=="blocked"){
 
-html+="<tr><th>Code</th><th>Name</th><th>Unit</th><th>Wholesale</th><th>Retail</th></tr>";
+alert("Access blocked by admin")
 
-data.products.forEach(p=>{
+return
 
-html+="<tr>";
-html+="<td>"+p.code+"</td>";
-html+="<td>"+p.name+"</td>";
-html+="<td>"+p.unit+"</td>";
-html+="<td>"+p.wholesale+"</td>";
-html+="<td>"+p.retail+"</td>";
-html+="</tr>";
+}
 
-});
+if(data.status=="success"){
 
-html+="</table>";
+showProducts(data.products)
 
-document.getElementById("productList").innerHTML = html;
+document.getElementById("popup").style.display="none"
 
-document.getElementById("popup").style.display="none";
+}
 
-});
+})
+
+}
+
+function showProducts(products){
+
+var html="<table>"
+
+html+="<tr><th>Code</th><th>Name</th><th>Unit</th><th>Retail</th></tr>"
+
+products.forEach(p=>{
+
+html+="<tr class='productRow' onclick=\"addItem('"+p.name+"',"+p.retail+")\">"
+
+html+="<td>"+p.code+"</td>"
+
+html+="<td>"+p.name+"</td>"
+
+html+="<td>"+p.unit+"</td>"
+
+html+="<td>"+p.retail+"</td>"
+
+html+="</tr>"
+
+})
+
+html+="</table>"
+
+document.getElementById("productList").innerHTML=html
+
+}
+
+function addItem(name,price){
+
+if(!cart[name]){
+
+cart[name]={qty:1,price:price}
+
+}else{
+
+cart[name].qty++
+
+}
+
+renderBill()
+
+}
+
+function changeQty(name,val){
+
+cart[name].qty+=val
+
+if(cart[name].qty<=0){
+
+delete cart[name]
+
+}
+
+renderBill()
+
+}
+
+function renderBill(){
+
+var table=document.getElementById("billTable")
+
+table.innerHTML="<tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>"
+
+var total=0
+
+for(var item in cart){
+
+var qty=cart[item].qty
+
+var price=cart[item].price
+
+var t=qty*price
+
+total+=t
+
+table.innerHTML+=`
+
+<tr>
+
+<td>${item}</td>
+
+<td>
+
+<button onclick="changeQty('${item}',-1)">-</button>
+
+${qty}
+
+<button onclick="changeQty('${item}',1)">+</button>
+
+</td>
+
+<td>${price}</td>
+
+<td>${t}</td>
+
+</tr>
+
+`
+
+}
+
+document.getElementById("grandTotal").innerText="Total : "+total
 
 }
 

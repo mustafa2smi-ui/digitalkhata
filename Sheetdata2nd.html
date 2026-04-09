@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -321,6 +322,437 @@
     alert("Printing Data:\n" + printText);
     window.print();
   }
+</script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Khan Shop Pro - Smart Billing</title>
+    <style>
+        :root { --p: #27ae60; --s: #2ecc71; --d: #2c3e50; --err: #e74c3c; --border: 2px solid black; }
+        
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; padding-bottom: 300px; }
+
+        /* --- STICKY TOP SECTION --- */
+        .top-fixed-area {
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            background: #f4f7f6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .header { 
+            background: var(--p); 
+            color: white; 
+            padding: 10px; 
+            text-align: center; 
+            border-bottom: var(--border); 
+        }
+        
+        .shop-name { font-size: 20px; font-weight: bold; }
+
+        .store-selector { 
+            display: flex; 
+            justify-content: center; 
+            gap: 8px; 
+            margin-top: 5px; 
+        }
+        
+        .store-btn { 
+            padding: 5px 12px; 
+            border-radius: 10px; 
+            border: 1px solid white; 
+            background: transparent; 
+            color: white; 
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .store-active { background: white; color: var(--p); font-weight: bold; }
+
+        /* Mode & Category Bar (Also Sticky) */
+        .sticky-controls {
+            background: white;
+            padding: 10px 0;
+            border-bottom: var(--border);
+        }
+
+        .mode-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .cat-bar { 
+            display: flex; 
+            overflow-x: auto; 
+            gap: 10px; 
+            padding: 0 10px 5px 10px; 
+            scrollbar-width: none; 
+        }
+        
+        .cat-bar::-webkit-scrollbar { display: none; }
+
+        .cat-btn { 
+            background: #eee; 
+            padding: 8px 15px; 
+            border-radius: 15px; 
+            border: 1px solid black; 
+            white-space: nowrap; 
+            font-size: 12px; 
+            font-weight: bold;
+        }
+        
+        .cat-active { background: var(--d); color: white; }
+
+        /* --- SCROLLABLE CONTENT --- */
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            padding: 15px 10px; 
+        }
+
+        .p-card { 
+            background: white; 
+            padding: 12px; 
+            border-radius: 12px; 
+            border: var(--border); 
+            box-shadow: 0 4px 0px black; 
+            text-align: center; 
+        }
+        
+        .p-card:active { transform: translateY(2px); box-shadow: none; }
+
+        /* --- FIXED FOOTER BILL --- */
+        .footer-bill { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            background: white; 
+            border-top: var(--border);
+            border-radius: 25px 25px 0 0; 
+            z-index: 3000;
+        }
+
+        .bill-items { 
+            max-height: 140px; 
+            overflow-y: auto; 
+            margin: 10px; 
+            border: var(--border); 
+            border-radius: 10px; 
+            background: #fafafa; 
+        }
+
+        .total-strip { 
+            background: var(--d); 
+            color: white; 
+            padding: 12px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: bold; 
+        }
+
+        .action-bar { 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 10px; 
+        }
+
+        .round-btn { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            border: var(--border); 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 3px 0px black;
+        }
+
+        .round-btn:active { transform: translateY(2px); box-shadow: none; }
+    </style>
+</head>
+<body>
+
+<div id="loginPage" style="padding-top:100px; text-align:center;">
+    <div style="background:white; padding:30px; margin:20px; border-radius:20px; border:var(--border);">
+        <h2 style="color:var(--p)">KHAN SHOP LOGIN</h2>
+        <input type="email" id="emailInput" placeholder="Email Address" style="width:100%; padding:12px; border:var(--border); border-radius:10px;">
+        <button onclick="handleLogin()" style="width:100%; background:var(--p); color:white; padding:15px; border:var(--border); border-radius:10px; margin-top:15px; font-weight:bold;">VERIFY</button>
+        <div id="loginMsg" style="margin-top:10px;"></div>
+    </div>
+</div>
+
+<div id="billingPage" style="display:none;">
+    <div class="top-fixed-area">
+        <div class="header">
+            <span class="shop-name">KHAN SHOP PRO</span>
+            <div class="store-selector">
+                <button id="btnG" class="store-btn store-active" onclick="switchStore('Grocery')">GROCERY</button>
+                <button id="btnH" class="store-btn" onclick="switchStore('Hardware')">HARDWARE</button>
+            </div>
+        </div>
+        
+        <div class="sticky-controls">
+            <div class="mode-switcher">
+                <button id="rtBtn" class="cat-btn cat-active" onclick="setMode('retail')">RETAIL</button>
+                <button id="wsBtn" class="cat-btn" onclick="setMode('ws')">WHOLESALE</button>
+            </div>
+            <div id="catBar" class="cat-bar"></div>
+        </div>
+    </div>
+
+    <div class="cust-info" style="padding:10px;">
+        <input type="text" id="custName" placeholder="Customer Name (नाम लिखें)" style="width:100%; padding:10px; border:var(--border); border-radius:8px;">
+    </div>
+
+    <div id="prodGrid" class="grid"></div>
+
+    <div class="footer-bill">
+        <div id="billItems" class="bill-items"></div>
+        
+        <div class="action-bar">
+            <button class="round-btn" style="background:#3498db" onclick="printBill()">🖨️</button>
+            <button class="round-btn" style="background:#f39c12" onclick="downloadCSV()">📊</button>
+            <button class="round-btn" style="background:#25D366" onclick="shareBill()">🔗</button>
+            <button class="round-btn" style="background:var(--err)" onclick="clearBill()">❌</button>
+        </div>
+
+        <div class="total-strip">
+            <span id="grandTotal">TOTAL: ₹0</span>
+            <span id="shopLabel" style="font-size:11px;">GROCERY</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // [Yahan pichla script logic (handleLogin, switchStore, renderGrid etc.) bilkul wahi rahega]
+    // Bas itna dhyan dein ki SCRIPT_URL update ho.
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx5kblrstnH60FDMotrYODGwIDA4XBlwKFnrhmrsUvuXvDPFLpuK_B76uTkbuJ6uOBhqw/exec";
+  let groceryInv = [], hardwareInv = [], inventory = [], cart = {};
+  let mode = 'retail', selectedCat = 'All', currentStore = 'Grocery';
+
+  window.onload = () => {
+    const saved = localStorage.getItem('khan_shop_email');
+    if(saved) { document.getElementById('emailInput').value = saved; handleLogin(); }
+  };
+    async function handleLogin() {
+    const email = document.getElementById('emailInput').value.toLowerCase().trim();
+    if(!email) return;
+    document.getElementById('loginMsg').innerText = "Verifying Access...";
+    
+    const finalUrl = `${SCRIPT_URL}?email=${encodeURIComponent(email)}`;
+    
+    try {
+      const response = await fetch(finalUrl);
+      const data = await response.json();
+      
+      // Status ko lowercase mein check karenge taaki error na ho
+      let currentStatus = data.status.toLowerCase();
+
+      if(currentStatus === "allow") {
+        localStorage.setItem('khan_shop_email', email);
+        groceryInv = data.grocery;
+        hardwareInv = data.hardware;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('billingPage').style.display = 'block';
+        switchStore('Grocery');
+      } else {
+        // Agar status "Pending" ya "Block" hai toh hi message dikhayega
+        document.getElementById('loginMsg').innerHTML = 
+          `<span style="color:red">Status: ${data.status}. Admin se sampark karein.</span>`;
+      }
+    } catch(e) { 
+      console.error(e);
+      document.getElementById('loginMsg').innerHTML = 
+        `<span style="color:red">Connection Error! Script deploy check karein.</span>`;
+    }
+}
+
+  function switchStore(store) {
+    currentStore = store;
+    inventory = (store === 'Grocery') ? groceryInv : hardwareInv;
+    
+    document.getElementById('btnG').classList.toggle('store-active', store === 'Grocery');
+    document.getElementById('btnH').classList.toggle('store-active', store === 'Hardware');
+    document.getElementById('shopLabel').innerText = store.toUpperCase() + " MODE";
+    
+    selectedCat = 'All';
+    renderCats();
+    renderGrid();
+  }
+
+  function renderCats() {
+    const cats = ['All', ...new Set(inventory.map(i => i.cat))];
+    document.getElementById('catBar').innerHTML = cats.map(c => `
+      <div class="cat-btn ${selectedCat === c ? 'cat-active' : ''}" onclick="filterCat('${c}')">${c}</div>
+    `).join('');
+  }
+
+  function filterCat(c) { selectedCat = c; renderCats(); renderGrid(); }
+
+  function renderGrid() {
+    const grid = document.getElementById('prodGrid');
+    const filtered = selectedCat === 'All' ? inventory : inventory.filter(i => i.cat === selectedCat);
+    grid.innerHTML = filtered.map(i => `
+      <div class="p-card" onclick="addToCart('${i.code}')">
+        <strong>${i.eng}</strong>
+        <small>(${i.hin})</small><br>
+        <span style="color:var(--p); font-weight:bold;">₹${mode === 'retail' ? i.retail : i.ws}</span>
+      </div>
+    `).join('');
+  }
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById('rtBtn').classList.toggle('cat-active', m==='retail');
+    document.getElementById('wsBtn').classList.toggle('cat-active', m==='ws');
+    renderGrid(); updateBill();
+  }
+function addToCart(code) {
+    if(cart[code]) cart[code].qty++;
+    else {
+      const p = inventory.find(i => i.code == code);
+      cart[code] = { ...p, qty: 1 };
+    }
+    updateBill();
+    
+    // Auto Scroll to bottom
+    const box = document.getElementById('billItems');
+    setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
+  }
+
+  function updateQty(code, d) {
+    if(cart[code]) {
+      cart[code].qty += d;
+      if(cart[code].qty <= 0) delete cart[code];
+      updateBill();
+    }
+  }
+
+  function clearBill() {
+    if(confirm("Clear current bill?")) { cart = {}; document.getElementById('custName').value = ""; updateBill(); }
+  }
+
+  function updateBill() {
+    const container = document.getElementById('billItems');
+    let total = 0;
+    container.innerHTML = "";
+    for(let key in cart) {
+      let item = cart[key];
+      let rate = mode === 'retail' ? item.retail : item.ws;
+      let sub = item.qty * rate;
+      total += sub;
+      container.innerHTML += `
+        <div class="item-row">
+          <div style="flex:1"><b>${item.eng}</b><br><small>${item.hin}</small></div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button class="qty-btn" onclick="updateQty('${key}', -1)">-</button>
+            <b>${item.qty}</b>
+            <button class="qty-btn" onclick="updateQty('${key}', 1)">+</button>
+          </div>
+          <div style="width:70px; text-align:right;">₹${sub}</div>
+        </div>`;
+    }
+    document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total;
+  }
+    function downloadCSV() {
+    let csv = "Item,Qty,Rate,Subtotal\n";
+    for(let k in cart) {
+        let r = mode === 'retail' ? cart[k].retail : cart[k].ws;
+        csv += `${cart[k].eng},${cart[k].qty},${r},${cart[k].qty*r}\n`;
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `Bill_${currentStore}.csv`; a.click();
+  }
+
+  function shareBill() {
+    const name = document.getElementById('custName').value || "Valued Customer";
+    let text = `*KHAN SHOP (${currentStore.toUpperCase()})*\n`;
+    text += `Date: ${new Date().toLocaleDateString()}\n`;
+    text += `Cust: ${name}\n----------\n`;
+    for(let k in cart) {
+        let r = mode === 'retail' ? cart[k].retail : cart[k].ws;
+        text += `${cart[k].eng} (${cart[k].hin}) x ${cart[k].qty} = ₹${cart[k].qty*r}\n`;
+    }
+    text += `----------\n*Total: ${document.getElementById('grandTotal').innerText}*\nThank You!`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+  }
+    
+</script>
+<script>// --- 1. App khulte hi Local Storage se data check karein ---
+window.onload = () => {
+    const savedEmail = localStorage.getItem('khan_shop_email');
+    const savedStatus = localStorage.getItem('khan_shop_status');
+    const localG = localStorage.getItem('offline_grocery');
+    const localH = localStorage.getItem('offline_hardware');
+    
+    // Agar data pehle se mobile mein hai, toh turant billing screen dikhao
+    if(savedEmail && savedStatus === "allow" && localG && localH) {
+        groceryInv = JSON.parse(localG);
+        hardwareInv = JSON.parse(localH);
+        
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('billingPage').style.display = 'block';
+        document.getElementById('emailInput').value = savedEmail;
+        
+        switchStore('Grocery'); // Offline data se turant start karein
+        handleLogin(true);      // Background mein net se naya data fetch karein
+    }
+};
+
+// --- 2. Login aur Data Syncing Logic ---
+async function handleLogin(isSilent = false) {
+    const email = document.getElementById('emailInput').value.toLowerCase().trim();
+    if(!email) return;
+
+    if(!isSilent) document.getElementById('loginMsg').innerText = "Checking Access & Syncing...";
+    
+    const finalUrl = `${SCRIPT_URL}?email=${encodeURIComponent(email)}`;
+    
+    try {
+      const response = await fetch(finalUrl);
+      const data = await response.json();
+      let currentStatus = data.status.toLowerCase();
+
+      if(currentStatus === "allow") {
+        // Naya data Local Storage mein save karein (Offline use ke liye)
+        localStorage.setItem('khan_shop_email', email);
+        localStorage.setItem('khan_shop_status', "allow");
+        localStorage.setItem('offline_grocery', JSON.stringify(data.grocery));
+        localStorage.setItem('offline_hardware', JSON.stringify(data.hardware));
+
+        groceryInv = data.grocery;
+        hardwareInv = data.hardware;
+        
+        if(!isSilent) {
+          document.getElementById('loginPage').style.display = 'none';
+          document.getElementById('billingPage').style.display = 'block';
+          switchStore('Grocery');
+        } else {
+          // Agar silent update tha, toh bas grid refresh karein bina screen change kiye
+          switchStore(currentStore);
+        }
+      } else {
+        localStorage.removeItem('khan_shop_status');
+        if(!isSilent) document.getElementById('loginMsg').innerHTML = `<span style="color:red">Status: ${data.status}. Admin se sampark karein.</span>`;
+      }
+    } catch(e) {
+      console.log("Offline Mode Active: Net nahi chal raha.");
+      // Net nahi hai toh koi error message mat dikhao, user ko kaam karne do
+    }
+}
 </script>
 </body>
 </html>

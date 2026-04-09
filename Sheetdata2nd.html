@@ -550,30 +550,36 @@
 </div>
     -->
         <div style="background: white; border-top: 2px solid var(--d);">
-    <div style="padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 13px; font-weight: bold;">Pichla Baqi (Prev. Bal):</span>
-            <input type="number" id="prevBal" value="0" oninput="calculateFinal()" 
-                   style="width: 100px; padding: 5px; border: 1px solid #999; text-align: right; border-radius: 4px;">
+    <div style="padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label style="font-size: 11px; font-weight: bold; display: block;">Prev. Bal</label>
+            <input type="number" id="prevBal" value="0" 
+                   onfocus="if(this.value=='0')this.value=''" 
+                   onblur="if(this.value=='')this.value='0'"
+                   oninput="calculateFinal()" 
+                   style="width: 100%; padding: 8px; border: 1px solid #999; text-align: right; border-radius: 4px; box-sizing: border-box;">
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 13px; font-weight: bold; color: #c0392b;">Aaj Jama (Paid):</span>
-            <input type="number" id="paidAmt" value="0" oninput="calculateFinal()" 
-                   style="width: 100px; padding: 5px; border: 1px solid #999; text-align: right; border-radius: 4px; color: green; font-weight: bold;">
+        <div style="flex: 1;">
+            <label style="font-size: 11px; font-weight: bold; display: block; color: #c0392b;">Aaj Jama</label>
+            <input type="number" id="paidAmt" value="0" 
+                   onfocus="if(this.value=='0')this.value=''" 
+                   onblur="if(this.value=='')this.value='0'"
+                   oninput="calculateFinal()" 
+                   style="width: 100%; padding: 8px; border: 1px solid #999; text-align: right; border-radius: 4px; color: green; font-weight: bold; box-sizing: border-box;">
         </div>
     </div>
 
     <div style="padding: 10px; background: var(--d); color: white;">
-        <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.9; margin-bottom: 5px;">
-            <span>Current Bill: <span id="grandTotal">₹0</span></span>
-            <span id="shopLabel" style="text-transform: uppercase;">GROCERY</span>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+            <span>Bill: <span id="grandTotal">₹0</span></span>
+            <span id="shopLabel" style="text-transform: uppercase;">MODE</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 5px;">
-            <b style="font-size: 16px;">NET BALANCE:</b>
+            <b style="font-size: 14px;">NET BAL:</b>
             <b id="finalBalance" style="font-size: 18px; color: #2ecc71;">₹0.00</b>
         </div>
     </div>
-</div>
+        </div>
 
 <!--
 <script>
@@ -1190,8 +1196,6 @@ esc += '\x1B\x61\x01'; // Center Align
   }
 */
         
-
-// Updated Print Function
 async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
     try {
@@ -1209,28 +1213,24 @@ async function printBill() {
         const staffEmail = localStorage.getItem('khan_shop_email') || "Admin";
         const staffName = staffEmail.split('@')[0].toUpperCase();
         
-        const totalAmt = document.getElementById('grandTotal').innerText.replace('₹', '');
-        const prev = document.getElementById('prevBal').value || "0";
-        const paid = document.getElementById('paidAmt').value || "0";
-        const final = document.getElementById('finalBalance').innerText.replace('₹', '');
+        const totalAmtValue = document.getElementById('grandTotal').innerText.replace('₹', '');
+        const prevValue = document.getElementById('prevBal').value || "0";
+        const paidValue = document.getElementById('paidAmt').value || "0";
+        const finalValue = document.getElementById('finalBalance').innerText.replace('₹', '');
 
         const date = new Date().toLocaleDateString('hi-IN');
         const time = new Date().toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
 
-        // Header
         let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01A R SON\'S STORE\n\x1B\x45\x00' + currentStore.toUpperCase() + ' BILL\n';
-        esc += `Staff: ${staffName}\n`;
-        esc += '--------------------------------\n';
-        esc += '\x1B\x61\x00'; // Left Align
-        esc += `Date: ${date} ${time}\n`;
-        esc += `Cust: ${custName.substring(0, 25)}\n`;
-        esc += '--------------------------------\n';
-        
-        // Table Header
-        esc += 'Item        Rate   Qty   Amount\n';
-        esc += '--------------------------------\n';
+        esc += "Staff: " + staffName + "\n";
+        esc += "--------------------------------\n";
+        esc += '\x1B\x61\x00'; 
+        esc += "Date: " + date + " " + time + "\n";
+        esc += "Cust: " + custName.substring(0, 22) + "\n";
+        esc += "--------------------------------\n";
+        esc += "Item        Rate   Qty   Amount\n";
+        esc += "--------------------------------\n";
 
-        // 1. Loop through items FIRST
         for (let key in cart) {
             let item = cart[key];
             let rate = mode === 'retail' ? item.retail : item.ws;
@@ -1241,28 +1241,24 @@ async function printBill() {
             let qStr = item.qty.toString().padEnd(5, ' ');
             let aStr = sub.toString().padStart(8, ' ');
             
-            esc += `${name}${rStr}${qStr}${aStr}\n`;
+            esc += name + rStr + qStr + aStr + "\n";
         }
 
-        // 2. Calculations at the BOTTOM
-        esc += '--------------------------------\n';
-        esc += `Current Bill:    Rs. ${totalAmt.padStart(10)}\n`;
-        esc += `Prev. Balance:   Rs. ${prev.padStart(10)}\n`;
-        esc += `Aaj Jama:        Rs. ${paid.padStart(10)}\n`;
-        esc += '--------------------------------\n';
+        esc += "--------------------------------\n";
+        esc += "Current Bill:    Rs. " + totalAmtValue.padStart(10) + "\n";
+        esc += "Prev. Balance:   Rs. " + prevValue.padStart(10) + "\n";
+        esc += "Aaj Jama:        Rs. " + paidValue.padStart(10) + "\n";
+        esc += "--------------------------------\n";
         
-        esc += '\x1B\x61\x02'; // Right Align
-        esc += '\x1B\x45\x01' + `NET BAL: Rs. ${final}\n` + '\x1B\x45\x00';
-        
-        esc += '\x1B\x61\x01'; // Center
-        esc += '\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
+        esc += '\x1B\x61\x02\x1B\x45\x01' + "NET BAL: Rs. " + finalValue + "\n" + '\x1B\x45\x00';
+        esc += '\x1B\x61\x01\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
 
         const encoder = new TextEncoder();
         await characteristic.writeValue(encoder.encode(esc));
         
     } catch (error) {
         console.error(error);
-        alert("Printer Error!");
+        alert("Printer Error! Check Bluetooth.");
         printerDevice = null;
     }
 }

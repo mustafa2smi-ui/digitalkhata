@@ -1141,7 +1141,7 @@ calculateFinal();
 }
         // printBill() ke andar Total ke baad ye add karein:
 
-
+/*
   // 5. PRINTER & SHARING
   async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
@@ -1182,9 +1182,8 @@ calculateFinal();
         printerDevice = null;
     }
   }
-
-        /*
-async function printBill() {
+*/
+        async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
     try {
         if (!printerDevice) {
@@ -1197,60 +1196,69 @@ async function printBill() {
         const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
         const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
+        // --- Data Fetching (Mismatch fixed here) ---
         const custName = document.getElementById('custName').value || "Cash Customer";
         const staffEmail = localStorage.getItem('khan_shop_email') || "Admin";
         const staffName = staffEmail.split('@')[0].toUpperCase();
         
-        const totalAmtValue = document.getElementById('grandTotal').innerText.replace('₹', '');
-        const prevValue = document.getElementById('prevBal').value || "0";
-        const paidValue = document.getElementById('paidAmt').value || "0";
-        const finalValue = document.getElementById('finalBalance').innerText.replace('₹', '');
+        // Symbols (₹) ko dhyan mein rakhte hue clean value nikaalna
+        const currentBill = document.getElementById('grandTotal').innerText.replace('₹', '').trim();
+        const prevBal = document.getElementById('prevBal').value || "0";
+        const aajJama = document.getElementById('paidAmt').value || "0";
+        const netBal = document.getElementById('finalBalance').innerText.replace('₹', '').trim();
 
         const date = new Date().toLocaleDateString('hi-IN');
         const time = new Date().toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
 
+        // --- ESC/POS Layout ---
         let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01A R SON\'S STORE\n\x1B\x45\x00' + currentStore.toUpperCase() + ' BILL\n';
         esc += "Staff: " + staffName + "\n";
-        esc += "--------------------------------\n";
-        esc += '\x1B\x61\x00'; 
+        esc += '--------------------------------\n';
+        esc += '\x1B\x61\x00'; // Left Align
         esc += "Date: " + date + " " + time + "\n";
         esc += "Cust: " + custName.substring(0, 22) + "\n";
-        esc += "--------------------------------\n";
+        esc += '--------------------------------\n';
         esc += "Item        Rate   Qty   Amount\n";
-        esc += "--------------------------------\n";
+        esc += '--------------------------------\n';
 
+        // Items Loop
         for (let key in cart) {
             let item = cart[key];
             let rate = mode === 'retail' ? item.retail : item.ws;
-            let sub = (rate * item.qty).toFixed(2);
+            let subtotal = (rate * item.qty).toFixed(2);
             
+            // Spacing: 11 (Name) + 6 (Rate) + 5 (Qty) + 8 (Amt) = 30 chars
             let name = item.eng.substring(0, 10).padEnd(11, ' ');
             let rStr = rate.toString().padEnd(6, ' ');
             let qStr = item.qty.toString().padEnd(5, ' ');
-            let aStr = sub.toString().padStart(8, ' ');
+            let aStr = subtotal.toString().padStart(8, ' ');
             
             esc += name + rStr + qStr + aStr + "\n";
         }
 
-        esc += "--------------------------------\n";
-        esc += "Current Bill:    Rs. " + totalAmtValue.padStart(10) + "\n";
-        esc += "Prev. Balance:   Rs. " + prevValue.padStart(10) + "\n";
-        esc += "Aaj Jama:        Rs. " + paidValue.padStart(10) + "\n";
-        esc += "--------------------------------\n";
+        // Calculations Section
+        esc += '--------------------------------\n';
+        esc += "Current Bill:  Rs. " + currentBill.padStart(11) + "\n";
+        esc += "Prev. Bal:     Rs. " + prevBal.padStart(11) + "\n";
+        esc += "Aaj Jama:      Rs. " + aajJama.padStart(11) + "\n";
+        esc += '--------------------------------\n';
         
-        esc += '\x1B\x61\x02\x1B\x45\x01' + "NET BAL: Rs. " + finalValue + "\n" + '\x1B\x45\x00';
-        esc += '\x1B\x61\x01\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
+        esc += '\x1B\x61\x02'; // Right Align
+        esc += '\x1B\x45\x01' + "NET BAL: Rs. " + netBal + "\n" + '\x1B\x45\x00';
+        
+        esc += '\x1B\x61\x01'; // Center
+        esc += '\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
 
         const encoder = new TextEncoder();
         await characteristic.writeValue(encoder.encode(esc));
         
     } catch (error) {
         console.error(error);
-        alert("Printer Error! Check Bluetooth.");
+        alert("Printer Connect Nahi Hua! Variable mismatch check karein.");
         printerDevice = null;
     }
 }
-*/
+
   function downloadCSV() {
     let csv = "Item,Qty,Rate,Subtotal\n";
     for(let k in cart) {

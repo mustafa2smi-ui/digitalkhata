@@ -1141,7 +1141,7 @@ calculateFinal();
 }
         // printBill() ke andar Total ke baad ye add karein:
 
-/*
+
   // 5. PRINTER & SHARING
   async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
@@ -1158,25 +1158,13 @@ calculateFinal();
 
         const custName = document.getElementById('custName').value || "Cash Customer";
         const totalAmt = document.getElementById('grandTotal').innerText.replace('TOTAL: ₹', '');
-        const prev = document.getElementById('prevBal').value || "0";
-const paid = document.getElementById('paidAmt').value || "0";
-const final = document.getElementById('finalBalance').innerText.replace('NET BALANCE: ₹', '');
-
+        
         const date = new Date().toLocaleDateString('hi-IN');
         const time = new Date().toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
 
         let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01KHAN SHOP\n\x1B\x45\x00' + currentStore.toUpperCase() + ' STORE\n--------------------------------\n';
         esc += '\x1B\x61\x00Date: ' + date + ' Time: ' + time + '\nCust: ' + custName.substring(0, 25) + '\n--------------------------------\nItem       Rate    Qty      Amount\n--------------------------------\n';
         esc += '--------------------------------\n';
-esc += `Current Bill:    Rs. ${totalAmt.padStart(10)}\n`;
-esc += `Prev. Balance:   Rs. ${prev.padStart(10)}\n`;
-esc += `Total Jama:      Rs. ${paid.padStart(10)}\n`;
-esc += '--------------------------------\n';
-esc += '\x1B\x61\x02'; // Right Align
-esc += '\x1B\x45\x01' + `NET BAL: Rs. ${final}\n` + '\x1B\x45\x00';
-esc += '\x1B\x61\x01'; // Center Align
-
-
         for (let key in cart) {
             let item = cart[key];
             let rate = mode === 'retail' ? item.retail : item.ws;
@@ -1194,8 +1182,8 @@ esc += '\x1B\x61\x01'; // Center Align
         printerDevice = null;
     }
   }
-*/
-        
+
+        /*
 async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
     try {
@@ -1262,7 +1250,7 @@ async function printBill() {
         printerDevice = null;
     }
 }
-
+*/
   function downloadCSV() {
     let csv = "Item,Qty,Rate,Subtotal\n";
     for(let k in cart) {

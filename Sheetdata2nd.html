@@ -103,7 +103,7 @@
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0hbnnCFfkajsHpHawvuSnRrTfZuWItnfz2msBC2EaH2XwtXoMAr8WiwIrEd_vHqDuXw/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx29nTys2QnwfZpxKcQqxfdbkvbz8gQROYk_eEqW-MviZcCYp9mY8zKGzqgby72whV_tw/exec";
   let groceryInv = [], hardwareInv = [], inventory = [], cart = {};
   let mode = 'retail', selectedCat = 'All', currentStore = 'Grocery';
 
@@ -111,7 +111,7 @@
     const saved = localStorage.getItem('khan_shop_email');
     if(saved) { document.getElementById('emailInput').value = saved; handleLogin(); }
   };
-
+/*
   async function handleLogin() {
     const email = document.getElementById('emailInput').value;
     if(!email) return;
@@ -133,6 +133,34 @@
       }
     } catch(e) { alert("Connection Error! Check Script URL."); }
   }
+*/
+    async function handleLogin() {
+    const email = document.getElementById('emailInput').value;
+    if(!email) return;
+    document.getElementById('loginMsg').innerText = "Verifying Access...";
+    
+    // Yahan URL ke saath email attach kiya gaya hai (GET method)
+    const finalUrl = `${SCRIPT_URL}?email=${encodeURIComponent(email)}`;
+    
+    try {
+      const response = await fetch(finalUrl);
+      const data = await response.json();
+      
+      if(data.status === "Allow") {
+        localStorage.setItem('khan_shop_email', email);
+        groceryInv = data.grocery;
+        hardwareInv = data.hardware;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('billingPage').style.display = 'block';
+        switchStore('Grocery');
+      } else {
+        document.getElementById('loginMsg').innerHTML = `<span style="color:red">Status: ${data.status}. Admin se sampark karein.</span>`;
+      }
+    } catch(e) { 
+      console.error(e);
+      document.getElementById('loginMsg').innerHTML = `<span style="color:red">Connection Error! Script deploy check karein.</span>`;
+    }
+}
 
   function switchStore(store) {
     currentStore = store;

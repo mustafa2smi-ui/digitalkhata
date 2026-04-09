@@ -450,7 +450,9 @@
             border-radius: 10px; 
             background: #fafafa; 
         }
-
+.item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ddd; }
+        .item-row:last-child { border-bottom: none; }
+        
         .total-strip { 
             background: var(--d); 
             color: white; 
@@ -969,8 +971,8 @@ async function handleLogin(isSilent = false) {
   function clearBill() {
     if(confirm("Clear current bill?")) { cart = {}; document.getElementById('custName').value = ""; updateBill(); }
   }
-/*
-  function updateBill() {
+  /*
+        function updateBill() {
     const container = document.getElementById('billItems');
     let total = 0;
     container.innerHTML = "";
@@ -992,7 +994,7 @@ async function handleLogin(isSilent = false) {
     }
     document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total;
   }
-*/
+        */
         function updateBill() {
     const container = document.getElementById('billItems');
     let total = 0;

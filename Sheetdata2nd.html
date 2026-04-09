@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khan Shop Pro - Multi-Store</title>
+    <style>
+        :root { --p: #27ae60; --s: #2ecc71; --d: #2c3e50; --err: #e74c3c; --border: 2px solid black; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f4f7f6; padding-bottom: 260px; overflow-x: hidden; }
+        
+        /* Layout & Header */
+        .header { background: var(--p); color: white; padding: 15px; text-align: center; border-radius: 0 0 20px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-bottom: var(--border); }
+        .shop-name { font-size: 22px; font-weight: bold; display: block; letter-spacing: 1px; }
+        
+        /* Store Switcher */
+        .store-selector { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .store-btn { padding: 6px 15px; border-radius: 15px; border: 1px solid white; background: transparent; color: white; cursor: pointer; font-size: 12px; }
+        .store-active { background: white; color: var(--p); font-weight: bold; }
+
+        /* Inputs & Filters */
+        .cust-info { padding: 10px; }
+        input { width: 100%; padding: 12px; border: var(--border); border-radius: 10px; outline: none; box-sizing: border-box; }
+        
+        .cat-bar { display: flex; overflow-x: auto; gap: 10px; padding: 10px; scrollbar-width: none; }
+        .cat-btn { background: white; padding: 8px 15px; border-radius: 20px; border: var(--border); white-space: nowrap; color: black; font-weight: bold; font-size: 13px; }
+        .cat-active { background: var(--d); color: white; }
+
+        /* Product Grid */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .p-card { background: white; padding: 12px; border-radius: 12px; border: var(--border); box-shadow: 0 4px 0px black; text-align: center; transition: 0.1s; }
+        .p-card:active { transform: translateY(3px); box-shadow: none; background: #e8f5e9; }
+        .p-card strong { display: block; font-size: 14px; color: var(--d); }
+        .p-card small { color: #555; font-style: italic; }
+
+        /* Footer Billing Area */
+        .footer-bill { position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); border-radius: 25px 25px 0 0; z-index: 1000; border-top: var(--border); }
+        .bill-items { max-height: 150px; overflow-y: auto; padding: 10px; border: var(--border); margin: 10px; border-radius: 10px; background: #fafafa; scroll-behavior: smooth; }
+        
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #ddd; }
+        .item-row:last-child { border-bottom: none; }
+        
+        /* Circle Action Buttons */
+        .action-bar { display: flex; justify-content: space-around; padding: 10px; background: #fff; }
+        .round-btn { width: 50px; height: 50px; border-radius: 50%; border: var(--border); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 0px black; }
+        .round-btn:active { transform: translateY(2px); box-shadow: none; }
+        
+        .btn-print { background: #3498db; }
+        .btn-csv { background: #f39c12; }
+        .btn-share { background: #25D366; }
+        .btn-clear { background: var(--err); }
+        
+        .total-strip { background: var(--d); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-top: var(--border); }
+        .qty-btn { width: 30px; height: 30px; border: 1px solid black; background: white; font-weight: bold; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="loginPage" style="text-align:center; padding-top:100px;">
+    <div style="background:white; padding:30px; margin:20px; border-radius:20px; border:var(--border); box-shadow:0 10px 0px var(--p);">
+        <h2 style="color:var(--p)">KHAN SHOP</h2>
+        <input type="email" id="emailInput" placeholder="Enter Email Address">
+        <button onclick="handleLogin()" style="width:100%; background:var(--p); color:white; padding:15px; border:var(--border); border-radius:10px; font-weight:bold; margin-top:10px;">VERIFY ACCESS</button>
+        <div id="loginMsg" style="margin-top:15px; font-weight:bold;"></div>
+    </div>
+</div>
+
+<div id="billingPage" style="display:none;">
+    <div class="header">
+        <span class="shop-name">KHAN SHOP PRO</span>
+        <div class="store-selector">
+            <button id="btnG" class="store-btn store-active" onclick="switchStore('Grocery')">GROCERY</button>
+            <button id="btnH" class="store-btn" onclick="switchStore('Hardware')">HARDWARE</button>
+        </div>
+    </div>
+
+    <div class="cust-info">
+        <input type="text" id="custName" placeholder="Customer Name (नाम लिखें)">
+    </div>
+
+    <div style="display:flex; justify-content:center; gap:10px; margin:5px 0;">
+        <button id="rtBtn" class="cat-btn cat-active" style="width:100px" onclick="setMode('retail')">RETAIL</button>
+        <button id="wsBtn" class="cat-btn" style="width:100px" onclick="setMode('ws')">W.SALE</button>
+    </div>
+
+    <div id="catBar" class="cat-bar"></div>
+    <div id="prodGrid" class="grid"></div>
+
+    <div class="footer-bill">
+        <div id="billItems" class="bill-items"></div>
+        
+        <div class="action-bar">
+            <button class="round-btn btn-print" onclick="printBill()">🖨️</button>
+            <button class="round-btn btn-csv" onclick="downloadCSV()">📊</button>
+            <button class="round-btn btn-share" onclick="shareBill()">🔗</button>
+            <button class="round-btn btn-clear" onclick="clearBill()">❌</button>
+        </div>
+
+        <div class="total-strip">
+            <span id="grandTotal">TOTAL: ₹0</span>
+            <span id="shopLabel" style="font-size:12px; color:var(--s);">GROCERY MODE</span>
+        </div>
+    </div>
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0hbnnCFfkajsHpHawvuSnRrTfZuWItnfz2msBC2EaH2XwtXoMAr8WiwIrEd_vHqDuXw/exec";
+  let groceryInv = [], hardwareInv = [], inventory = [], cart = {};
+  let mode = 'retail', selectedCat = 'All', currentStore = 'Grocery';
+
+  window.onload = () => {
+    const saved = localStorage.getItem('khan_shop_email');
+    if(saved) { document.getElementById('emailInput').value = saved; handleLogin(); }
+  };
+
+  async function handleLogin() {
+    const email = document.getElementById('emailInput').value;
+    if(!email) return;
+    document.getElementById('loginMsg').innerText = "Verifying Access...";
+    
+    try {
+      const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ email: email }) });
+      const data = await response.json();
+      
+      if(data.status === "Allow") {
+        localStorage.setItem('khan_shop_email', email);
+        groceryInv = data.grocery;
+        hardwareInv = data.hardware;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('billingPage').style.display = 'block';
+        switchStore('Grocery');
+      } else {
+        document.getElementById('loginMsg').innerHTML = `<span style="color:red">Status: ${data.status}. Contact Admin.</span>`;
+      }
+    } catch(e) { alert("Connection Error! Check Script URL."); }
+  }
+
+  function switchStore(store) {
+    currentStore = store;
+    inventory = (store === 'Grocery') ? groceryInv : hardwareInv;
+    
+    document.getElementById('btnG').classList.toggle('store-active', store === 'Grocery');
+    document.getElementById('btnH').classList.toggle('store-active', store === 'Hardware');
+    document.getElementById('shopLabel').innerText = store.toUpperCase() + " MODE";
+    
+    selectedCat = 'All';
+    renderCats();
+    renderGrid();
+  }
+
+  function renderCats() {
+    const cats = ['All', ...new Set(inventory.map(i => i.cat))];
+    document.getElementById('catBar').innerHTML = cats.map(c => `
+      <div class="cat-btn ${selectedCat === c ? 'cat-active' : ''}" onclick="filterCat('${c}')">${c}</div>
+    `).join('');
+  }
+
+  function filterCat(c) { selectedCat = c; renderCats(); renderGrid(); }
+
+  function renderGrid() {
+    const grid = document.getElementById('prodGrid');
+    const filtered = selectedCat === 'All' ? inventory : inventory.filter(i => i.cat === selectedCat);
+    grid.innerHTML = filtered.map(i => `
+      <div class="p-card" onclick="addToCart('${i.code}')">
+        <strong>${i.eng}</strong>
+        <small>(${i.hin})</small><br>
+        <span style="color:var(--p); font-weight:bold;">₹${mode === 'retail' ? i.retail : i.ws}</span>
+      </div>
+    `).join('');
+  }
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById('rtBtn').classList.toggle('cat-active', m==='retail');
+    document.getElementById('wsBtn').classList.toggle('cat-active', m==='ws');
+    renderGrid(); updateBill();
+  }
+
+  function addToCart(code) {
+    if(cart[code]) cart[code].qty++;
+    else {
+      const p = inventory.find(i => i.code == code);
+      cart[code] = { ...p, qty: 1 };
+    }
+    updateBill();
+    
+    // Auto Scroll to bottom
+    const box = document.getElementById('billItems');
+    setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
+  }
+
+  function updateQty(code, d) {
+    if(cart[code]) {
+      cart[code].qty += d;
+      if(cart[code].qty <= 0) delete cart[code];
+      updateBill();
+    }
+  }
+
+  function clearBill() {
+    if(confirm("Clear current bill?")) { cart = {}; document.getElementById('custName').value = ""; updateBill(); }
+  }
+
+  function updateBill() {
+    const container = document.getElementById('billItems');
+    let total = 0;
+    container.innerHTML = "";
+    for(let key in cart) {
+      let item = cart[key];
+      let rate = mode === 'retail' ? item.retail : item.ws;
+      let sub = item.qty * rate;
+      total += sub;
+      container.innerHTML += `
+        <div class="item-row">
+          <div style="flex:1"><b>${item.eng}</b><br><small>${item.hin}</small></div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button class="qty-btn" onclick="updateQty('${key}', -1)">-</button>
+            <b>${item.qty}</b>
+            <button class="qty-btn" onclick="updateQty('${key}', 1)">+</button>
+          </div>
+          <div style="width:70px; text-align:right;">₹${sub}</div>
+        </div>`;
+    }
+    document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total;
+  }
+
+  function downloadCSV() {
+    let csv = "Item,Qty,Rate,Subtotal\n";
+    for(let k in cart) {
+        let r = mode === 'retail' ? cart[k].retail : cart[k].ws;
+        csv += `${cart[k].eng},${cart[k].qty},${r},${cart[k].qty*r}\n`;
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `Bill_${currentStore}.csv`; a.click();
+  }
+
+  function shareBill() {
+    const name = document.getElementById('custName').value || "Valued Customer";
+    let text = `*KHAN SHOP (${currentStore.toUpperCase()})*\n`;
+    text += `Date: ${new Date().toLocaleDateString()}\n`;
+    text += `Cust: ${name}\n----------\n`;
+    for(let k in cart) {
+        let r = mode === 'retail' ? cart[k].retail : cart[k].ws;
+        text += `${cart[k].eng} (${cart[k].hin}) x ${cart[k].qty} = ₹${cart[k].qty*r}\n`;
+    }
+    text += `----------\n*Total: ${document.getElementById('grandTotal').innerText}*\nThank You!`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+  }
+
+  function printBill() {
+    // thermal printer doesn't support hindi, so we only use item.eng
+    let printText = `KHAN SHOP - ${currentStore}\n----------------\n`;
+    for(let k in cart) {
+        let r = mode === 'retail' ? cart[k].retail : cart[k].ws;
+        printText += `${cart[k].eng}\n   ${cart[k].qty} x ${r} = ${cart[k].qty*r}\n`;
+    }
+    printText += `----------------\nTotal: ${document.getElementById('grandTotal').innerText}\n`;
+    alert("Printing Data:\n" + printText);
+    window.print();
+  }
+</script>
+</body>
+</html>

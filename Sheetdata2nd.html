@@ -103,7 +103,7 @@
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx29nTys2QnwfZpxKcQqxfdbkvbz8gQROYk_eEqW-MviZcCYp9mY8zKGzqgby72whV_tw/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx5kblrstnH60FDMotrYODGwIDA4XBlwKFnrhmrsUvuXvDPFLpuK_B76uTkbuJ6uOBhqw/exec";
   let groceryInv = [], hardwareInv = [], inventory = [], cart = {};
   let mode = 'retail', selectedCat = 'All', currentStore = 'Grocery';
 
@@ -134,6 +134,7 @@
     } catch(e) { alert("Connection Error! Check Script URL."); }
   }
 */
+    /*
     async function handleLogin() {
     const email = document.getElementById('emailInput').value;
     if(!email) return;
@@ -159,6 +160,39 @@
     } catch(e) { 
       console.error(e);
       document.getElementById('loginMsg').innerHTML = `<span style="color:red">Connection Error! Script deploy check karein.</span>`;
+    }
+}
+*/
+    async function handleLogin() {
+    const email = document.getElementById('emailInput').value.toLowerCase().trim();
+    if(!email) return;
+    document.getElementById('loginMsg').innerText = "Verifying Access...";
+    
+    const finalUrl = `${SCRIPT_URL}?email=${encodeURIComponent(email)}`;
+    
+    try {
+      const response = await fetch(finalUrl);
+      const data = await response.json();
+      
+      // Status ko lowercase mein check karenge taaki error na ho
+      let currentStatus = data.status.toLowerCase();
+
+      if(currentStatus === "allow") {
+        localStorage.setItem('khan_shop_email', email);
+        groceryInv = data.grocery;
+        hardwareInv = data.hardware;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('billingPage').style.display = 'block';
+        switchStore('Grocery');
+      } else {
+        // Agar status "Pending" ya "Block" hai toh hi message dikhayega
+        document.getElementById('loginMsg').innerHTML = 
+          `<span style="color:red">Status: ${data.status}. Admin se sampark karein.</span>`;
+      }
+    } catch(e) { 
+      console.error(e);
+      document.getElementById('loginMsg').innerHTML = 
+        `<span style="color:red">Connection Error! Script deploy check karein.</span>`;
     }
 }
 

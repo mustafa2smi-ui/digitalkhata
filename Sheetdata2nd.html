@@ -528,7 +528,7 @@
             <button class="round-btn" style="background:#25D366" onclick="shareBill()">🔗</button>
             <button class="round-btn" style="background:var(--err)" onclick="clearBill()">❌</button>
         </div>
-
+<!--
         <div class="total-strip">
             <span id="grandTotal">TOTAL: ₹0</span>
             <span id="shopLabel" style="font-size:11px;">GROCERY</span>
@@ -548,6 +548,33 @@
         <span id="finalBalance">NET BALANCE: ₹0</span>
     </div>
 </div>
+    -->
+        <div style="background: white; border-top: 2px solid var(--d);">
+    <div style="padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 13px; font-weight: bold;">Pichla Baqi (Prev. Bal):</span>
+            <input type="number" id="prevBal" value="0" oninput="calculateFinal()" 
+                   style="width: 100px; padding: 5px; border: 1px solid #999; text-align: right; border-radius: 4px;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 13px; font-weight: bold; color: #c0392b;">Aaj Jama (Paid):</span>
+            <input type="number" id="paidAmt" value="0" oninput="calculateFinal()" 
+                   style="width: 100px; padding: 5px; border: 1px solid #999; text-align: right; border-radius: 4px; color: green; font-weight: bold;">
+        </div>
+    </div>
+
+    <div style="padding: 10px; background: var(--d); color: white;">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.9; margin-bottom: 5px;">
+            <span>Current Bill: <span id="grandTotal">₹0</span></span>
+            <span id="shopLabel" style="text-transform: uppercase;">GROCERY</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 5px;">
+            <b style="font-size: 16px;">NET BALANCE:</b>
+            <b id="finalBalance" style="font-size: 18px; color: #2ecc71;">₹0.00</b>
+        </div>
+    </div>
+</div>
+
 <!--
 <script>
     // [Yahan pichla script logic (handleLogin, switchStore, renderGrid etc.) bilkul wahi rahega]
@@ -1108,7 +1135,7 @@ calculateFinal();
 }
         // printBill() ke andar Total ke baad ye add karein:
 
-
+/*
   // 5. PRINTER & SHARING
   async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
@@ -1161,6 +1188,84 @@ esc += '\x1B\x61\x01'; // Center Align
         printerDevice = null;
     }
   }
+*/
+        
+
+// Updated Print Function
+async function printBill() {
+    if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
+    try {
+        if (!printerDevice) {
+            printerDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ namePrefix: 'Bluetooth' }, { namePrefix: 'SRS' }, { namePrefix: 'MPT' }, { namePrefix: 'MTP' }],
+                optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+            });
+        }
+        const server = await printerDevice.gatt.connect();
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+        const custName = document.getElementById('custName').value || "Cash Customer";
+        const staffEmail = localStorage.getItem('khan_shop_email') || "Admin";
+        const staffName = staffEmail.split('@')[0].toUpperCase();
+        
+        const totalAmt = document.getElementById('grandTotal').innerText.replace('₹', '');
+        const prev = document.getElementById('prevBal').value || "0";
+        const paid = document.getElementById('paidAmt').value || "0";
+        const final = document.getElementById('finalBalance').innerText.replace('₹', '');
+
+        const date = new Date().toLocaleDateString('hi-IN');
+        const time = new Date().toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
+
+        // Header
+        let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01A R SON\'S STORE\n\x1B\x45\x00' + currentStore.toUpperCase() + ' BILL\n';
+        esc += `Staff: ${staffName}\n`;
+        esc += '--------------------------------\n';
+        esc += '\x1B\x61\x00'; // Left Align
+        esc += `Date: ${date} ${time}\n`;
+        esc += `Cust: ${custName.substring(0, 25)}\n`;
+        esc += '--------------------------------\n';
+        
+        // Table Header
+        esc += 'Item        Rate   Qty   Amount\n';
+        esc += '--------------------------------\n';
+
+        // 1. Loop through items FIRST
+        for (let key in cart) {
+            let item = cart[key];
+            let rate = mode === 'retail' ? item.retail : item.ws;
+            let sub = (rate * item.qty).toFixed(2);
+            
+            let name = item.eng.substring(0, 10).padEnd(11, ' ');
+            let rStr = rate.toString().padEnd(6, ' ');
+            let qStr = item.qty.toString().padEnd(5, ' ');
+            let aStr = sub.toString().padStart(8, ' ');
+            
+            esc += `${name}${rStr}${qStr}${aStr}\n`;
+        }
+
+        // 2. Calculations at the BOTTOM
+        esc += '--------------------------------\n';
+        esc += `Current Bill:    Rs. ${totalAmt.padStart(10)}\n`;
+        esc += `Prev. Balance:   Rs. ${prev.padStart(10)}\n`;
+        esc += `Aaj Jama:        Rs. ${paid.padStart(10)}\n`;
+        esc += '--------------------------------\n';
+        
+        esc += '\x1B\x61\x02'; // Right Align
+        esc += '\x1B\x45\x01' + `NET BAL: Rs. ${final}\n` + '\x1B\x45\x00';
+        
+        esc += '\x1B\x61\x01'; // Center
+        esc += '\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
+
+        const encoder = new TextEncoder();
+        await characteristic.writeValue(encoder.encode(esc));
+        
+    } catch (error) {
+        console.error(error);
+        alert("Printer Error!");
+        printerDevice = null;
+    }
+}
 
   function downloadCSV() {
     let csv = "Item,Qty,Rate,Subtotal\n";

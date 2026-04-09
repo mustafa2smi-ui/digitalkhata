@@ -859,13 +859,31 @@ async function handleLogin(isSilent = false) {
         handleLogin(true); // Silent sync in background
     }
   };
-
+/*
+// 4. Email Regex Check
+async function handleLogin(isSilent = false) {
+    const emailInput = document.getElementById('emailInput');
+    const email = emailInput.value.toLowerCase().trim();
+    
+    // Email Format Check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRegex.test(email)) {
+        document.getElementById('loginMsg').innerHTML = "<span style='color:red'>Sahi Email format likhein!</span>";
+        return;
+    }
+    // ... (Baaki fetch logic vahi rahega)
+}
+*/
   // 2. LOGIN & SYNC LOGIC
   async function handleLogin(isSilent = false) {
     const emailInput = document.getElementById('emailInput');
     const email = emailInput.value.toLowerCase().trim();
-    if(!email) return;
-
+   /* if(!email) return;*/
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRegex.test(email)) {
+        document.getElementById('loginMsg').innerHTML = "<span style='color:red'>Sahi Email format likhein!</span>";
+        return;
+    }
     if(!isSilent) document.getElementById('loginMsg').innerText = "Checking Access & Syncing...";
     
     const finalUrl = `${SCRIPT_URL}?email=${encodeURIComponent(email)}`;
@@ -995,6 +1013,18 @@ async function handleLogin(isSilent = false) {
     document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total;
   }
         */
+        // 1. Manual Qty for Half (.5) ya koi bhi number
+function editQty(code) {
+    let newQty = prompt("Enter Quantity (e.g. 0.5 or 1.5):", cart[code].qty);
+    if (newQty !== null && !isNaN(newQty) && newQty > 0) {
+        cart[code].qty = parseFloat(newQty);
+        updateBill();
+    } else if (newQty == 0) {
+        delete cart[code];
+        updateBill();
+    }
+}
+        /*
         function updateBill() {
     const container = document.getElementById('billItems');
     let total = 0;
@@ -1017,6 +1047,31 @@ async function handleLogin(isSilent = false) {
     }
     document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total;
   }
+        */
+        // 2. Bill Table mein Rate dikhana
+function updateBill() {
+    const container = document.getElementById('billItems');
+    let total = 0;
+    container.innerHTML = "";
+    for(let key in cart) {
+      let item = cart[key];
+      let rate = mode === 'retail' ? item.retail : item.ws;
+      let sub = item.qty * rate;
+      total += sub;
+      container.innerHTML += `
+        <div class="item-row" style="display:flex; align-items:center; padding:5px 0;">
+          <div style="flex:1" onclick="editQty('${key}')"><b>${item.eng}</b></div>
+          <div style="width:50px">₹${rate}</div>
+          <div style="display:flex; align-items:center; gap:5px; width:80px; justify-content:center;">
+            <button class="qty-btn" onclick="updateQty('${key}', -1)">-</button>
+            <b onclick="editQty('${key}')">${item.qty}</b>
+            <button class="qty-btn" onclick="updateQty('${key}', 1)">+</button>
+          </div>
+          <div style="width:60px; text-align:right;">₹${sub.toFixed(2)}</div>
+        </div>`;
+    }
+    document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total.toFixed(2);
+}
   // 5. PRINTER & SHARING
   async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
@@ -1037,7 +1092,7 @@ async function handleLogin(isSilent = false) {
         const time = new Date().toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
 
         let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01KHAN SHOP\n\x1B\x45\x00' + currentStore.toUpperCase() + ' STORE\n--------------------------------\n';
-        esc += '\x1B\x61\x00Date: ' + date + ' Time: ' + time + '\nCust: ' + custName.substring(0, 25) + '\n--------------------------------\nItem           Qty      Amount\n--------------------------------\n';
+        esc += '\x1B\x61\x00Date: ' + date + ' Time: ' + time + '\nCust: ' + custName.substring(0, 25) + '\n--------------------------------\nItem       Rate    Qty      Amount\n--------------------------------\n';
 
         for (let key in cart) {
             let item = cart[key];
@@ -1080,6 +1135,28 @@ async function handleLogin(isSilent = false) {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
   }
 </script>
+    <!--
+<script>
+// 3. Printer mein Rate add karna
+async function printBill() {
+    // ... (Bluetooth connection code vahi rahega)
+    let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01KHAN SHOP\n\x1B\x45\x00' + currentStore.toUpperCase() + '\n--------------------------------\n';
+    esc += 'Item        Rate   Qty   Amount\n--------------------------------\n';
 
+    for (let key in cart) {
+        let item = cart[key];
+        let rate = mode === 'retail' ? item.retail : item.ws;
+        let name = item.eng.substring(0, 10).padEnd(11, ' ');
+        let rStr = rate.toString().padEnd(6, ' ');
+        let qStr = item.qty.toString().padEnd(6, ' ');
+        let aStr = (rate * item.qty).toFixed(2).toString().padStart(7, ' ');
+        esc += `${name}${rStr}${qStr}${aStr}\n`;
+    }
+    // ... (Total aur baaki code vahi rahega)
+}
+
+
+</script>
+    -->
 </body>
 </html>

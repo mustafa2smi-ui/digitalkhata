@@ -533,7 +533,7 @@
         </div>
     </div>
 </div>
-
+<!--
 <script>
     // [Yahan pichla script logic (handleLogin, switchStore, renderGrid etc.) bilkul wahi rahega]
     // Bas itna dhyan dein ki SCRIPT_URL update ho.
@@ -830,5 +830,232 @@ async function handleLogin(isSilent = false) {
     }
 }
 </script>
+    -->
+    <script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxAbfSXqmfTpnsG9jRAO9sA8O-ptJ75W_CAFA_Gu0geCGDKp5kqoFLfwDAdkF62LKo61g/exec";
+  
+  let groceryInv = [], hardwareInv = [], inventory = [], cart = {};
+  let mode = 'retail', selectedCat = 'All', currentStore = 'Grocery';
+  let printerDevice = null;
+
+  // 1. APP INITIALIZATION (Offline First)
+  window.onload = () => {
+    const savedEmail = localStorage.getItem('khan_shop_email');
+    const savedStatus = localStorage.getItem('khan_shop_status');
+    const localG = localStorage.getItem('offline_grocery');
+    const localH = localStorage.getItem('offline_hardware');
+    
+    if(savedEmail && savedStatus === "allow" && localG && localH) {
+        groceryInv = JSON.parse(localG);
+        hardwareInv = JSON.parse(localH);
+        
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('billingPage').style.display = 'block';
+        document.getElementById('emailInput').value = savedEmail;
+        
+        switchStore('Grocery'); 
+        handleLogin(true); // Silent sync in background
+    }
+  };
+
+  // 2. LOGIN & SYNC LOGIC
+  async function handleLogin(isSilent = false) {
+    const emailInput = document.getElementById('emailInput');
+    const email = emailInput.value.toLowerCase().trim();
+    if(!email) return;
+
+    if(!isSilent) document.getElementById('loginMsg').innerText = "Checking Access & Syncing...";
+    
+    const finalUrl = `${SCRIPT_URL}?email=${encodeURIComponent(email)}`;
+    
+    try {
+      const response = await fetch(finalUrl);
+      const data = await response.json();
+      let currentStatus = data.status.toLowerCase().trim();
+
+      if(currentStatus === "allow") {
+        localStorage.setItem('khan_shop_email', email);
+        localStorage.setItem('khan_shop_status', "allow");
+        localStorage.setItem('offline_grocery', JSON.stringify(data.grocery));
+        localStorage.setItem('offline_hardware', JSON.stringify(data.hardware));
+
+        groceryInv = data.grocery;
+        hardwareInv = data.hardware;
+        
+        if(!isSilent) {
+          document.getElementById('loginPage').style.display = 'none';
+          document.getElementById('billingPage').style.display = 'block';
+          switchStore('Grocery');
+        } else {
+          switchStore(currentStore);
+        }
+      } else {
+        localStorage.removeItem('khan_shop_status');
+        if(!isSilent) {
+            document.getElementById('loginMsg').innerHTML = 
+            `<span style="color:orange; font-weight:bold;">Status: ${data.status}</span><br>
+             Admin se 'Allow' karwayein aur Refresh karein.`;
+        }
+      }
+    } catch(e) {
+      console.log("Offline Mode Active.");
+      if(!isSilent) document.getElementById('loginMsg').innerHTML = `<span style="color:red">Net Connection Error!</span>`;
+    }
+  }
+
+  // 3. STORE & GRID LOGIC
+  function switchStore(store) {
+    currentStore = store;
+    inventory = (store === 'Grocery') ? groceryInv : hardwareInv;
+    
+    document.getElementById('btnG').classList.toggle('store-active', store === 'Grocery');
+    document.getElementById('btnH').classList.toggle('store-active', store === 'Hardware');
+    document.getElementById('shopLabel').innerText = store.toUpperCase();
+    
+    selectedCat = 'All';
+    renderCats();
+    renderGrid();
+  }
+
+  function renderCats() {
+    const cats = ['All', ...new Set(inventory.map(i => i.cat))];
+    document.getElementById('catBar').innerHTML = cats.map(c => `
+      <div class="cat-btn ${selectedCat === c ? 'cat-active' : ''}" onclick="filterCat('${c}')">${c}</div>
+    `).join('');
+  }
+
+  function filterCat(c) { selectedCat = c; renderCats(); renderGrid(); }
+
+  function renderGrid() {
+    const grid = document.getElementById('prodGrid');
+    const filtered = selectedCat === 'All' ? inventory : inventory.filter(i => i.cat === selectedCat);
+    grid.innerHTML = filtered.map(i => `
+      <div class="p-card" onclick="addToCart('${i.code}')">
+        <strong>${i.eng}</strong>
+        <small>(${i.hin})</small><br>
+        <span style="color:var(--p); font-weight:bold;">₹${mode === 'retail' ? i.retail : i.ws}</span>
+      </div>
+    `).join('');
+  }
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById('rtBtn').classList.toggle('cat-active', m==='retail');
+    document.getElementById('wsBtn').classList.toggle('cat-active', m==='ws');
+    renderGrid(); 
+    updateBill();
+  }
+
+  // 4. CART & BILLING LOGIC
+  function addToCart(code) {
+    if(cart[code]) cart[code].qty++;
+    else {
+      const p = inventory.find(i => i.code == code);
+      cart[code] = { ...p, qty: 1 };
+    }
+    updateBill();
+    const box = document.getElementById('billItems');
+    setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
+  }
+
+  function updateQty(code, d) {
+    if(cart[code]) {
+      cart[code].qty += d;
+      if(cart[code].qty <= 0) delete cart[code];
+      updateBill();
+    }
+  }
+
+  function clearBill() {
+    if(confirm("Clear current bill?")) { cart = {}; document.getElementById('custName').value = ""; updateBill(); }
+  }
+
+  function updateBill() {
+    const container = document.getElementById('billItems');
+    let total = 0;
+    container.innerHTML = "";
+    for(let key in cart) {
+      let item = cart[key];
+      let rate = mode === 'retail' ? item.retail : item.ws;
+      let sub = item.qty * rate;
+      total += sub;
+      container.innerHTML += `
+        <div class="item-row">
+          <div style="flex:1"><b>${item.eng}</b><br><small>${item.hin}</small></div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button class="qty-btn" onclick="updateQty('${key}', -1)">-</button>
+            <b>${item.qty}</b>
+            <button class="qty-btn" onclick="updateQty('${key}', 1)">+</button>
+          </div>
+          <div style="width:70px; text-align:right;">₹${sub}</div>
+        </div>`;
+    }
+    document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total;
+  }
+
+  // 5. PRINTER & SHARING
+  async function printBill() {
+    if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
+    try {
+        if (!printerDevice) {
+            printerDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ namePrefix: 'Bluetooth' }, { namePrefix: 'SRS' }, { namePrefix: 'MPT' }, { namePrefix: 'MTP' }],
+                optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+            });
+        }
+        const server = await printerDevice.gatt.connect();
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+        const custName = document.getElementById('custName').value || "Cash Customer";
+        const totalAmt = document.getElementById('grandTotal').innerText.replace('TOTAL: ₹', '');
+        const date = new Date().toLocaleDateString('hi-IN');
+        const time = new Date().toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
+
+        let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01KHAN SHOP\n\x1B\x45\x00' + currentStore.toUpperCase() + ' STORE\n--------------------------------\n';
+        esc += '\x1B\x61\x00Date: ' + date + ' Time: ' + time + '\nCust: ' + custName.substring(0, 25) + '\n--------------------------------\nItem           Qty      Amount\n--------------------------------\n';
+
+        for (let key in cart) {
+            let item = cart[key];
+            let rate = mode === 'retail' ? item.retail : item.ws;
+            let subtotal = (rate * item.qty).toString();
+            let name = item.eng.substring(0, 14).padEnd(14, ' ');
+            let qty = item.qty.toString().padStart(6, ' ');
+            let amt = subtotal.padStart(10, ' ');
+            esc += `${name}${qty}${amt}\n`;
+        }
+        esc += '--------------------------------\n\x1B\x61\x02\x1B\x45\x01TOTAL: Rs. ' + totalAmt + '\n\x1B\x45\x00\x1B\x61\x01\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
+        const encoder = new TextEncoder();
+        await characteristic.writeValue(encoder.encode(esc));
+    } catch (error) {
+        alert("Printer Connect Nahi Hua!");
+        printerDevice = null;
+    }
+  }
+
+  function downloadCSV() {
+    let csv = "Item,Qty,Rate,Subtotal\n";
+    for(let k in cart) {
+        let r = mode === 'retail' ? cart[k].retail : cart[k].ws;
+        csv += `${cart[k].eng},${cart[k].qty},${r},${cart[k].qty*r}\n`;
+    }
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `Bill_${currentStore}.csv`; a.click();
+  }
+
+  function shareBill() {
+    const name = document.getElementById('custName').value || "Valued Customer";
+    let text = `*KHAN SHOP (${currentStore.toUpperCase()})*\nDate: ${new Date().toLocaleDateString()}\nCust: ${name}\n----------\n`;
+    for(let k in cart) {
+        let r = mode === 'retail' ? cart[k].retail : cart[k].ws;
+        text += `${cart[k].eng} x ${cart[k].qty} = ₹${cart[k].qty*r}\n`;
+    }
+    text += `----------\n*Total: ${document.getElementById('grandTotal').innerText}*\nThank You!`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+  }
+</script>
+
 </body>
 </html>

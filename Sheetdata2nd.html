@@ -969,7 +969,7 @@ async function handleLogin(isSilent = false) {
   function clearBill() {
     if(confirm("Clear current bill?")) { cart = {}; document.getElementById('custName').value = ""; updateBill(); }
   }
-
+/*
   function updateBill() {
     const container = document.getElementById('billItems');
     let total = 0;
@@ -992,7 +992,29 @@ async function handleLogin(isSilent = false) {
     }
     document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total;
   }
-
+*/
+        function updateBill() {
+    const container = document.getElementById('billItems');
+    let total = 0;
+    container.innerHTML = "";
+    for(let key in cart) {
+      let item = cart[key];
+      let rate = mode === 'retail' ? item.retail : item.ws;
+      let sub = item.qty * rate;
+      total += sub;
+      container.innerHTML += `
+        <div class="item-row">
+          <div style="flex:1"><b>${item.eng}</b><br><small>${item.hin}</small></div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button class="qty-btn" onclick="updateQty('${key}', -1)">-</button>
+            <b>${item.qty}</b>
+            <button class="qty-btn" onclick="updateQty('${key}', 1)">+</button>
+          </div>
+          <div style="width:70px; text-align:right;">₹${sub}</div>
+        </div>`;
+    }
+    document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total;
+  }
   // 5. PRINTER & SHARING
   async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");

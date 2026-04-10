@@ -627,7 +627,60 @@
         <p style="margin: 5px 0;">Contact Admin: <a href="mailto:abs@123.com" style="color: var(--s); text-decoration: none;">abs@123.com</a></p>
     </footer>
 </div>
+<div id="billingPage" style="display:none;">
+    <div class="top-fixed-area">
+        <div class="header">
+            <span class="shop-name">ARI&SMI STORE</span>
+          <div style="position: absolute; left: 10px; top: 15px;">
+    <button onclick="goHome()" style="background:none; border:none; color:white; font-size:20px;">🏠</button>
+</div>
+            <div class="store-selector">
+                <button id="btnG" class="store-btn store-active" onclick="switchStore('Grocery')">GROCERY</button>
+                <button id="btnH" class="store-btn" onclick="switchStore('Hardware')">HARDWARE</button>
+            </div>
+        </div>
+      <!-- <div style="position: absolute; left: 10px; top: 15px;">
+    <button onclick="goHome()" style="background:none; border:none; color:white; font-size:20px;">🏠</button>
+</div>
 
+<script>
+function goHome() {
+    document.getElementById('billingPage').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('loginMsg').innerText = "Logged in as: " + localStorage.getItem('khan_shop_email');
+}
+</script>
+ -->
+        <div class="sticky-controls">
+            <div class="mode-switcher">
+                <button id="rtBtn" class="cat-btn cat-active" onclick="setMode('retail')">RETAIL</button>
+                <button id="wsBtn" class="cat-btn" onclick="setMode('ws')">WHOLESALE</button>
+            </div>
+            <div id="catBar" class="cat-bar"></div>
+        </div>
+    </div>
+
+    <div class="cust-info" style="padding:10px;">
+        <input type="text" id="custName" placeholder="Customer Name (नाम लिखें)" style="width:100%; padding:10px; border:var(--border); border-radius:8px;">
+    </div>
+
+    <div id="prodGrid" class="grid"></div>
+
+    <div class="footer-bill">
+        <div id="billItems" class="bill-items"></div>
+        
+        <div class="action-bar">
+            <button class="round-btn" style="background:#3498db" onclick="printBill()">🖨️</button>
+            <button class="round-btn" style="background:#f39c12" onclick="downloadCSV()">📊</button>
+            <button class="round-btn" style="background:#25D366" onclick="shareBill()">🔗</button>
+            <button class="round-btn" style="background:var(--err)" onclick="clearBill()">❌</button>
+        </div>
+        <div class="total-strip">
+            <span id="grandTotal">TOTAL: ₹0</span>
+            <span id="shopLabel" style="font-size:11px;">GROCERY</span>
+        </div>
+    </div>
+</div>
 <!--
 <script>
     // [Yahan pichla script logic (handleLogin, switchStore, renderGrid etc.) bilkul wahi rahega]
@@ -952,6 +1005,11 @@ async function handleLogin(isSilent = false) {
         handleLogin(true); // Silent sync in background
     }
   };
+        function goHome() {
+    document.getElementById('billingPage').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('loginMsg').innerText = "Logged in as: " + localStorage.getItem('khan_shop_email');
+}
 /*
 // 4. Email Regex Check
 async function handleLogin(isSilent = false) {

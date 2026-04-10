@@ -675,10 +675,23 @@ function goHome() {
             <button class="round-btn" style="background:#25D366" onclick="shareBill()">🔗</button>
             <button class="round-btn" style="background:var(--err)" onclick="clearBill()">❌</button>
         </div>
-        <div class="total-strip">
+        <div style="padding: 10px; background: #eee; border-top: 1px solid #ccc;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Pichla Baqi (Prev. Bal):</span>
+        <input type="number" id="prevBal" value="0" oninput="calculateFinal()" style="width: 80px; text-align: right; border: 1px solid #000;">
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Aaj Jama (Paid):</span>
+        <input type="number" id="paidAmt" value="0" oninput="calculateFinal()" style="width: 80px; text-align: right; border: 1px solid #000;">
+    </div>
+    <div class="total-strip" style="background: var(--d); color: white; padding: 10px; border-radius: 5px;">
+        <span id="finalBalance">NET BALANCE: ₹0</span>
+    </div>
+</div>
+        <!--<div class="total-strip">
             <span id="grandTotal">TOTAL: ₹0</span>
             <span id="shopLabel" style="font-size:11px;">GROCERY</span>
-        </div>
+        </div>-->
     </div>
 </div>
 <!--
@@ -1218,7 +1231,7 @@ function editQty(code) {
 
 // updateBill function ke aakhir mein calculateFinal() ko call karein
 // taaki item add hote hi net balance bhi update ho jaye.
-/*
+
         // 2. Bill Table mein Rate dikhana
 function updateBill() {
     const container = document.getElementById('billItems');
@@ -1244,7 +1257,8 @@ function updateBill() {
     document.getElementById('grandTotal').innerText = "TOTAL: ₹" + total.toFixed(2);
 calculateFinal();
 }
-        */
+        
+        /*
         function updateBill() {
     const container = document.getElementById('billItems');
     let total = 0;
@@ -1276,7 +1290,7 @@ calculateFinal();
     // Pichla balance aur jama calculate karne ke liye
     if(typeof calculateFinal === "function") calculateFinal();
 }
-
+*/
         // printBill() ke andar Total ke baad ye add karein:
 
 /*
@@ -1484,6 +1498,57 @@ calculateFinal();
     text += `----------\n*Total: ${document.getElementById('grandTotal').innerText}*\nThank You!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
   }
+        // 5. PRINTER & SHARING
+  async function printBill() {
+    if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
+    try {
+        if (!printerDevice) {
+            printerDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ namePrefix: 'Bluetooth' }, { namePrefix: 'SRS' }, { namePrefix: 'MPT' }, { namePrefix: 'MTP' }],
+                optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+            });
+        }
+        const server = await printerDevice.gatt.connect();
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+        const custName = document.getElementById('custName').value || "Cash Customer";
+        const totalAmt = document.getElementById('grandTotal').innerText.replace('TOTAL: ₹', '');
+        const prev = document.getElementById('prevBal').value || "0";
+const paid = document.getElementById('paidAmt').value || "0";
+const final = document.getElementById('finalBalance').innerText.replace('NET BALANCE: ₹', '');
+
+        const date = new Date().toLocaleDateString('hi-IN');
+        const time = new Date().toLocaleTimeString('hi-IN', {hour: '2-digit', minute:'2-digit'});
+
+        let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01KHAN SHOP\n\x1B\x45\x00' + currentStore.toUpperCase() + ' STORE\n--------------------------------\n';
+        esc += '\x1B\x61\x00Date: ' + date + ' Time: ' + time + '\nCust: ' + custName.substring(0, 25) + '\n--------------------------------\nItem       Rate    Qty      Amount\n--------------------------------\n';
+        esc += '--------------------------------\n';
+        for (let key in cart) {
+            let item = cart[key];
+            let rate = mode === 'retail' ? item.retail : item.ws;
+            let subtotal = (rate * item.qty).toString();
+            let name = item.eng.substring(0, 14).padEnd(14, ' ');
+            let qty = item.qty.toString().padStart(6, ' ');
+            let amt = subtotal.padStart(10, ' ');
+            esc += `${name}${rate}${qty}${amt}\n`;
+        }
+        esc += '--------------------------------\n\x1B\x61\x02\x1B\x45\x01TOTAL: Rs. ' + totalAmt + '\n\x1B\x45\x00\x1B\x61\x01\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
+      esc += `Current Bill:    Rs. ${totalAmt.padStart(10)}\n`;
+esc += `Prev. Balance:   Rs. ${prev.padStart(10)}\n`;
+esc += `Total Jama:      Rs. ${paid.padStart(10)}\n`;
+esc += '--------------------------------\n';
+esc += '\x1B\x61\x02'; // Right Align
+esc += '\x1B\x45\x01' + `NET BAL: Rs. ${final}\n` + '\x1B\x45\x00';
+esc += '\x1B\x61\x01'; // Center Align
+ 
+        const encoder = new TextEncoder();
+        await characteristic.writeValue(encoder.encode(esc));
+    } catch (error) {
+        alert("Printer Connect Nahi Hua!");
+        printerDevice = null;
+    }
+  }
 </script>
     <!--
 <script>
@@ -1505,6 +1570,19 @@ async function printBill() {
     // ... (Total aur baaki code vahi rahega)
 }
 
+// printBill() ke andar Total ke baad ye add karein:
+const prev = document.getElementById('prevBal').value || "0";
+const paid = document.getElementById('paidAmt').value || "0";
+const final = document.getElementById('finalBalance').innerText.replace('NET BALANCE: ₹', '');
+
+esc += '--------------------------------\n';
+esc += `Current Bill:    Rs. ${totalAmt.padStart(10)}\n`;
+esc += `Prev. Balance:   Rs. ${prev.padStart(10)}\n`;
+esc += `Total Jama:      Rs. ${paid.padStart(10)}\n`;
+esc += '--------------------------------\n';
+esc += '\x1B\x61\x02'; // Right Align
+esc += '\x1B\x45\x01' + `NET BAL: Rs. ${final}\n` + '\x1B\x45\x00';
+esc += '\x1B\x61\x01'; // Center Align
 
 </script>
     -->

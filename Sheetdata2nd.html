@@ -1565,7 +1565,7 @@ function updateBill() {
     document.getElementById('grandTotal').innerText = "₹" + total.toFixed(2);
     calculateFinal();
 }
-
+/*
 // FINAL PRINTING CODE
 async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
@@ -1617,6 +1617,68 @@ async function printBill() {
         esc += '\x1B\x61\x01\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
 
         await characteristic.writeValue(new TextEncoder().encode(esc));
+    } catch (error) {
+        alert("Print Error: " + error.message);
+        printerDevice = null;
+    }
+}
+*/
+        async function printBill() {
+    if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");
+    try {
+        if (!printerDevice) {
+            printerDevice = await navigator.bluetooth.requestDevice({
+                filters: [{ namePrefix: 'Bluetooth' }, { namePrefix: 'SRS' }, { namePrefix: 'MPT' }, { namePrefix: 'MTP' }],
+                optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+            });
+        }
+        const server = await printerDevice.gatt.connect();
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+        const clean = (id) => document.getElementById(id).innerText.replace(/[^\d.-]/g, '') || "0";
+        const cName = document.getElementById('custName')?.value || "Cash Customer";
+        const curBill = clean('grandTotal');
+        const pBal = document.getElementById('prevBal')?.value || "0";
+        const pAmt = document.getElementById('paidAmt')?.value || "0";
+        const nBal = clean('finalBalance');
+
+        // 1. Poora Bill Text taiyar karein
+        let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01A R SON\'S STORE\n\x1B\x45\x00' + currentStore.toUpperCase() + ' BILL\n';
+        esc += "--------------------------------\n";
+        esc += '\x1B\x61\x00Date: ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + '\n';
+        esc += "Cust: " + cName.substring(0, 22) + "\n--------------------------------\n";
+        esc += "Item        Rate   Qty   Amount\n--------------------------------\n";
+
+        for (let key in cart) {
+            let item = cart[key];
+            let r = (mode === 'retail' ? item.retail : item.ws) || 0;
+            let q = item.qty || 0;
+            let s = (r * q).toFixed(1);
+            let n = (item.eng || "Item").substring(0, 10).padEnd(11, ' ');
+            esc += n + r.toString().padEnd(6, ' ') + q.toString().padEnd(5, ' ') + s.toString().padStart(8, ' ') + "\n";
+        }
+
+        esc += "--------------------------------\n";
+        esc += "Bill Total:    Rs. " + curBill.padStart(10) + "\n";
+        esc += "Prev. Balance: Rs. " + pBal.padStart(10) + "\n";
+        esc += "Aaj Jama:      Rs. " + pAmt.padStart(10) + "\n";
+        esc += "--------------------------------\n";
+        esc += '\x1B\x61\x02\x1B\x45\x01NET BAL: Rs. ' + nBal + '\n\x1B\x45\x00';
+        esc += '\x1B\x61\x01\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
+
+        // 2. CHUNKING LOGIC: Data ko 100-100 bytes ke tukdon mein bhejna
+        const encoder = new TextEncoder();
+        const data = encoder.encode(esc);
+        const chunkSize = 100; // 512 se kaafi kam, taaki safety rahe
+
+        for (let i = 0; i < data.length; i += chunkSize) {
+            const chunk = data.slice(i, i + chunkSize);
+            await characteristic.writeValue(chunk);
+            // Chota sa delay taaki printer ko process karne ka time mile
+            await new Promise(resolve => setTimeout(resolve, 50)); 
+        }
+
     } catch (error) {
         alert("Print Error: " + error.message);
         printerDevice = null;

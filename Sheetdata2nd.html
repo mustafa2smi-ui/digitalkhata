@@ -484,7 +484,7 @@
     </style>
 </head>
 <body>
-
+<!--
 <div id="loginPage" style="padding-top:100px; text-align:center;">
     <div style="background:white; padding:30px; margin:20px; border-radius:20px; border:var(--border);">
         <h2 style="color:var(--p)">KHAN SHOP LOGIN</h2>
@@ -548,7 +548,7 @@
         <span id="finalBalance">NET BALANCE: ₹0</span>
     </div>
 </div>
-    -->
+    --
         <div style="background: white; border-top: 2px solid var(--d);">
     <div style="padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px;">
         <div style="flex: 1;">
@@ -580,6 +580,53 @@
         </div>
     </div>
         </div>
+-->
+    <div id="loginPage" style="min-height: 100vh; display: flex; flex-direction: column;">
+    <header style="background: var(--p); color: white; padding: 25px 15px; text-align: center; border-bottom: 5px solid #1e8449;">
+        <h1 style="margin: 0; font-size: 22px; letter-spacing: 1px;">A R SON'S GENERAL STORE</h1>
+        <p style="margin: 5px 0 0; font-size: 14px; opacity: 0.9;">Digital Billing & Inventory System</p>
+        <p style="margin: 2px 0 0; font-size: 11px; font-style: italic;">Retail & Wholesale Product Price Panel</p>
+    </header>
+
+    <main style="flex: 1; padding: 20px;">
+        <div style="background: white; padding: 20px; border-radius: 15px; border: var(--border); box-shadow: 0 4px 0 black; margin-bottom: 25px;">
+            <h3 style="margin-top: 0; color: var(--d);">Staff Login</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Please enter your registered email.<br><b>Note:</b> Wait for Admin Verification.</p>
+            
+            <input type="email" id="emailInput" placeholder="example@gmail.com" 
+                   style="width: 100%; padding: 12px; border: var(--border); border-radius: 8px; box-sizing: border-box;">
+            
+            <button onclick="handleLogin()" id="loginBtn"
+                    style="width: 100%; background: var(--p); color: white; padding: 15px; border: var(--border); border-radius: 8px; margin-top: 15px; font-weight: bold; font-size: 16px;">
+                ENTER SYSTEM / CONTINUE
+            </button>
+            <div id="loginMsg" style="margin-top: 10px; font-size: 13px;"></div>
+        </div>
+
+        <section style="margin-bottom: 25px;">
+            <h4 style="border-left: 4px solid var(--p); padding-left: 10px; color: var(--d);">System Purpose</h4>
+            <p style="font-size: 13px; color: #444; line-height: 1.5;">
+                Yeh system A R Son's General Store ke internal management ke liye banaya gaya hai. Isse retail aur wholesale rates ki billing aur inventory tracking asani se ki ja sakti hai.
+            </p>
+        </section>
+
+        <section style="background: #fff3cd; padding: 15px; border-radius: 10px; border: 1px solid #ffeeba;">
+            <h4 style="margin-top: 0; color: #856404;">⚠️ Staff Instructions</h4>
+            <ul style="font-size: 12px; color: #533f03; padding-left: 20px; line-height: 1.8;">
+                <li>Login using your official Gmail account only.</li>
+                <li>Don't enter fake email; Google Sheet access is linked for price editing.</li>
+                <li><b>Check price carefully</b> before finalizing any bill.</li>
+                <li>Strictly do not share your login access with anyone.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer style="background: var(--d); color: #bdc3c7; padding: 20px; text-align: center; font-size: 11px;">
+        <p style="margin: 0; color: white;">A R Son's General Store Mailawada Internal System</p>
+        <p style="margin: 5px 0;">Version 1.0 | Dashboard</p>
+        <p style="margin: 5px 0;">Contact Admin: <a href="mailto:abs@123.com" style="color: var(--s); text-decoration: none;">abs@123.com</a></p>
+    </footer>
+</div>
 
 <!--
 <script>

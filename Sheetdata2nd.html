@@ -675,6 +675,7 @@ function goHome() {
             <button class="round-btn" style="background:#25D366" onclick="shareBill()">🔗</button>
             <button class="round-btn" style="background:var(--err)" onclick="clearBill()">❌</button>
         </div>
+        <!--
         <div style="padding: 10px; background: #eee; border-top: 1px solid #ccc;">
     <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
         <span>Pichla Baqi (Prev. Bal):</span>
@@ -691,9 +692,41 @@ function goHome() {
         <!--<div class="total-strip">
             <span id="grandTotal">TOTAL: ₹0</span>
             <span id="shopLabel" style="font-size:11px;">GROCERY</span>
-        </div>-->
+        </div>--
     </div>
 </div>
+    -->
+        <div style="background: white; border-top: 2px solid var(--d);">
+    <div style="padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; display: flex; gap: 10px;">
+        <div style="flex: 1;">
+            <label style="font-size: 11px; font-weight: bold; display: block;">Prev. Bal</label>
+            <input type="number" id="prevBal" value="0" 
+                   onfocus="if(this.value=='0')this.value=''" 
+                   onblur="if(this.value=='')this.value='0'"
+                   oninput="calculateFinal()" 
+                   style="width: 100%; padding: 8px; border: 1px solid #999; text-align: right; border-radius: 4px; box-sizing: border-box;">
+        </div>
+        <div style="flex: 1;">
+            <label style="font-size: 11px; font-weight: bold; display: block; color: #c0392b;">Aaj Jama</label>
+            <input type="number" id="paidAmt" value="0" 
+                   onfocus="if(this.value=='0')this.value=''" 
+                   onblur="if(this.value=='')this.value='0'"
+                   oninput="calculateFinal()" 
+                   style="width: 100%; padding: 8px; border: 1px solid #999; text-align: right; border-radius: 4px; color: green; font-weight: bold; box-sizing: border-box;">
+        </div>
+    </div>
+
+    <div style="padding: 10px; background: var(--d); color: white;">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+            <span>Bill: <span id="grandTotal">₹0</span></span>
+            <span id="shopLabel" style="text-transform: uppercase;">MODE</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 5px;">
+            <b style="font-size: 14px;">NET BAL:</b>
+            <b id="finalBalance" style="font-size: 18px; color: #2ecc71;">₹0.00</b>
+        </div>
+    </div>
+        </div>
 <!--
 <script>
     // [Yahan pichla script logic (handleLogin, switchStore, renderGrid etc.) bilkul wahi rahega]

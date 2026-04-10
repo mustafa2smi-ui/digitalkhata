@@ -1079,11 +1079,12 @@ async function handleLogin(isSilent = false) {
     // ... (Baaki fetch logic vahi rahega)
 }
 */
+        /*
   // 2. LOGIN & SYNC LOGIC
   async function handleLogin(isSilent = false) {
     const emailInput = document.getElementById('emailInput');
     const email = emailInput.value.toLowerCase().trim();
-   /* if(!email) return;*/
+   /* if(!email) return;*
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if(!emailRegex.test(email)) {
         document.getElementById('loginMsg').innerHTML = "<span style='color:red'>Sahi Email format likhein!</span>";
@@ -1127,6 +1128,71 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if(!isSilent) document.getElementById('loginMsg').innerHTML = `<span style="color:red">Net Connection Error!</span>`;
     }
   }
+*/
+        async function handleLogin(isSilent = false) {
+    const emailInput = document.getElementById('emailInput');
+    const email = emailInput.value.toLowerCase().trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!emailRegex.test(email)) {
+        document.getElementById('loginMsg').innerHTML = "<span style='color:red'>Sahi Email format likhein!</span>";
+        return;
+    }
+
+    // --- SMART BYPASS (FAST ENTRY) ---
+    // Agar user wahi hai aur status pehle se "allow" hai, toh syncing skip karo
+    const savedEmail = localStorage.getItem('khan_shop_email');
+    const savedStatus = localStorage.getItem('khan_shop_status');
+
+    if (savedEmail === email && savedStatus === "allow" && !isSilent) {
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('billingPage').style.display = 'block';
+        // Inventory load karna zaroori hai local se
+        groceryInv = JSON.parse(localStorage.getItem('offline_grocery')) || [];
+        hardwareInv = JSON.parse(localStorage.getItem('offline_hardware')) || [];
+        switchStore(currentStore || 'Grocery');
+        return; // Function yahan khatam, niche wala fetch nahi chalega
+    }
+    // ---------------------------------
+
+    if(!isSilent) document.getElementById('loginMsg').innerText = "Checking Access & Syncing...";
+    
+    const finalUrl = `${SCRIPT_URL}?email=${encodeURIComponent(email)}`;
+    
+    try {
+      const response = await fetch(finalUrl);
+      const data = await response.json();
+      let currentStatus = data.status.toLowerCase().trim();
+
+      if(currentStatus === "allow") {
+        localStorage.setItem('khan_shop_email', email);
+        localStorage.setItem('khan_shop_status', "allow");
+        localStorage.setItem('offline_grocery', JSON.stringify(data.grocery));
+        localStorage.setItem('offline_hardware', JSON.stringify(data.hardware));
+
+        groceryInv = data.grocery;
+        hardwareInv = data.hardware;
+        
+        if(!isSilent) {
+          document.getElementById('loginPage').style.display = 'none';
+          document.getElementById('billingPage').style.display = 'block';
+          switchStore('Grocery');
+        } else {
+          switchStore(currentStore);
+        }
+      } else {
+        localStorage.removeItem('khan_shop_status');
+        if(!isSilent) {
+            document.getElementById('loginMsg').innerHTML = 
+            `<span style="color:orange; font-weight:bold;">Status: ${data.status}</span><br>
+             Admin se 'Allow' karwayein aur Refresh karein.`;
+        }
+      }
+    } catch(e) {
+      console.log("Offline Mode Active.");
+      if(!isSilent) document.getElementById('loginMsg').innerHTML = `<span style="color:red">Net Connection Error!</span>`;
+    }
+}
 
   // 3. STORE & GRID LOGIC
   function switchStore(store) {

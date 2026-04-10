@@ -1551,10 +1551,10 @@ function updateBill() {
       let sub = item.qty * rate;
       total += sub;
       container.innerHTML += `
-        <div class="item-row" style="display:flex; align-items:center; padding:4px 0; border-bottom:1px solid #eee;">
+        <div class="item-row" style="display:flex; align-items:center; padding:5px 0; border-bottom:1px solid #eee;">
           <div style="flex:1; font-size:13px;" onclick="editQty('${key}')"><b>${item.eng}</b></div>
-          <div style="width:40px; font-size:12px;">${rate}</div>
-          <div style="display:flex; align-items:center; gap:3px; width:70px; justify-content:center;">
+          <div style="width:70px; font-size:12px;">${rate}</div>
+          <div style="display:flex; align-items:center; gap:5px; width:70px; justify-content:center;">
             <button class="qty-btn" style="padding:1px 6px;" onclick="updateQty('${key}', -1)">-</button>
             <b style="font-size:13px;">${item.qty}</b>
             <button class="qty-btn" style="padding:1px 6px;" onclick="updateQty('${key}', 1)">+</button>

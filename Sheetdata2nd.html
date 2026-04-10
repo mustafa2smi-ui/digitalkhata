@@ -1556,7 +1556,8 @@ function updateBill() {
           <div style="width:70px; font-size:12px;">${rate}</div>
           <div style="display:flex; align-items:center; gap:5px; width:70px; justify-content:center;">
             <button class="qty-btn" style="padding:1px 6px;" onclick="updateQty('${key}', -1)">-</button>
-            <b style="font-size:13px;">${item.qty}</b>
+             
+             <b onclick="editQty('${key}')" style="min-width:20px; text-align:center;">${item.qty}</b>
             <button class="qty-btn" style="padding:1px 6px;" onclick="updateQty('${key}', 1)">+</button>
           </div>
           <div style="width:55px; text-align:right; font-weight:bold;">${sub.toFixed(1)}</div>
@@ -1566,6 +1567,7 @@ function updateBill() {
     calculateFinal();
 }
 /*
+<b style="font-size:13px;">${item.qty}</b>
 // FINAL PRINTING CODE
 async function printBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle Bill mein items add karein!");

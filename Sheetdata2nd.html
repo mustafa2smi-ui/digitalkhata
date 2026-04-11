@@ -1207,16 +1207,31 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     renderCats();
     renderGrid();
   }
-
+/*
   function renderCats() {
     const cats = ['All', ...new Set(inventory.map(i => i.cat))];
     document.getElementById('catBar').innerHTML = cats.map(c => `
       <div class="cat-btn ${selectedCat === c ? 'cat-active' : ''}" onclick="filterCat('${c}')">${c}</div>
     `).join('');
   }
+*/
+    function renderCats() {
+    // Sirf un items ko lein jinka rate current mode mein 0 se bada hai
+    const activeItems = inventory.filter(i => {
+        let rate = mode === 'retail' ? parseFloat(i.retail) : parseFloat(i.ws);
+        return rate > 0;
+    });
+
+    // Ab sirf unhi active items ki categories nikalen
+    const cats = ['All', ...new Set(activeItems.map(i => i.cat))];
+    
+    document.getElementById('catBar').innerHTML = cats.map(c => `
+      <div class="cat-btn ${selectedCat === c ? 'cat-active' : ''}" onclick="filterCat('${c}')">${c}</div>
+    `).join('');
+}
 
   function filterCat(c) { selectedCat = c; renderCats(); renderGrid(); }
-
+/*
   function renderGrid() {
     const grid = document.getElementById('prodGrid');
     const filtered = selectedCat === 'All' ? inventory : inventory.filter(i => i.cat === selectedCat);
@@ -1228,6 +1243,27 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       </div>
     `).join('');
   }
+*/
+    function renderGrid() {
+    const grid = document.getElementById('prodGrid');
+    
+    // Pehle Category ke hisab se filter karein
+    let filtered = selectedCat === 'All' ? inventory : inventory.filter(i => i.cat === selectedCat);
+    
+    // Ab Rate ke hisab se filter karein (Sirf > 0 wale dikhao)
+    filtered = filtered.filter(i => {
+        let rate = mode === 'retail' ? parseFloat(i.retail) : parseFloat(i.ws);
+        return rate > 0; // Agar rate 0 ya khali hai toh display nahi hoga
+    });
+
+    grid.innerHTML = filtered.map(i => `
+      <div class="p-card" onclick="addToCart('${i.code}')">
+        <strong>${i.eng}</strong>
+        <small>(${i.hin})</small><br>
+        <span style="color:var(--p); font-weight:bold;">₹${mode === 'retail' ? i.retail : i.ws}</span>
+      </div>
+    `).join('');
+}
 
   function setMode(m) {
     mode = m;
@@ -1249,6 +1285,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
   }
 
+        
   function updateQty(code, d) {
     if(cart[code]) {
       cart[code].qty += d;
@@ -1596,7 +1633,7 @@ calculateFinal();
     const a = document.createElement('a');
     a.href = url; a.download = `Bill_${currentStore}.csv`; a.click();
   }
-
+/*
   function shareBill() {
     const name = document.getElementById('custName').value || "Valued Customer";
     let text = `*KHAN SHOP (${currentStore.toUpperCase()})*\nDate: ${new Date().toLocaleDateString()}\nCust: ${name}\n----------\n`;
@@ -1607,6 +1644,59 @@ calculateFinal();
     text += `----------\n*Total: ${document.getElementById('grandTotal').innerText}*\nThank You!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
   }
+        */
+        async function shareBill() {
+    if (Object.keys(cart).length === 0) return alert("Pehle items add karein!");
+
+    const cName = document.getElementById('custName').value || "Customer";
+    const netBal = document.getElementById('finalBalance').innerText;
+    
+    // Header taiyar karein
+    let shareTxt = `*A R SON'S STORE*\n--------------------------\n`;
+    shareTxt += `*Cust:* ${cName}\n*Date:* ${new Date().toLocaleDateString()}\n`;
+    shareTxt += `--------------------------\n`;
+
+    // Items Logic (Sirf pehle 5 items)
+    let keys = Object.keys(cart);
+    let limit = 5; 
+    let count = 0;
+
+    for (let key of keys) {
+        if (count < limit) {
+            let item = cart[key];
+            let rate = mode === 'retail' ? item.retail : item.ws;
+            shareTxt += `${count + 1}. ${item.eng} - Rs.${rate} x ${item.qty}\n`;
+        }
+        count++;
+    }
+
+    // Agar 5 se zyada items hain toh "...etc" dikhao
+    if (count > limit) {
+        shareTxt += `...and ${count - limit} more items.\n`;
+    }
+
+    shareTxt += `--------------------------\n`;
+    shareTxt += `*NET BALANCE: ${netBal}*\n`;
+    shareTxt += `--------------------------\n`;
+    shareTxt += `Shukriya! Visit Again.`;
+
+    // Sharing Logic
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Shop Bill',
+                text: shareTxt
+            });
+        } catch (err) {
+            console.log("Share cancel ho gaya.");
+        }
+    } else {
+        // Agar browser support na kare toh Clipboard par copy kar dein
+        navigator.clipboard.writeText(shareTxt);
+        alert("Bill copy ho gaya hai! WhatsApp par paste karein.");
+    }
+}
+
         function calculateFinal() {
     let currentTotal = 0;
     for(let key in cart) {

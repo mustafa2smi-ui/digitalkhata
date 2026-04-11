@@ -658,6 +658,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -870,6 +871,563 @@
                 });
             }
         }
+    </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Falah Ilm E Deen - Masnoon Duas, Digital Tasbeeh, Qibla Finder, Prophet Stories aur Islamic knowledge ka authentic portal. Apna Iman mazboot karein dua aur tasbeeh ke zariye.">
+    <meta name="keywords" content="masnoon dua, digital tasbeeh, qibla finder, prophet story, islamic dua, namaz guide, falah ilm e deen, islamic tools hindi, dua images, tasbeeh counter">
+    <meta name="author" content="Falah Ilm E Deen">
+    <title>Falah Ilm E Deen - Dua, Tasbeeh & Islamic Tools</title>
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="Falah Ilm E Deen - Apna Iman Mazboot Karein">
+    <meta property="og:description" content="Masnoon Duas, Digital Tasbeeh, Qibla Finder aur bohot kuch. Islamic knowledge aur dua ke liye best portal.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourwebsite.com">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1542810634-71277d95dcbb"> <!-- Hero image ya apni dua image daalein -->
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='50' font-size='70' text-anchor='middle' x='50'%3E%F0%9F%95%8B%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #27ae60;
+            --dark: #2c3e50;
+            --gold: #f1c40f;
+            --light: #f8f9fa;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #fdfdfd;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        h1, h2, h3 { font-family: 'Amiri', serif; }
+
+        /* Navbar */
+        nav {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hamburger {
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 55vh;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.6);
+        }
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin-bottom: 25px;
+        }
+        .cta-btn {
+            background: var(--primary);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(39,174,96,0.3);
+            transition: 0.3s;
+        }
+        .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(39,174,96,0.4); }
+
+        /* Section Title */
+        .section-title {
+            text-align: center;
+            margin: 50px 0 25px;
+            font-size: 2rem;
+            color: var(--primary);
+            position: relative;
+        }
+        .section-title:after {
+            content: '';
+            width: 80px;
+            height: 3px;
+            background: var(--gold);
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Tools Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+            max-width: 1200px;
+            margin: 0 auto 60px;
+        }
+        .tool-card {
+            background: white;
+            padding: 25px 15px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+            transition: all 0.4s;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #eee;
+        }
+        .tool-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(39,174,96,0.15);
+            border-color: var(--primary);
+        }
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        /* Quotes Section */
+        .quotes-section {
+            background: linear-gradient(135deg, #f8f9fa, #e8f5e9);
+            padding: 40px 20px;
+            overflow: hidden;
+        }
+        .quotes-scroll {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+        }
+        .quotes-scroll::-webkit-scrollbar { display: none; }
+        .quote-card {
+            min-width: 280px;
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .quote-card p {
+            font-style: italic;
+            font-size: 1.05rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .quote-card .author {
+            text-align: right;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .share-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: var(--gold);
+            color: #333;
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        /* Affiliate Cards */
+        .affiliate-section {
+            padding: 40px 20px;
+            background: white;
+        }
+        .affiliate-scroll {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+        }
+        .affiliate-scroll::-webkit-scrollbar { display: none; }
+        .aff-card {
+            min-width: 240px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            text-decoration: none;
+            color: inherit;
+        }
+        .aff-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        .aff-card .content {
+            padding: 15px;
+        }
+
+        /* Coming Soon Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 420px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-content h2 {
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        /* Floating Share */
+        .floating-share {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: var(--primary);
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            box-shadow: 0 5px 20px rgba(39,174,96,0.4);
+            cursor: pointer;
+            z-index: 999;
+        }
+        .share-options {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            padding: 10px 0;
+            min-width: 180px;
+        }
+        .share-options a {
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .share-options a:hover { background: #f0f0f0; }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 50px 20px 30px;
+        }
+        footer a { color: var(--gold); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                padding: 30px 20px;
+                transition: 0.4s;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+            .nav-links.active { left: 0; }
+            .hero h1 { font-size: 2.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <span>🕌</span> Falah Ilm E Deen
+            </div>
+            <div class="hamburger" id="hamburger">☰</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="dua-index.html">Masnoon Duas</a></li>
+                <li><a href="tasbeeh.html">Digital Tasbeeh</a></li>
+                <li><a href="#" onclick="showComingSoon('Prophet Story')">Prophet Story</a></li>
+                <li><a href="#" onclick="showComingSoon('Qibla Finder')">Qibla Finder</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Falah Ilm E Deen</h1>
+        <p>اپنے ایمان کو مضبوط کریں — مستند دعائیں، تسبیح، قبلہ ڈائریکشن اور اسلامی علم کے ساتھ</p>
+        <a href="dua-index.html" class="cta-btn">Masnoon Duas پڑھیں 🤲</a>
+    </section>
+
+    <!-- Islamic Utilities -->
+    <h2 class="section-title">Islamic Utilities & Tools</h2>
+    <div class="tools-grid">
+        <a href="dua-index.html" class="tool-card">
+            <span class="tool-icon">🤲</span>
+            <h3>Masnoon Duas</h3>
+            <p>روزمرہ کی دعائیں</p>
+        </a>
+        <a href="tasbeeh.html" class="tool-card">
+            <span class="tool-icon">📿</span>
+            <h3>Digital Tasbeeh</h3>
+            <p>آسان تسبیح کاؤنٹر</p>
+        </a>
+        <a href="#" onclick="showComingSoon('Prophet Story')" class="tool-card">
+            <span class="tool-icon">📜</span>
+            <h3>Prophet History</h3>
+            <p>نبی ﷺ کی سیرت</p>
+        </a>
+        <a href="#" onclick="showComingSoon('Qibla Finder')" class="tool-card">
+            <span class="tool-icon">🕋</span>
+            <h3>Qibla Finder</h3>
+            <p>قبلہ کی سمت معلوم کریں</p>
+        </a>
+    </div>
+
+    <!-- Islamic Quotes -->
+    <div class="quotes-section">
+        <h2 class="section-title">Inspiring Islamic Quotes</h2>
+        <div class="quotes-scroll" id="quotesScroll">
+            <!-- Quotes populated by JS -->
+        </div>
+    </div>
+
+    <!-- Affiliate Section -->
+    <div class="affiliate-section">
+        <h2 class="section-title">Recommended Islamic Products</h2>
+        <div class="affiliate-scroll">
+            <a href="https://example.com/affiliate1" target="_blank" class="aff-card">
+                <img src="https://via.placeholder.com/300x160/27ae60/ffffff?text=Prayer+Mat" alt="Prayer Mat">
+                <div class="content">
+                    <h4>Premium Prayer Mat</h4>
+                    <p>Comfortable &amp; beautiful janamaz</p>
+                </div>
+            </a>
+            <a href="https://example.com/affiliate2" target="_blank" class="aff-card">
+                <img src="https://via.placeholder.com/300x160/f1c40f/2c3e50?text=Quran+Book" alt="Quran">
+                <div class="content">
+                    <h4>Islamic Books Collection</h4>
+                    <p>Best sellers on Seerah &amp; Dua</p>
+                </div>
+            </a>
+            <a href="https://example.com/affiliate3" target="_blank" class="aff-card">
+                <img src="https://via.placeholder.com/300x160/27ae60/ffffff?text=Tasbeeh" alt="Tasbeeh">
+                <div class="content">
+                    <h4>Digital &amp; Wooden Tasbeeh</h4>
+                    <p>Daily dhikr made easy</p>
+                </div>
+            </a>
+            <a href="https://example.com/affiliate4" target="_blank" class="aff-card">
+                <img src="https://via.placeholder.com/300x160/2c3e50/fff?text=Hijab" alt="Hijab">
+                <div class="content">
+                    <h4>Modest Islamic Clothing</h4>
+                    <p>Halal &amp; stylish options</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Articles (existing ko thoda better kiya) -->
+    <h2 class="section-title">Latest Articles</h2>
+    <div class="articles" style="max-width:1200px;margin:0 auto 60px;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+        <!-- Aap apne real articles daal sakte hain -->
+        <div class="article-box" style="display:flex;background:white;border-radius:16px;overflow:hidden;box-shadow:0 5px 20px rgba(0,0,0,0.06);">
+            <img src="https://via.placeholder.com/140" alt="Hajj" style="width:140px;object-fit:cover;">
+            <div style="padding:20px;flex:1;">
+                <h4>Hajj 2026: Complete Guide</h4>
+                <p>Hajj ke ahkaam aur sunnaton ki tafseeli malumaat Hindi/Urdu mein...</p>
+            </div>
+        </div>
+        <!-- Dusra article add kar sakte hain -->
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Falah Ilm E Deen - Islamic Knowledge Portal</p>
+        <div style="margin-top:15px;">
+            <a href="about.html">About Us</a> | 
+            <a href="privacy.html">Privacy Policy</a> | 
+            <a href="contact.html">Contact Us</a>
+        </div>
+    </footer>
+
+    <!-- Coming Soon Modal -->
+    <div class="modal" id="comingModal">
+        <div class="modal-content">
+            <h2>Coming Soon Insha'Allah</h2>
+            <p id="modalText" style="margin:20px 0;font-size:1.1rem;"></p>
+            <button onclick="closeModal()" style="background:var(--primary);color:white;border:none;padding:12px 30px;border-radius:50px;cursor:pointer;">OK</button>
+        </div>
+    </div>
+
+    <!-- Floating Share Button -->
+    <div class="floating-share" id="floatShare">
+        <i class="fas fa-share-alt"></i>
+    </div>
+    <div class="share-options" id="shareOptions">
+        <a href="#" onclick="shareSite('whatsapp')"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="#" onclick="shareSite('facebook')"><i class="fab fa-facebook"></i> Facebook</a>
+        <a href="#" onclick="shareSite('twitter')"><i class="fab fa-x-twitter"></i> X (Twitter)</a>
+        <a href="#" onclick="shareSite('copy')"><i class="fas fa-copy"></i> Copy Link</a>
+    </div>
+
+    <script>
+        // Hamburger Menu
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Coming Soon Modal
+        function showComingSoon(tool) {
+            document.getElementById('modalText').textContent = `${tool} feature jald hi launch ho jayega Insha'Allah! Stay tuned.`;
+            document.getElementById('comingModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('comingModal').style.display = 'none';
+        }
+
+        // Islamic Quotes (side scroll)
+        const quotes = [
+            { text: "دعا دل کی سب سے بڑی طاقت ہے۔", author: "Islamic Wisdom" },
+            { text: "Dua changes destiny. Trust in Allah's plan.", author: "Hadith Inspiration" },
+            { text: "صبر اور دعا سے ہر مشکل آسان ہو جاتی ہے۔", author: "Quranic Reminder" },
+            { text: "There is no power greater than Dua.", author: "Prophet ﷺ Teachings" }
+        ];
+
+        const quotesContainer = document.getElementById('quotesScroll');
+        quotes.forEach(q => {
+            const card = document.createElement('div');
+            card.className = 'quote-card';
+            card.innerHTML = `
+                <p>"${q.text}"</p>
+                <div class="author">- ${q.author}</div>
+                <button class="share-btn" onclick="shareQuote('${q.text}')"><i class="fas fa-share"></i></button>
+            `;
+            quotesContainer.appendChild(card);
+        });
+
+        function shareQuote(text) {
+            // Actual share logic (aap watermark image ke saath customize kar sakte hain)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Islamic Quote',
+                    text: text + '\n\n— Shared from Falah Ilm E Deen'
+                });
+            } else {
+                alert('Quote copied: ' + text + '\n\n— Falah Ilm E Deen');
+            }
+        }
+
+        // Floating Share
+        const floatShare = document.getElementById('floatShare');
+        const shareOptions = document.getElementById('shareOptions');
+        floatShare.addEventListener('click', () => {
+            shareOptions.style.display = shareOptions.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        function shareSite(platform) {
+            const url = window.location.href;
+            const title = "Falah Ilm E Deen - Dua & Islamic Tools";
+            if (platform === 'whatsapp') {
+                window.open(`https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`);
+            } else if (platform === 'facebook') {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+            } else if (platform === 'twitter') {
+                window.open(`https://twitter.com/intent/tweet?text=\( {encodeURIComponent(title)}&url= \){encodeURIComponent(url)}`);
+            } else if (platform === 'copy') {
+                navigator.clipboard.writeText(url);
+                alert('Link copied to clipboard!');
+            }
+            shareOptions.style.display = 'none';
+        }
+
+        // Close share options when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!floatShare.contains(e.target)) {
+                shareOptions.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

@@ -1757,7 +1757,7 @@ calculateFinal();
         alert("Bill copy ho gaya! WhatsApp par paste karein.");
     }
 }
-
+/*
         function calculateFinal() {
     let currentTotal = 0;
     for(let key in cart) {
@@ -1769,6 +1769,20 @@ calculateFinal();
     const final = (prev + currentTotal) - paid;
     
     // Sirf Symbol rakhein taaki printer ko dikqat na ho
+    document.getElementById('finalBalance').innerText = "₹" + final.toFixed(2);
+}
+        */
+function calculateFinal() {
+    let currentTotal = 0;
+    for(let key in cart) {
+        // Ab hum seedha cart[key] ka rate uthayenge jo edit ho sakta hai
+        let r = mode === 'retail' ? parseFloat(cart[key].retail) : parseFloat(cart[key].ws);
+        currentTotal += cart[key].qty * r;
+    }
+    // ... baaki pichla code waisa hi rahega
+    const prev = parseFloat(document.getElementById('prevBal').value) || 0;
+    const paid = parseFloat(document.getElementById('paidAmt').value) || 0;
+    const final = (prev + currentTotal) - paid;
     document.getElementById('finalBalance').innerText = "₹" + final.toFixed(2);
 }
 
@@ -1784,7 +1798,7 @@ function updateBill() {
       container.innerHTML += `
         <div class="item-row" style="display:flex; align-items:center; padding:5px 0; border-bottom:1px solid #eee;">
           <div style="flex:1; font-size:13px;" onclick="editQty('${key}')"><b>${item.eng}</b></div>
-          <div style="width:70px; font-size:12px;">${rate}</div>
+<div style="width:40px; font-size:12px;" onclick="editRate('${key}')">₹${rate}</div>
           <div style="display:flex; align-items:center; gap:5px; width:70px; justify-content:center;">
             <button class="qty-btn" style="padding:1px 6px;" onclick="updateQty('${key}', -1)">-</button>
              
@@ -1797,6 +1811,27 @@ function updateBill() {
     document.getElementById('grandTotal').innerText = "₹" + total.toFixed(2);
     calculateFinal();
 }
+        function editRate(key) {
+    // Pehle pucha jayega ki naya rate kya hai
+    let currentRate = mode === 'retail' ? cart[key].retail : cart[key].ws;
+    let newRate = prompt("Naya Rate (₹) likhein:", currentRate);
+    
+    if (newRate !== null && newRate !== "") {
+        let n = parseFloat(newRate);
+        if (n >= 0) {
+            // Cart mein us item ka rate update kar dena
+            if (mode === 'retail') {
+                cart[key].retail = n;
+            } else {
+                cart[key].ws = n;
+            }
+            updateBill(); // Bill refresh karein
+        } else {
+            alert("Sahi rate likhein!");
+        }
+    }
+}
+
 /*
 <b style="font-size:13px;">${item.qty}</b>
 // FINAL PRINTING CODE

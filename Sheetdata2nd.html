@@ -1645,6 +1645,7 @@ calculateFinal();
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
   }
         */
+        /*
         async function shareBill() {
     if (Object.keys(cart).length === 0) return alert("Pehle items add karein!");
 
@@ -1694,6 +1695,66 @@ calculateFinal();
         // Agar browser support na kare toh Clipboard par copy kar dein
         navigator.clipboard.writeText(shareTxt);
         alert("Bill copy ho gaya hai! WhatsApp par paste karein.");
+    }
+}
+*/
+    async function shareBill() {
+    if (Object.keys(cart).length === 0) return alert("Pehle items add karein!");
+
+    const cName = document.getElementById('custName').value || "Customer";
+    
+    // Nayi Values nikalne ke liye (Balance Section)
+    const curBill = document.getElementById('grandTotal').innerText.replace(/[^\d.-]/g, '');
+    const pBal = document.getElementById('prevBal').value || "0";
+    const pAmt = document.getElementById('paidAmt').value || "0";
+    const nBal = document.getElementById('finalBalance').innerText.replace(/[^\d.-]/g, '');
+    
+    // Header
+    let shareTxt = `*A R SON'S STORE*\n--------------------------\n`;
+    shareTxt += `*Cust:* ${cName}\n*Date:* ${new Date().toLocaleDateString()}\n`;
+    shareTxt += `--------------------------\n`;
+
+    // Items Logic (Sirf pehle 5 items dikhane ke liye)
+    let keys = Object.keys(cart);
+    let limit = 5; 
+    let count = 0;
+
+    for (let key of keys) {
+        if (count < limit) {
+            let item = cart[key];
+            let rate = mode === 'retail' ? item.retail : item.ws;
+            shareTxt += `${count + 1}. ${item.eng} - ₹${rate} x ${item.qty}\n`;
+        }
+        count++;
+    }
+
+    if (count > limit) {
+        shareTxt += `...and ${count - limit} more items.\n`;
+    }
+
+    // --- HISAB KITAB SECTION ---
+    shareTxt += `--------------------------\n`;
+    shareTxt += `Current Bill:  ₹${curBill}\n`;
+    shareTxt += `Prev. Bal:     ₹${pBal}\n`;
+    shareTxt += `Aaj Jama:      ₹${pAmt}\n`;
+    shareTxt += `--------------------------\n`;
+    shareTxt += `*NET BALANCE:  ₹${nBal}*\n`;
+    shareTxt += `--------------------------\n`;
+    shareTxt += `Shukriya! Visit Again.`;
+
+    // Sharing Logic
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Shop Bill',
+                text: shareTxt
+            });
+        } catch (err) {
+            console.log("Share cancel.");
+        }
+    } else {
+        navigator.clipboard.writeText(shareTxt);
+        alert("Bill copy ho gaya! WhatsApp par paste karein.");
     }
 }
 

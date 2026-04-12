@@ -1207,14 +1207,14 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     renderCats();
     renderGrid();
   }
-
+/*
   function renderCats() {
     const cats = ['All', ...new Set(inventory.map(i => i.cat))];
     document.getElementById('catBar').innerHTML = cats.map(c => `
       <div class="cat-btn ${selectedCat === c ? 'cat-active' : ''}" onclick="filterCat('${c}')">${c}</div>
     `).join('');
   }
-
+*/
         /*
     function renderCats() {
     // Sirf un items ko lein jinka rate current mode mein 0 se bada hai
@@ -1271,6 +1271,27 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     });
 }
 */
+        function renderCats() {
+    const activeItems = inventory.filter(i => (parseFloat(i.retail) || 0) > 0 || (parseFloat(i.ws) || 0) > 0);
+    const cats = ['All', ...new Set(activeItems.map(i => i.cat))];
+    
+    const catBar = document.getElementById('catBar');
+    catBar.innerHTML = ""; 
+
+    cats.forEach(c => {
+        const btn = document.createElement('div');
+        btn.className = `cat-btn ${selectedCat === c ? 'cat-active' : ''}`;
+        btn.innerText = c;
+        
+        // Mobile touch ke liye ye sabse solid tarika hai
+        btn.addEventListener('click', function() {
+            filterCat(c);
+        });
+        
+        catBar.appendChild(btn);
+    });
+}
+
         /*
     function renderGrid() {
     const grid = document.getElementById('prodGrid');

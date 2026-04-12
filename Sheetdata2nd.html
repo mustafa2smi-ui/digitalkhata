@@ -1207,14 +1207,14 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     renderCats();
     renderGrid();
   }
-/*
+
   function renderCats() {
     const cats = ['All', ...new Set(inventory.map(i => i.cat))];
     document.getElementById('catBar').innerHTML = cats.map(c => `
       <div class="cat-btn ${selectedCat === c ? 'cat-active' : ''}" onclick="filterCat('${c}')">${c}</div>
     `).join('');
   }
-*/
+
         /*
     function renderCats() {
     // Sirf un items ko lein jinka rate current mode mein 0 se bada hai
@@ -1246,6 +1246,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     `).join('');
   }
 */
+        /*
         function renderCats() {
     // Sirf un items ko lein jinka kam se kam ek rate (Retail ya WS) 0 se bada ho
     const activeItems = inventory.filter(i => {
@@ -1269,7 +1270,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         catBar.appendChild(btn);
     });
 }
-
+*/
         /*
     function renderGrid() {
     const grid = document.getElementById('prodGrid');

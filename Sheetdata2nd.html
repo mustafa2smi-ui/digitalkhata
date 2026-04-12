@@ -1034,7 +1034,7 @@ async function handleLogin(isSilent = false) {
 </script>
     -->
     <script>
-  /*const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEf_fDwLfESUew5Sr8iBNF_cdcTb_Boz6ud9LqvHEU9VHN0RtwfimwmMPCUSOEN3uMhQ/exec";*/
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEf_fDwLfESUew5Sr8iBNF_cdcTb_Boz6ud9LqvHEU9VHN0RtwfimwmMPCUSOEN3uMhQ/exec";
   
   let groceryInv = [], hardwareInv = [], inventory = [], cart = {};
   let mode = 'retail', selectedCat = 'All', currentStore = 'Grocery';
@@ -1215,6 +1215,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     `).join('');
   }
 */
+        /*
     function renderCats() {
     // Sirf un items ko lein jinka rate current mode mein 0 se bada hai
     const activeItems = inventory.filter(i => {
@@ -1231,7 +1232,8 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 }
 
   function filterCat(c) { selectedCat = c; renderCats(); renderGrid(); }
-/*
+*/
+        /*
   function renderGrid() {
     const grid = document.getElementById('prodGrid');
     const filtered = selectedCat === 'All' ? inventory : inventory.filter(i => i.cat === selectedCat);
@@ -1244,6 +1246,31 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     `).join('');
   }
 */
+        function renderCats() {
+    // Sirf un items ko lein jinka kam se kam ek rate (Retail ya WS) 0 se bada ho
+    const activeItems = inventory.filter(i => {
+        let r = parseFloat(i.retail) || 0;
+        let w = parseFloat(i.ws) || 0;
+        return r > 0 || w > 0;
+    });
+
+    // Unique categories nikalen
+    const cats = ['All', ...new Set(activeItems.map(i => i.cat))];
+    
+    const catBar = document.getElementById('catBar');
+    catBar.innerHTML = ""; // Clear pehle
+    
+    cats.forEach(c => {
+        const btn = document.createElement('div');
+        btn.className = `cat-btn ${selectedCat === c ? 'cat-active' : ''}`;
+        btn.innerText = c;
+        // Direct click event taaki koi error na aaye
+        btn.onclick = () => filterCat(c);
+        catBar.appendChild(btn);
+    });
+}
+
+        /*
     function renderGrid() {
     const grid = document.getElementById('prodGrid');
     
@@ -1254,6 +1281,27 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     filtered = filtered.filter(i => {
         let rate = mode === 'retail' ? parseFloat(i.retail) : parseFloat(i.ws);
         return rate > 0; // Agar rate 0 ya khali hai toh display nahi hoga
+    });
+
+    grid.innerHTML = filtered.map(i => `
+      <div class="p-card" onclick="addToCart('${i.code}')">
+        <strong>${i.eng}</strong>
+        <small>(${i.hin})</small><br>
+        <span style="color:var(--p); font-weight:bold;">₹${mode === 'retail' ? i.retail : i.ws}</span>
+      </div>
+    `).join('');
+}
+*/
+    function renderGrid() {
+    const grid = document.getElementById('prodGrid');
+    
+    // 1. Pehle category filter
+    let items = selectedCat === 'All' ? inventory : inventory.filter(i => i.cat === selectedCat);
+    
+    // 2. Phir Mode ke hisab se Rate filter (Rate > 0)
+    const filtered = items.filter(i => {
+        let rate = mode === 'retail' ? parseFloat(i.retail) : parseFloat(i.ws);
+        return rate > 0;
     });
 
     grid.innerHTML = filtered.map(i => `

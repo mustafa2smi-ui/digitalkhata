@@ -45,6 +45,52 @@ outline:none;
 
 .operator { color: orange; }
 .number { color: cyan; }
+  #calcContainer {
+border:2px solid #00ffcc;
+border-radius:10px;
+padding:10px;
+box-shadow:0 0 15px #00ffcc;
+background:black;
+}
+
+#calcDisplay {
+width:100%;
+font-size:22px;
+padding:10px;
+margin-bottom:10px;
+background:#000;
+color:#0ff;
+border:none;
+outline:none;
+}
+
+.calcGrid {
+display:grid;
+grid-template-columns: repeat(4, 1fr);
+gap:8px;
+}
+
+.calcGrid button {
+padding:15px;
+font-size:18px;
+border:none;
+border-radius:8px;
+background:#111;
+color:#0ff;
+box-shadow:0 0 5px #0ff;
+}
+
+.calcGrid .op {
+color:orange;
+box-shadow:0 0 5px orange;
+}
+
+.calcGrid .equal {
+grid-column: span 4;
+background:#00ffcc;
+color:black;
+font-weight:bold;
+}
 </style>
 </head>
 
@@ -134,6 +180,38 @@ outline:none;
   <input id="calcInput" placeholder="Enter calculation (e.g. 24+24)">
   <button onclick="calculate()">=</button>
 </div>
+  <h3>🧮 Calculator</h3>
+
+<div id="calcContainer">
+
+<input id="calcDisplay" readonly>
+
+<div class="calcGrid">
+
+<button onclick="press('7')">7</button>
+<button onclick="press('8')">8</button>
+<button onclick="press('9')">9</button>
+<button class="op" onclick="press('/')">÷</button>
+
+<button onclick="press('4')">4</button>
+<button onclick="press('5')">5</button>
+<button onclick="press('6')">6</button>
+<button class="op" onclick="press('*')">×</button>
+
+<button onclick="press('1')">1</button>
+<button onclick="press('2')">2</button>
+<button onclick="press('3')">3</button>
+<button class="op" onclick="press('-')">−</button>
+
+<button onclick="press('0')">0</button>
+<button onclick="press('.')">.</button>
+<button onclick="clearCalc()">C</button>
+<button class="op" onclick="press('+')">+</button>
+
+<button class="equal" onclick="calculate()">=</button>
+
+</div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
@@ -146,7 +224,50 @@ let selectedRow = null;
 let bill = [];
 let scanner;
 let calcCount = 1;
+let calcExp = "";
+let calcCount = 1;
 
+// button press
+function press(val){
+calcExp += val;
+document.getElementById("calcDisplay").value = calcExp;
+}
+
+// clear
+function clearCalc(){
+calcExp = "";
+document.getElementById("calcDisplay").value = "";
+}
+
+// calculate
+function calculate(){
+
+if(!calcExp) return;
+
+try{
+
+let result = eval(calcExp);
+
+// 🧠 bill में add
+let itemName = "Item" + calcCount++;
+
+bill.push({
+name: itemName + " (" + calcExp + ")",
+price: result,
+qty: 1
+});
+
+renderBill();
+saveLocal();
+
+// reset
+calcExp = "";
+document.getElementById("calcDisplay").value = "";
+
+}catch{
+alert("Invalid Calculation");
+}
+}
 function calculate(){
 
 let exp = document.getElementById("calcInput").value;

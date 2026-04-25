@@ -450,7 +450,7 @@ data.forEach((row,i)=>{
 if(i==0)return;
 
 if(row[2] && row[2].toLowerCase().includes(s)){
-html+=`<tr onclick="addBill('${row[2]}',${row[5]},${row[4]})">
+html+=`<tr onclick="addBill('${row[2]}','${row[5]}','${row[4]}')">
 <td>${row[2]}</td>
 <td>${row[4]}</td>
 <td>${row[5]}</td>
@@ -517,7 +517,7 @@ load();
 clearForm();
 });
 }
-
+/*
 // BILL ADD
 function addBill(name, retail, wholesale){
 let type = document.getElementById("priceType").value;
@@ -534,7 +534,28 @@ bill.push({name, price, qty:1});
 renderBill();
 saveLocal();
 }
+*/
+  function addBill(name, retail, wholesale){
 
+retail = Number(retail) || 0;
+wholesale = Number(wholesale) || 0;
+
+let type = document.getElementById("priceType").value;
+let price = (type === "retail") ? retail : wholesale;
+
+// 🧠 SAME ITEM MERGE
+let existing = bill.find(i=>i.name===name);
+
+if(existing){
+existing.qty++;
+}else{
+bill.push({name, price, qty:1});
+}
+
+renderBill();
+saveLocal();
+}
+  /*
 // RENDER BILL
 function renderBill(){
 let html="<tr><th>Item</th><th>Qty</th><th>Amt</th><th>Action</th></tr>";
@@ -560,7 +581,49 @@ html+=`<tr><th colspan="2">Total</th><th>${total}</th><th></th></tr>`;
 
 document.getElementById("bill").innerHTML=html;
 }
+*/
+  function renderBill(){
 
+let html=`
+<tr>
+<th>#</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+<th>❌</th>
+</tr>`;
+
+let total=0;
+
+bill.forEach((i,index)=>{
+let amt = i.qty * i.price;
+total += amt;
+
+html+=`
+<tr>
+<td>${index+1}</td>
+<td>${i.name}</td>
+<td>
+<button onclick="changeQty(${index},-1)">➖</button>
+${i.qty}
+<button onclick="changeQty(${index},1)">➕</button>
+</td>
+<td>${i.price}</td>
+<td>${amt}</td>
+<td><button onclick="removeItem(${index})">❌</button></td>
+</tr>`;
+});
+
+html+=`
+<tr style="background:#dff0d8;font-weight:bold;">
+<td colspan="4">Total</td>
+<td>${total}</td>
+<td></td>
+</tr>`;
+
+document.getElementById("bill").innerHTML = html;
+}
 // QTY CHANGE
 function changeQty(i,delta){
 bill[i].qty += delta;

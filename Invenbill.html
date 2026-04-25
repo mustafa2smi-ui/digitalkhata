@@ -4,13 +4,47 @@
 <head>
 <title>Store App Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
+<script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 body {font-family: Arial; padding:10px;}
 input, button, select {padding:8px; margin:5px; width:95%;}
 table {width:100%; border-collapse: collapse; margin-top:10px;}
 td, th {border:1px solid #ccc; padding:8px;}
 tr:hover {background:#f1f1f1;}
+  h3 {
+background:#4CAF50;
+color:white;
+padding:8px;
+border-radius:5px;
+}
+
+button {
+background:#2196F3;
+color:white;
+border:none;
+border-radius:5px;
+}
+
+button:hover {
+background:#0b7dda;
+}
+  #calcBox {
+border:2px solid #00ffcc;
+padding:10px;
+border-radius:10px;
+box-shadow:0 0 10px #00ffcc;
+}
+
+#calcInput {
+font-size:18px;
+color:#0ff;
+background:black;
+border:none;
+outline:none;
+}
+
+.operator { color: orange; }
+.number { color: cyan; }
 </style>
 </head>
 
@@ -21,7 +55,19 @@ tr:hover {background:#f1f1f1;}
 <button onclick="login()">Login</button>
 
 <div id="app" style="display:none;">
+<h3>📷 Barcode Scanner</h3>
 
+<select id="scanMode">
+  <option value="bill">Billing Mode</option>
+  <option value="save">Save Mode</option>
+</select>
+<h3>📷 Camera Scanner</h3>
+
+<button onclick="startScanner()">▶ Start Scan</button>
+<button onclick="stopScanner()">⛔ Stop</button>
+
+<div id="reader" style="width:300px;"></div>
+<input id="barcodeInput" placeholder="Scan or Enter Code" oninput="handleScan()">
 <h3>Product Entry</h3>
 
 <select id="store" onchange="load()">
@@ -82,7 +128,12 @@ tr:hover {background:#f1f1f1;}
 <table id="history"></table>
 
 </div>
+<h3>🧮 Smart Calculator</h3>
 
+<div id="calcBox">
+  <input id="calcInput" placeholder="Enter calculation (e.g. 24+24)">
+  <button onclick="calculate()">=</button>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
@@ -93,7 +144,74 @@ localStorage.setItem("device", device);
 
 let selectedRow = null;
 let bill = [];
+let scanner;
+let calcCount = 1;
 
+function calculate(){
+
+let exp = document.getElementById("calcInput").value;
+
+if(!exp) return;
+
+try{
+
+// SAFE CALCULATION
+let result = eval(exp);
+
+// item name auto
+let itemName = "Item" + calcCount++;
+
+// bill में add
+bill.push({
+name: itemName + " (" + exp + ")",
+price: result,
+qty: 1
+});
+
+renderBill();
+saveLocal();
+
+document.getElementById("calcInput").value="";
+
+}catch(e){
+alert("Invalid calculation");
+}
+
+}
+function startScanner(){
+
+scanner = new Html5Qrcode("reader");
+
+Html5Qrcode.getCameras().then(devices => {
+
+if (devices && devices.length) {
+
+scanner.start(
+devices[0].id,
+{
+fps: 10,
+qrbox: 250
+},
+(decodedText) => {
+
+handleScanResult(decodedText);
+
+},
+(errorMessage) => {
+// ignore errors
+}
+);
+
+}
+});
+
+}
+
+function stopScanner(){
+if(scanner){
+scanner.stop();
+}
+}
 // LOGIN
 function login(){
 let email = document.getElementById("email").value;
@@ -107,7 +225,65 @@ load();
 }else alert(res);
 });
 }
+  function searchByCode(code){
 
+fetch(API+"?action=getData&store="+store.value)
+.then(r=>r.json())
+.then(data=>{
+
+let found = false;
+
+data.forEach((row,i)=>{
+if(i==0) return;
+
+if(row[7] == code){
+
+addBill(row[2], row[5], row[4]); // name, retail, wholesale
+found = true;
+}
+});
+
+if(!found){
+alert("❌ Item not found");
+}
+
+});
+}
+function handleScan(){
+
+let code = document.getElementById("barcodeInput").value.trim();
+if(code.length < 3) return;
+
+let mode = document.getElementById("scanMode").value;
+
+if(mode === "save"){
+  document.getElementById("code").value = code;
+  alert("Code filled for saving item");
+}
+
+if(mode === "bill"){
+  searchByCode(code);
+}
+
+document.getElementById("barcodeInput").value="";
+}
+  function handleScanResult(code){
+
+let mode = document.getElementById("scanMode").value;
+
+// 🔊 beep sound
+let beep = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+beep.play();
+
+if(mode === "save"){
+document.getElementById("code").value = code;
+alert("✅ Code filled");
+}
+
+if(mode === "bill"){
+searchByCode(code);
+}
+}
 // ADD
 function add(){
 let data={
@@ -401,7 +577,24 @@ y+=10;
 
 doc.save("bill.pdf");
 }
+function printBill(){
 
+let content = `
+<h2>${shopName.value}</h2>
+<p>Customer: ${custName.value}</p>
+<p>Date: ${new Date().toLocaleDateString()}</p>
+<hr>`;
+
+bill.forEach(i=>{
+content += `<p>${i.name} x${i.qty} = ${i.qty*i.price}</p>`;
+});
+
+content += `<hr><h3>Total: ${getTotal()}</h3>`;
+
+let w = window.open("", "", "width=300");
+w.document.write(content);
+w.print();
+}
 // LOCAL SAVE
 function saveLocal(){
 localStorage.setItem("bill",JSON.stringify(bill));

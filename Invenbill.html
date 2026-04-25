@@ -42,7 +42,17 @@ tr:hover {background:#f1f1f1;}
 <button onclick="add()">Add Item</button>
 
 <hr>
+<h3>View Data</h3>
 
+<select id="storeTop" onchange="changeStore()">
+<option value="Grocery">Grocery</option>
+<option value="Hardware">Hardware</option>
+</select>
+
+<select id="priceType">
+<option value="retail">Retail</option>
+<option value="wholesale">Wholesale</option>
+</select>
 <h3>Table</h3>
 <table id="table"></table>
 
@@ -100,7 +110,8 @@ code:code.value
 fetch(API,{
 method:"POST",
 body:JSON.stringify(data)
-}).then(()=>load());
+}).then(()=>load(); clearForm(););
+  
 }
 
 // LOAD TABLE + SEARCH
@@ -110,17 +121,25 @@ fetch(API+"?action=getData&store="+store.value)
 .then(data=>{
 let s=search.value.toLowerCase();
 
-let html="<tr><th>Name</th><th>Action</th></tr>";
+let html = `
+<tr>
+<th>Name</th>
+<th>Wholesale</th>
+<th>Retail</th>
+<th>Action</th>
+</tr>`;
 
 data.forEach((row,i)=>{
 if(i==0)return;
 
 if(row[2].toLowerCase().includes(s)){
-html+=`<tr>
-<td onclick="addBill('${row[2]}',${row[5]})">${row[2]}</td>
+html+=`<tr onclick="addBill('${row[2]}',${row[5]},${row[4]})">
+<td>${row[2]}</td>
+<td>${row[4]}</td>
+<td>${row[5]}</td>
 <td>
-<button onclick="editRow(${i},'${row[2]}')">✏️</button>
-<button onclick="deleteRow(${i})">🗑</button>
+<button onclick="event.stopPropagation();editRow(${i})">✏️</button>
+<button onclick="event.stopPropagation();deleteRow(${i})">🗑</button>
 </td>
 </tr>`;
 }
@@ -129,7 +148,10 @@ html+=`<tr>
 table.innerHTML=html;
 });
 }
-
+function changeStore(){
+  store.value = storeTop.value;
+  load();
+}
 // DELETE
 function deleteRow(r){
 fetch(API,{
@@ -168,8 +190,13 @@ body:JSON.stringify(data)
 // BILL
 let bill=[];
 
-function addBill(name,price){
-bill.push({name,price,qty:1});
+function addBill(name, retail, wholesale){
+
+let type = document.getElementById("priceType").value;
+
+let price = (type === "retail") ? retail : wholesale;
+
+bill.push({name, price, qty:1});
 renderBill();
 saveLocal();
 }
@@ -190,7 +217,15 @@ html+=`<tr>
 
 bill.innerHTML=html;
 }
-
+function clearForm(){
+  hindi.value="";
+  english.value="";
+  category.value="";
+  wholesale.value="";
+  retail.value="";
+  unit.value="";
+  code.value="";
+}
 function changeQty(i,q){
 bill[i].qty=q;
 renderBill();

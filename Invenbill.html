@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html>
 <head>
@@ -291,6 +292,338 @@ renderBill();
 
 loadHistory();
 
+</script>
+
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>Store App Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {font-family: Arial; padding:10px;}
+input, button, select {padding:8px; margin:5px; width:95%;}
+table {width:100%; border-collapse: collapse; margin-top:10px;}
+td, th {border:1px solid #ccc; padding:8px;}
+tr:hover {background:#f1f1f1;}
+</style>
+</head>
+
+<body>
+
+<h3>Login</h3>
+<input id="email" placeholder="Enter Email">
+<button onclick="login()">Login</button>
+
+<div id="app" style="display:none;">
+
+<h3>Product Entry</h3>
+
+<select id="store" onchange="load()">
+<option>Grocery</option>
+<option>Hardware</option>
+</select>
+
+<input id="search" placeholder="🔍 Search Item" onkeyup="load()">
+
+<input id="hindi" placeholder="Hindi Name">
+<input id="english" placeholder="English Name">
+<input id="category" placeholder="Category">
+<input id="wholesale" placeholder="Wholesale">
+<input id="retail" placeholder="Retail">
+<input id="unit" placeholder="Unit">
+<input id="code" placeholder="Code">
+
+<button onclick="add()">Add Item</button>
+<button onclick="update()">Update Item</button>
+
+<hr>
+
+<h3>View Data</h3>
+
+<select id="storeTop" onchange="changeStore()">
+<option value="Grocery">Grocery</option>
+<option value="Hardware">Hardware</option>
+</select>
+
+<select id="priceType">
+<option value="retail">Retail</option>
+<option value="wholesale">Wholesale</option>
+</select>
+
+<h3>Table</h3>
+<table id="table"></table>
+
+<hr>
+
+<h3>Billing</h3>
+<button onclick="clearBill()">🧹 Clear</button>
+<button onclick="shareBill()">📤 Share</button>
+<button onclick="savePDF()">📄 PDF</button>
+
+<table id="bill"></table>
+
+<h3>Saved Bill</h3>
+<table id="history"></table>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbwZ_8t9ciX3a_9ix2WTW76gKhnBuReWsDsJGczWv_L6LIDoIbXElt00_xDCuX04MHA/exec";
+
+let device = localStorage.getItem("device") || Date.now();
+localStorage.setItem("device", device);
+
+let selectedRow = null;
+let bill = [];
+
+// LOGIN
+function login(){
+let email = document.getElementById("email").value;
+
+fetch(API + "?action=login&email="+email+"&device="+device)
+.then(r=>r.text())
+.then(res=>{
+if(res=="SUCCESS"){
+document.getElementById("app").style.display="block";
+load();
+}else alert(res);
+});
+}
+
+// ADD
+function add(){
+let data={
+action:"add",
+store:store.value,
+hindi:hindi.value,
+english:english.value,
+category:category.value,
+wholesale:wholesale.value,
+retail:retail.value,
+unit:unit.value,
+code:code.value
+};
+
+fetch(API,{
+method:"POST",
+body:JSON.stringify(data)
+}).then(()=>{
+load();
+clearForm();
+});
+}
+
+// CLEAR FORM
+function clearForm(){
+hindi.value="";
+english.value="";
+category.value="";
+wholesale.value="";
+retail.value="";
+unit.value="";
+code.value="";
+selectedRow=null;
+}
+
+// LOAD DATA
+function load(){
+fetch(API+"?action=getData&store="+store.value)
+.then(r=>r.json())
+.then(data=>{
+let s=search.value.toLowerCase();
+
+let html = `
+<tr>
+<th>Name</th>
+<th>Wholesale</th>
+<th>Retail</th>
+<th>Action</th>
+</tr>`;
+
+data.forEach((row,i)=>{
+if(i==0)return;
+
+if(row[2] && row[2].toLowerCase().includes(s)){
+html+=`<tr onclick="addBill('${row[2]}',${row[5]},${row[4]})">
+<td>${row[2]}</td>
+<td>${row[4]}</td>
+<td>${row[5]}</td>
+<td>
+<button onclick="event.stopPropagation();editRow(${i},'${row[2]}','${row[1]}','${row[3]}','${row[4]}','${row[5]}','${row[6]}','${row[7]}')">✏️</button>
+<button onclick="event.stopPropagation();deleteRow(${i})">🗑</button>
+</td>
+</tr>`;
+}
+});
+
+document.getElementById("table").innerHTML=html;
+});
+}
+
+// CHANGE STORE
+function changeStore(){
+store.value = storeTop.value;
+load();
+}
+
+// DELETE
+function deleteRow(r){
+fetch(API,{
+method:"POST",
+body:JSON.stringify({action:"delete",store:store.value,row:r+1})
+}).then(()=>load());
+}
+
+// EDIT
+function editRow(r,en,hi,cat,wh,rt,un,cd){
+selectedRow=r;
+english.value=en;
+hindi.value=hi;
+category.value=cat;
+wholesale.value=wh;
+retail.value=rt;
+unit.value=un;
+code.value=cd;
+}
+
+// UPDATE
+function update(){
+if(selectedRow==null){alert("Select item first");return;}
+
+let data={
+action:"update",
+store:store.value,
+row:selectedRow+1,
+hindi:hindi.value,
+english:english.value,
+category:category.value,
+wholesale:wholesale.value,
+retail:retail.value,
+unit:unit.value,
+code:code.value
+};
+
+fetch(API,{
+method:"POST",
+body:JSON.stringify(data)
+}).then(()=>{
+load();
+clearForm();
+});
+}
+
+// BILL ADD
+function addBill(name, retail, wholesale){
+let type = document.getElementById("priceType").value;
+let price = (type === "retail") ? retail : wholesale;
+
+let existing = bill.find(i=>i.name===name);
+
+if(existing){
+existing.qty++;
+}else{
+bill.push({name, price, qty:1});
+}
+
+renderBill();
+saveLocal();
+}
+
+// RENDER BILL
+function renderBill(){
+let html="<tr><th>Item</th><th>Qty</th><th>Amt</th><th>Action</th></tr>";
+
+let total=0;
+
+bill.forEach((i,index)=>{
+total += i.qty*i.price;
+
+html+=`<tr>
+<td>${i.name}</td>
+<td>
+<button onclick="changeQty(${index},-1)">-</button>
+${i.qty}
+<button onclick="changeQty(${index},1)">+</button>
+</td>
+<td>${i.qty*i.price}</td>
+<td><button onclick="removeItem(${index})">❌</button></td>
+</tr>`;
+});
+
+html+=`<tr><th colspan="2">Total</th><th>${total}</th><th></th></tr>`;
+
+document.getElementById("bill").innerHTML=html;
+}
+
+// QTY CHANGE
+function changeQty(i,delta){
+bill[i].qty += delta;
+if(bill[i].qty<=0) bill.splice(i,1);
+renderBill();
+saveLocal();
+}
+
+// REMOVE
+function removeItem(i){
+bill.splice(i,1);
+renderBill();
+saveLocal();
+}
+
+// CLEAR BILL
+function clearBill(){
+bill=[];
+renderBill();
+saveLocal();
+}
+
+// SHARE
+function shareBill(){
+let text="Bill:\n";
+bill.forEach(i=>{
+text+=i.name+" x"+i.qty+" = "+(i.qty*i.price)+"\n";
+});
+alert(text);
+}
+
+// PDF
+function savePDF(){
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+
+let y=10;
+bill.forEach(i=>{
+doc.text(i.name+" x"+i.qty+" = "+(i.qty*i.price),10,y);
+y+=10;
+});
+
+doc.save("bill.pdf");
+}
+
+// LOCAL SAVE
+function saveLocal(){
+localStorage.setItem("bill",JSON.stringify(bill));
+loadHistory();
+}
+
+function loadHistory(){
+let html="<tr><th>Saved Bill</th></tr>";
+html+=`<tr onclick='loadSaved()'><td>Click to Load</td></tr>`;
+document.getElementById("history").innerHTML=html;
+}
+
+function loadSaved(){
+bill=JSON.parse(localStorage.getItem("bill")||"[]");
+renderBill();
+}
+
+loadHistory();
 </script>
 
 </body>

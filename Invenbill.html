@@ -79,7 +79,7 @@ let device = localStorage.getItem("device") || Date.now();
 localStorage.setItem("device", device);
 
 let selectedRow = null;
-
+let bill=[];
 function login(){
 let email = document.getElementById("email").value;
 
@@ -188,7 +188,7 @@ body:JSON.stringify(data)
 }
 
 // BILL
-let bill=[];
+
 
 function addBill(name, retail, wholesale){
 

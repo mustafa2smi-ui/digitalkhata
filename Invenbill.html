@@ -569,15 +569,28 @@ total += amt;
 html+=`
 <tr>
 <td>${index+1}</td>
-<td>${i.name}</td>
+
+<td>
+<input value="${i.name}" 
+oninput="editItemName(${index},this.value)">
+</td>
+
 <td>
 <button onclick="changeQty(${index},-1)">➖</button>
 ${i.qty}
 <button onclick="changeQty(${index},1)">➕</button>
 </td>
-<td>${i.price}</td>
+
+<td>
+<input type="number" value="${i.price}" 
+oninput="editRate(${index},this.value)">
+</td>
+
 <td>${amt}</td>
-<td><button onclick="removeItem(${index})">❌</button></td>
+
+<td>
+<button onclick="removeItem(${index})">❌</button>
+</td>
 </tr>`;
 });
 

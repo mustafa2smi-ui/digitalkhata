@@ -640,8 +640,27 @@ saveLocal();
 
 function editRate(i,val){
 bill[i].price = Number(val) || 0;
-renderBill();
 saveLocal();
+
+// ❌ renderBill हटाया
+// सिर्फ total update करें
+updateTotalOnly();
+}
+  function updateTotalOnly(){
+
+let total = 0;
+
+bill.forEach(i=>{
+total += i.qty * i.price;
+});
+
+// सिर्फ total update
+let rows = document.querySelectorAll("#bill tr");
+let lastRow = rows[rows.length - 1];
+
+if(lastRow){
+lastRow.cells[1].innerText = total;
+}
 }
 // CLEAR BILL
 function clearBill(){

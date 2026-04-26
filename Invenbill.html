@@ -268,38 +268,6 @@ alert("Invalid Calculation");
 }
 }
   /*
-function calculate(){
-
-let exp = document.getElementById("calcInput").value;
-
-if(!exp) return;
-
-try{
-
-// SAFE CALCULATION
-let result = eval(exp);
-
-// item name auto
-let itemName = "Item" + calcCount++;
-
-// bill में add
-bill.push({
-name: itemName + " (" + exp + ")",
-price: result,
-qty: 1
-});
-
-renderBill();
-saveLocal();
-
-document.getElementById("calcInput").value="";
-
-}catch(e){
-alert("Invalid calculation");
-}
-
-}
-  */
 function startScanner(){
 
 scanner = new Html5Qrcode("reader");
@@ -328,7 +296,38 @@ handleScanResult(decodedText);
 });
 
 }
+*/
+  function startScanner(){
 
+scanner = new Html5Qrcode("reader");
+
+Html5Qrcode.getCameras().then(devices => {
+
+if (devices && devices.length) {
+
+// 🔥 back camera find
+let backCam = devices.find(d => 
+  d.label.toLowerCase().includes("back")
+);
+
+let cameraId = backCam ? backCam.id : devices[0].id;
+
+scanner.start(
+cameraId,
+{
+fps: 10,
+qrbox: 250
+},
+(decodedText) => {
+handleScanResult(decodedText);
+},
+(errorMessage) => {}
+);
+
+}
+});
+
+}
 function stopScanner(){
 if(scanner){
 scanner.stop();
@@ -527,24 +526,7 @@ load();
 clearForm();
 });
 }
-/*
-// BILL ADD
-function addBill(name, retail, wholesale){
-let type = document.getElementById("priceType").value;
-let price = (type === "retail") ? retail : wholesale;
 
-let existing = bill.find(i=>i.name===name);
-
-if(existing){
-existing.qty++;
-}else{
-bill.push({name, price, qty:1});
-}
-
-renderBill();
-saveLocal();
-}
-*/
   function addBill(name, retail, wholesale){
 
 retail = Number(retail) || 0;
@@ -565,33 +547,7 @@ bill.push({name, price, qty:1});
 renderBill();
 saveLocal();
 }
-  /*
-// RENDER BILL
-function renderBill(){
-let html="<tr><th>Item</th><th>Qty</th><th>Amt</th><th>Action</th></tr>";
-
-let total=0;
-
-bill.forEach((i,index)=>{
-total += i.qty*i.price;
-
-html+=`<tr>
-<td>${i.name}</td>
-<td>
-<button onclick="changeQty(${index},-1)">-</button>
-${i.qty}
-<button onclick="changeQty(${index},1)">+</button>
-</td>
-<td>${i.qty*i.price}</td>
-<td><button onclick="removeItem(${index})">❌</button></td>
-</tr>`;
-});
-
-html+=`<tr><th colspan="2">Total</th><th>${total}</th><th></th></tr>`;
-
-document.getElementById("bill").innerHTML=html;
-}
-*/
+ 
   function renderBill(){
 
 let html=`
@@ -664,7 +620,16 @@ bill.splice(i,1);
 renderBill();
 saveLocal();
 }
+function editItemName(i,val){
+bill[i].name = val;
+saveLocal();
+}
 
+function editRate(i,val){
+bill[i].price = Number(val) || 0;
+renderBill();
+saveLocal();
+}
 // CLEAR BILL
 function clearBill(){
 bill=[];

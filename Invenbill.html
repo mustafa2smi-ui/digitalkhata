@@ -586,7 +586,7 @@ ${i.qty}
 oninput="editRate(${index},this.value)">
 </td>
 
-<td>${amt}</td>
+<td id="amt-${index}">${amt}</td>
 
 <td>
 <button onclick="removeItem(${index})">❌</button>
@@ -606,8 +606,21 @@ document.getElementById("bill").innerHTML = html;
 // QTY CHANGE
 function changeQty(i,delta){
 bill[i].qty += delta;
-if(bill[i].qty<=0) bill.splice(i,1);
+
+if(bill[i].qty <= 0){
+bill.splice(i,1);
 renderBill();
+return;
+}
+
+// 🔥 row amount update
+let amt = bill[i].qty * bill[i].price;
+document.getElementById("amt-"+i).innerText = amt;
+
+// 🔥 qty text update
+renderBill(); // optional (safe)
+updateTotalOnly();
+
 saveLocal();
 }
 function getTotal(){
@@ -640,11 +653,15 @@ saveLocal();
 
 function editRate(i,val){
 bill[i].price = Number(val) || 0;
-saveLocal();
 
-// ❌ renderBill हटाया
-// सिर्फ total update करें
+// 🔥 row amount update
+let amt = bill[i].qty * bill[i].price;
+document.getElementById("amt-"+i).innerText = amt;
+
+// 🔥 total update
 updateTotalOnly();
+
+saveLocal();
 }
   function updateTotalOnly(){
 

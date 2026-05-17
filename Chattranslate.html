@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,7 +35,7 @@
 <div class="header">Translate Chat App</div>
 
 <div id="chat-container">
-    <!-- Messages yahan dikhenge -->
+    <!-- Messages yahan dikhenge --
 </div>
 
 <div class="input-area">
@@ -94,6 +95,130 @@
         
         container.innerHTML += html;
         input.value = "";
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Multi-Lang Chat</title>
+    <style>
+        :root { --bg: #efe7dd; --in: #ffffff; --out: #dcf8c6; --header: #075e54; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; }
+        .header { background: var(--header); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        #chat-box { padding: 15px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 120px; }
+        
+        .bubble { max-width: 85%; padding: 10px 14px; border-radius: 15px; position: relative; animation: fadeIn 0.3s; line-height: 1.4; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .left { align-self: flex-start; background: var(--in); border-bottom-left-radius: 2px; }
+        .right { align-self: flex-end; background: var(--out); border-bottom-right-radius: 2px; }
+        
+        .main-txt { font-size: 16px; font-weight: 600; color: #000; display: block; margin-bottom: 5px; }
+        .trans-row { font-size: 13px; color: #444; border-top: 1px solid rgba(0,0,0,0.05); padding: 4px 0; display: flex; justify-content: space-between; align-items: center; }
+        
+        .play-icon { cursor: pointer; border: none; background: none; font-size: 16px; padding: 0 5px; opacity: 0.6; }
+        .play-icon:hover { opacity: 1; }
+
+        .input-container { position: fixed; bottom: 0; width: 100%; background: #f0f0f0; padding: 10px; display: flex; gap: 8px; box-sizing: border-box; }
+        input { flex: 1; padding: 12px 18px; border-radius: 25px; border: none; outline: none; font-size: 16px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        .add-btn { background: var(--header); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; font-size: 24px; cursor: pointer; flex-shrink: 0; }
+        .clear-btn { position: absolute; right: 10px; top: 15px; background: none; border: none; color: white; font-size: 12px; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    Universal Translator Chat
+    <button class="clear-btn" onclick="clearChat()">Clear Chat</button>
+</div>
+
+<div id="chat-box"></div>
+
+<div class="input-container">
+    <button class="add-btn" onclick="processChat('left')">+</button>
+    <input type="text" id="msgInput" placeholder="Type any language...">
+    <button class="add-btn" onclick="processChat('right')">+</button>
+</div>
+
+<script>
+    // Load chat from memory
+    window.onload = () => {
+        const saved = localStorage.getItem('mySmartChat');
+        if(saved) document.getElementById('chat-box').innerHTML = saved;
+        window.scrollTo(0, document.body.scrollHeight);
+    };
+
+    function clearChat() {
+        if(confirm("Delete all messages?")) {
+            localStorage.removeItem('mySmartChat');
+            location.reload();
+        }
+    }
+
+    async function translate(text, target) {
+        try {
+            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=autodetect|${target}`);
+            const data = await res.json();
+            return data.responseData.translatedText;
+        } catch { return "Error"; }
+    }
+
+    function speak(text, lang) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    async function processChat(side) {
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim();
+        if(!text) return;
+
+        input.disabled = true;
+        input.placeholder = "Translating...";
+
+        // Target languages
+        const targets = [
+            { code: 'hi', label: 'Hindi', voice: 'hi-IN' },
+            { code: 'en', label: 'English', voice: 'en-US' },
+            { code: 'ar', label: 'Arabic', voice: 'ar-SA' }
+        ];
+
+        let translationsHtml = '';
+
+        for(let lang of targets) {
+            let translated = await translate(text, lang.code);
+            // Agar translation original text se alag hai, tabhi dikhaye
+            if(translated.toLowerCase() !== text.toLowerCase()) {
+                translationsHtml += `
+                    <div class="trans-row">
+                        <span><strong>${lang.label}:</strong> ${translated}</span>
+                        <button class="play-icon" onclick="speak('${translated.replace(/'/g, "\\'")}','${lang.voice}')">🔊</button>
+                    </div>`;
+            }
+        }
+
+        const chatBox = document.getElementById('chat-box');
+        const bubble = `
+            <div class="bubble ${side}">
+                <span class="main-txt">${text} <button class="play-icon" onclick="speak('${text.replace(/'/g, "\\'")}','en-US')">🔊</button></span>
+                ${translationsHtml}
+            </div>`;
+        
+        chatBox.innerHTML += bubble;
+        localStorage.setItem('mySmartChat', chatBox.innerHTML); // Save to memory
+        
+        input.value = "";
+        input.disabled = false;
+        input.placeholder = "Type any language...";
         window.scrollTo(0, document.body.scrollHeight);
     }
 </script>

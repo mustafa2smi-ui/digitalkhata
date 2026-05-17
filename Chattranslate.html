@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translate Chat App</title>
+    <style>
+        :root {
+            --bg-color: #e5ddd5;
+            --sender-bg: #dcf8c6;
+            --receiver-bg: #ffffff;
+        }
+        body { font-family: sans-serif; background: var(--bg-color); margin: 0; padding: 0; }
+        .header { background: #075e54; color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; }
+        
+        #chat-container { padding: 15px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 100px; }
+        
+        .bubble { max-width: 80%; padding: 10px; border-radius: 10px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .sender { align-self: flex-end; background: var(--sender-bg); border-bottom-right-radius: 0; }
+        .receiver { align-self: flex-start; background: var(--receiver-bg); border-bottom-left-radius: 0; }
+        
+        .msg-text { font-weight: bold; font-size: 1.1em; display: block; margin-bottom: 5px; }
+        .trans-box { font-size: 0.9em; color: #555; border-top: 1px solid #eee; margin-top: 5px; padding-top: 5px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .play-btn { cursor: pointer; background: none; border: none; font-size: 16px; color: #075e54; }
+
+        .input-area { position: fixed; bottom: 0; width: 100%; background: #f0f0f0; padding: 10px; display: flex; align-items: center; gap: 10px; box-sizing: border-box; }
+        input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #ccc; outline: none; }
+        .btn-plus { background: #075e54; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 24px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="header">Translate Chat App</div>
+
+<div id="chat-container">
+    <!-- Messages yahan dikhenge -->
+</div>
+
+<div class="input-area">
+    <button class="btn-plus" onclick="addMessage('receiver')">+</button>
+    <input type="text" id="userInput" placeholder="Type here...">
+    <button class="btn-plus" onclick="addMessage('sender')">+</button>
+</div>
+
+<script>
+    async function translateText(text, from, to) {
+        try {
+            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`);
+            const data = await res.json();
+            return data.responseData.translatedText;
+        } catch (e) { return "Translation Error"; }
+    }
+
+    function play(text, lang) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = lang;
+        window.speechSynthesis.speak(msg);
+    }
+
+    async function addMessage(type) {
+        const input = document.getElementById('userInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        input.value = "Translating...";
+        
+        // Hindi user ke liye settings, Arabic user ke liye settings
+        let t1, t2, l1, l2, l3;
+        if(type === 'sender') { // Hindi Side
+            t1 = await translateText(text, 'hi', 'en');
+            t2 = await translateText(text, 'hi', 'ar');
+            l1='hi-IN'; l2='en-US'; l3='ar-SA';
+        } else { // Arabic Side
+            t1 = await translateText(text, 'ar', 'hi');
+            t2 = await translateText(text, 'ar', 'en');
+            l1='ar-SA'; l2='hi-IN'; l3='en-US';
+        }
+
+        const container = document.getElementById('chat-container');
+        const html = `
+            <div class="bubble ${type}">
+                <span class="msg-text">${text} <button class="play-btn" onclick="play('${text}','${l1}')">🔊</button></span>
+                <div class="trans-box">
+                    <span>${t1}</span>
+                    <button class="play-btn" onclick="play('${t1}','${l2}')">🔊</button>
+                </div>
+                <div class="trans-box">
+                    <span>${t2}</span>
+                    <button class="play-btn" onclick="play('${t2}','${l3}')">🔊</button>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML += html;
+        input.value = "";
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+
+</body>
+</html>

@@ -232,125 +232,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Translate Chat</title>
+    <title>Universal Multi-Lang Chat</title>
     <style>
-        :root { --whatsapp-green: #075e54; --bg: #e5ddd5; }
+        :root { --primary: #075e54; --bg: #e5ddd5; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; }
         
-        .header { background: var(--whatsapp-green); color: white; padding: 15px; text-align: center; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .header { background: var(--primary); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        
-        /* Chat Bubbles */
-        .bubble { max-width: 80%; padding: 10px 15px; border-radius: 12px; position: relative; font-size: 15px; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .my-msg { align-self: flex-end; background: #dcf8c6; border-top-right-radius: 0; }
-        .their-msg { align-self: flex-start; background: #ffffff; border-top-left-radius: 0; }
-        
-        .main-text { font-weight: bold; display: block; margin-bottom: 4px; }
-        .translation { font-size: 13px; color: #555; border-top: 1px solid rgba(0,0,0,0.05); margin-top: 5px; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; }
+        /* Language Selectors Area */
+        .lang-bar { background: #fff; padding: 8px; display: flex; justify-content: space-around; border-bottom: 1px solid #ddd; font-size: 13px; }
+        select { padding: 5px; border-radius: 5px; border: 1px solid #ccc; outline: none; width: 40%; }
 
-        /* Bottom Controls */
-        .controls { background: #f0f0f0; padding: 10px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #ddd; }
-        .input-wrapper { flex: 1; background: white; border-radius: 25px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid #ccc; }
-        input { border: none; outline: none; flex: 1; height: 35px; font-size: 16px; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         
-        .mic-btn { border: none; width: 45px; height: 45px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: transform 0.2s; }
-        .mic-user { background: #2196F3; } /* Blue for You */
-        .mic-target { background: #FF5722; } /* Orange for Other Person */
-        .send-btn { background: var(--whatsapp-green); color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; }
+        .bubble { max-width: 85%; padding: 10px; border-radius: 12px; position: relative; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .sent { align-self: flex-end; background: #dcf8c6; border-top-right-radius: 0; }
+        .received { align-self: flex-start; background: #ffffff; border-top-left-radius: 0; }
         
-        .lang-label { font-size: 10px; display: block; }
-        .active-mic { transform: scale(1.2); box-shadow: 0 0 15px rgba(0,0,0,0.3); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .main-text { font-weight: bold; display: block; margin-bottom: 3px; }
+        .trans-item { font-size: 13px; color: #444; border-top: 1px solid rgba(0,0,0,0.05); padding: 3px 0; display: flex; justify-content: space-between; align-items: center; }
+        .play-btn { cursor: pointer; color: var(--primary); font-size: 14px; background: none; border: none; }
+
+        .input-area { background: #f0f0f0; padding: 10px; display: flex; gap: 8px; align-items: center; }
+        input { flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
+        .send-btn { background: var(--primary); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-<div class="header">Global Voice Translator</div>
+<div class="header">Universal Chat Translator</div>
+
+<!-- Language Selection Bar -->
+<div class="lang-bar">
+    <div>
+        <strong>Aapki:</strong>
+        <select id="myLang">
+            <option value="hi">Hindi</option>
+            <option value="en">English</option>
+            <option value="ur">Urdu</option>
+            <option value="bn">Bangla</option>
+            <option value="ta">Tamil</option>
+            <option value="ml">Malayalam</option>
+        </select>
+    </div>
+    <div>
+        <strong>Samne wale ki:</strong>
+        <select id="targetLang">
+            <option value="ar">Arabic</option>
+            <option value="ja">Japanese</option>
+            <option value="zh">Chinese</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="ko">Korean</option>
+        </select>
+    </div>
+</div>
 
 <div id="chat-box"></div>
 
-<div class="controls">
-    <!-- Blue Mic for Hindi/English (Aapke liye) -->
-    <button class="mic-btn mic-user" onclick="startVoice('hi-IN', 'my-msg')" title="Aap Bolein (Hindi)">
-        🎤<span style="position:absolute; bottom:-15px; color:#2196F3; font-size:9px;">Hindi</span>
-    </button>
-
-    <div class="input-wrapper">
-        <input type="text" id="msgInput" placeholder="Type or use Mic...">
-        <button class="send-btn" onclick="manualSend()">Send</button>
-    </div>
-
-    <!-- Orange Mic for Arabic/Target (Samne wale ke liye) -->
-    <button class="mic-btn mic-target" onclick="startVoice('ar-SA', 'their-msg')" title="Samne wala bole (Arabic)">
-        🎤<span style="position:absolute; bottom:-15px; color:#FF5722; font-size:9px;">Arabic</span>
-    </button>
+<div class="input-area">
+    <button class="send-btn" onclick="sendMsg('received')" title="Add from Left">←</button>
+    <input type="text" id="msgInput" placeholder="Type message here...">
+    <button class="send-btn" onclick="sendMsg('sent')" title="Add from Right">→</button>
 </div>
 
 <script>
     const chatBox = document.getElementById('chat-box');
-    const msgInput = document.getElementById('msgInput');
 
-    // Voice Recognition Setup
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    function startVoice(lang, type) {
-        recognition.lang = lang;
-        recognition.start();
-        msgInput.placeholder = "Listening (" + lang + ")...";
-        
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            processMessage(transcript, type);
-        };
-        
-        recognition.onspeechend = () => recognition.stop();
+    async function translate(text, from, to) {
+        try {
+            // autodetect use karne se kisi bhi language ko pehchan lega
+            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=autodetect|${to}`);
+            const data = await res.json();
+            return data.responseData.translatedText;
+        } catch { return "Translation Error"; }
     }
 
-    async function translate(text, target) {
-        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=autodetect|${target}`);
-        const data = await res.json();
-        return data.responseData.translatedText;
-    }
-
-    function playAudio(text, lang) {
+    function speak(text, lang) {
         const speech = new SpeechSynthesisUtterance(text);
         speech.lang = lang;
         window.speechSynthesis.speak(speech);
     }
 
-    async function processMessage(text, type) {
-        msgInput.placeholder = "Translating...";
-        
-        // Translate to main languages
-        const en = await translate(text, 'en');
-        const hi = await translate(text, 'hi');
-        const ar = await translate(text, 'ar');
+    async function sendMsg(side) {
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim();
+        if(!text) return;
 
-        let html = `<div class="bubble ${type}"><span class="main-text">${text}</span>`;
+        const myL = document.getElementById('myLang').value;
+        const targetL = document.getElementById('targetLang').value;
+
+        input.value = "Translating...";
+        input.disabled = true;
+
+        // Dono languages mein translate karega
+        const trans1 = await translate(text, 'autodetect', myL);
+        const trans2 = await translate(text, 'autodetect', targetL);
+        const transEng = await translate(text, 'autodetect', 'en'); // Common English for both
+
+        let html = `<div class="bubble ${side}"><span class="main-text">${text}</span>`;
         
-        // Show translations that are different from original text
-        if(hi.toLowerCase() !== text.toLowerCase()) 
-            html += `<div class="translation"><span><b>HI:</b> ${hi}</span><span onclick="playAudio('${hi.replace(/'/g,"")}', 'hi-IN')">🔊</span></div>`;
-        if(en.toLowerCase() !== text.toLowerCase()) 
-            html += `<div class="translation"><span><b>EN:</b> ${en}</span><span onclick="playAudio('${en.replace(/'/g,"")}', 'en-US')">🔊</span></div>`;
-        if(ar.toLowerCase() !== text.toLowerCase()) 
-            html += `<div class="translation"><span><b>AR:</b> ${ar}</span><span onclick="playAudio('${ar.replace(/'/g,"")}', 'ar-SA')">🔊</span></div>`;
+        // Agar original text se alag hai toh hi dikhaye
+        if(trans1.toLowerCase() !== text.toLowerCase())
+            html += `<div class="trans-item"><span><b>Lang 1:</b> ${trans1}</span><button class="play-btn" onclick="speak('${trans1.replace(/'/g,"")}','${myL}')">🔊</button></div>`;
         
+        if(trans2.toLowerCase() !== text.toLowerCase())
+            html += `<div class="trans-item"><span><b>Lang 2:</b> ${trans2}</span><button class="play-btn" onclick="speak('${trans2.replace(/'/g,"")}','${targetL}')">🔊</button></div>`;
+
+        if(transEng.toLowerCase() !== text.toLowerCase() && transEng.toLowerCase() !== trans1.toLowerCase())
+            html += `<div class="trans-item"><span><b>EN:</b> ${transEng}</span><button class="play-btn" onclick="speak('${transEng.replace(/'/g,"")}','en')">🔊</button></div>`;
+
         html += `</div>`;
         
         chatBox.innerHTML += html;
-        msgInput.value = "";
-        msgInput.placeholder = "Type or use Mic...";
+        input.value = "";
+        input.disabled = false;
         chatBox.scrollTo(0, chatBox.scrollHeight);
-    }
-
-    function manualSend() {
-        const text = msgInput.value.trim();
-        if(text) processMessage(text, 'my-msg');
     }
 </script>
 

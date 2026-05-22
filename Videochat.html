@@ -55,13 +55,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MdVideoCall - Quick Connect</title>
+    <title>MdVideoCall - No Login</title>
     <script src='https://meet.jit.si/external_api.js'></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; }
         .header { padding: 20px; text-align: center; background: #1f1f1f; }
         #setup { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        input { width: 80%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: none; font-size: 16px; text-align: center; }
+        input { width: 80%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: none; font-size: 16px; text-align: center; background: #2a2a2a; color: white; }
         button { background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 18px; font-weight: bold; width: 85%; cursor: pointer; }
         #meet-container { flex-grow: 1; display: none; width: 100%; height: 100%; }
     </style>
@@ -73,9 +73,9 @@
     </div>
 
     <div id="setup">
-        <h3>Meeting Start Karein</h3>
-        <p style="color: #bbb; text-align: center; margin-bottom: 20px;">Koi bhi unique naam likhein aur turant connect hon.</p>
-        <input type="text" id="roomName" placeholder="e.g. MyPersonalCall123">
+        <h3>Instant Video Call</h3>
+        <p style="color: #bbb; text-align: center; margin-bottom: 20px;">Koi bhi unique naam likhein aur bina login ke connect hon.</p>
+        <input type="text" id="roomName" placeholder="Jaise: MyCall99">
         <button onclick="startCall()">Call Join Karein</button>
     </div>
 
@@ -86,24 +86,27 @@
             let room = document.getElementById('roomName').value.trim();
             if (!room) { alert("Kripya Room Name likhein!"); return; }
 
-            // Spaces hatane ke liye taaki URL break na ho
+            // Spaces ko hata kar hyphens lagane ke liye
             room = room.replace(/\s+/g, '-');
 
             document.getElementById('setup').style.display = 'none';
             document.getElementById('meet-container').style.display = 'block';
 
-            const domain = 'meet.jit.si';
+            // Humne main jitsi server badal kar open-source community server '8x8.vc' use kiya hai
+            // Yeh bilkul free hai aur isme koi login nahi maangega
+            const domain = '8x8.vc'; 
+            
             const options = {
-                roomName: room,
+                // 8x8.vc par room name se pehle ek tenant ID lagani padti hai (kuch bhi random rakh sakte hain)
+                roomName: 'vpaas-magic-99/' + room,
                 parentNode: document.querySelector('#meet-container'),
-                // Yeh settings aapko direct room ka moderator bana degi bina kisi login ke
                 configOverwrite: { 
                     startWithAudioMuted: false,
-                    prejoinPageEnabled: false, // Prejoin screen hata di taaki direct call start ho
-                    disableDeepLinking: true   // Mobile app par redirect hone se rokega, browser me hi chalega
+                    prejoinPageEnabled: false, 
+                    disableDeepLinking: true   
                 },
                 interfaceConfigOverwrite: { 
-                    TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup', 'chat', 'tileview', 'raisehand'] 
+                    TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup', 'chat', 'tileview'] 
                 }
             };
             const api = new JitsiMeetExternalAPI(domain, options);

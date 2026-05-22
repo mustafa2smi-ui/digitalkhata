@@ -3,39 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MdVideoCall - Mobile App</title>
-    <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+    <title>MdVideoCall - Instant Connect</title>
+    <script src='https://meet.jit.si/external_api.js'></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .container { text-align: center; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 90%; }
-        input { width: 80%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-        button { background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 85%; }
-        #call-frame { width: 100%; height: 80vh; border: none; display: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .header { padding: 20px; text-align: center; background: #1f1f1f; }
+        #setup { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        input { width: 80%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: none; font-size: 16px; }
+        button { background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 18px; font-weight: bold; width: 85%; }
+        #meet-container { flex-grow: 1; display: none; width: 100%; height: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="setup">
-        <h2>Video Call</h2>
-        <p>Room Link yahan paste karein:</p>
-        <input type="text" id="room-url" placeholder="https://yourname.daily.co/roomname">
-        <button onclick="joinCall()">Call Join Karein</button>
-        <p style="font-size: 12px; color: 666;">(Pehle daily.co par free account banakar room link generate karein)</p>
+    <div class="header">
+        <h2 style="margin:0;">MdVideoCall</h2>
     </div>
 
-    <iframe id="call-frame"></iframe>
+    <div id="setup">
+        <h3>Meeting Start Karein</h3>
+        <input type="text" id="roomName" placeholder="Apna Room Name Likhein (e.g. MyShopCall)">
+        <button onclick="startCall()">Call Join Karein</button>
+    </div>
+
+    <div id="meet-container"></div>
 
     <script>
-        function joinCall() {
-            const url = document.getElementById('room-url').value;
-            if (!url) { alert("Please enter room URL"); return; }
+        function startCall() {
+            const room = document.getElementById('roomName').value;
+            if (!room) { alert("Kripya Room Name likhein!"); return; }
 
             document.getElementById('setup').style.display = 'none';
-            const callFrame = document.getElementById('call-frame');
-            callFrame.style.display = 'block';
+            document.getElementById('meet-container').style.display = 'block';
 
-            const callObject = window.DailyIframe.createFrame(callFrame);
-            callObject.join({ url: url });
+            const domain = 'meet.jit.si';
+            const options = {
+                roomName: room,
+                parentNode: document.querySelector('#meet-container'),
+                configOverwrite: { startWithAudioMuted: false },
+                interfaceConfigOverwrite: { TOOLBAR_BUTTONS: ['microphone', 'camera', 'hangup', 'chat'] }
+            };
+            const api = new JitsiMeetExternalAPI(domain, options);
         }
     </script>
 </body>

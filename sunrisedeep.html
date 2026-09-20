@@ -4,12 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>Day Difference · Sunrise & Sunset Chart</title>
-  <!-- fonts & icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- html2canvas for download -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     * {
@@ -47,7 +45,6 @@
       padding-bottom: 24px;
     }
 
-    /* sticky header */
     .sticky-header {
       position: sticky;
       top: 0;
@@ -97,14 +94,12 @@
       background: var(--surface-2);
     }
 
-    /* main container */
     .container {
       max-width: 720px;
       margin: 0 auto;
       padding: 20px 16px 40px;
     }
 
-    /* month tabs scroll */
     .month-scroll {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -147,7 +142,6 @@
       box-shadow: 0 8px 16px -6px rgba(245, 158, 11, 0.3);
     }
 
-    /* cards */
     .card {
       background: var(--surface);
       border-radius: var(--radius-card);
@@ -196,7 +190,6 @@
       box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
     }
 
-    /* table */
     .table-responsive {
       overflow-x: auto;
       margin: 12px 0 4px;
@@ -223,37 +216,82 @@
     }
 
     td {
-      padding: 10px 8px 10px 16px;
+      padding: 12px 8px 12px 16px;
       border-top: 1px solid var(--border);
       font-size: 0.95rem;
       font-weight: 500;
+      vertical-align: middle;
     }
 
     .day-cell {
       font-weight: 700;
       color: var(--text);
-      width: 60px;
+      width: 50px;
     }
 
-    input[type="time"] {
-      width: 100%;
-      max-width: 140px;
-      padding: 10px 12px;
-      border-radius: 14px;
+    /* Time stepper control */
+    .time-stepper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface-2);
+      border-radius: 40px;
+      padding: 4px;
       border: 1.5px solid var(--border);
-      font-family: var(--font);
-      font-size: 0.95rem;
+      width: fit-content;
+      min-width: 145px;
+    }
+
+    .stepper-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
       background: var(--surface);
-      transition: border 0.15s, box-shadow 0.15s;
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      transition: background 0.15s, transform 0.1s, color 0.15s;
+      flex-shrink: 0;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    input[type="time"]:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    .stepper-btn:hover {
+      background: var(--primary-soft);
+      color: var(--primary);
     }
 
-    /* action buttons */
+    .stepper-btn:active {
+      transform: scale(0.92);
+    }
+
+    .stepper-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      background: var(--surface);
+    }
+
+    .time-display {
+      flex: 1;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      min-width: 62px;
+      letter-spacing: -0.01em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .time-display.invalid {
+      color: #dc2626;
+    }
+
     .btn-row {
       display: flex;
       flex-wrap: wrap;
@@ -309,7 +347,6 @@
       background: #fef2f2;
     }
 
-    /* chart container */
     .chart-card {
       padding: 20px 16px 20px;
     }
@@ -332,118 +369,166 @@
       scrollbar-width: thin;
     }
 
-    .chart-wrapper {
-      min-width: 500px;
-      width: 100%;
-    }
-
-    /* chart bars */
-    .chart-bars {
+    /* ---------- NEW COMPACT CHART LAYOUT ---------- */
+    .compact-chart {
       display: flex;
-      align-items: flex-end;
-      gap: 12px;
-      padding: 10px 0 10px 40px;
+      align-items: stretch;
+      padding: 8px 0;
       position: relative;
-      height: 360px;
+      min-width: fit-content;
     }
 
-    .time-axis {
-      position: absolute;
-      left: 0;
-      top: 10px;
-      bottom: 10px;
-      width: 40px;
+    .time-axis-compact {
+      flex-shrink: 0;
+      width: 42px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      font-size: 0.65rem;
+      padding: 0 4px 0 0;
+      font-size: 0.62rem;
       font-weight: 500;
       color: var(--muted);
       text-align: right;
-      padding-right: 6px;
-      pointer-events: none;
+      user-select: none;
     }
 
-    .time-axis span {
+    .time-axis-compact .axis-label {
+      line-height: 1;
       transform: translateY(-50%);
+      white-space: nowrap;
     }
 
-    .bar-item {
+    .columns-container {
+      display: flex;
+      gap: 6px;
       flex: 1;
+      align-items: stretch;
+    }
+
+    .column-wrap {
+      flex: 1;
+      min-width: 52px;
+      max-width: 72px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
-      height: 100%;
-      min-width: 42px;
+      gap: 4px;
     }
 
-    .bar-visual {
+    .sun-label-top {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--sunrise);
+      text-align: center;
+      white-space: nowrap;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .sun-label-top small {
+      display: block;
+      font-size: 0.55rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .bar-area {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .bar-track {
       width: 100%;
       height: 100%;
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
+      align-items: center;
     }
 
-    /* vertical bar representing sunrise-sunset */
     .daylight-bar {
-      width: 100%;
-      background: linear-gradient(to bottom, #fde68a, #fbbf24, #f59e0b);
-      border-radius: 30px 30px 6px 6px;
-      position: relative;
-      transition: height 0.2s;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(0, 0, 0, 0.05);
+      width: 60%;
+      max-width: 34px;
+      background: linear-gradient(to bottom, #fcd34d, #fbbf24, #f59e0b);
+      border-radius: 20px 20px 4px 4px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5), 0 3px 8px rgba(245, 158, 11, 0.25);
       min-height: 4px;
     }
 
-    .sunrise-marker, .sunset-marker {
+    .sunrise-pin, .sunset-pin {
       position: absolute;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       z-index: 3;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
     }
 
-    .sunrise-marker {
+    .sunrise-pin {
       background: var(--sunrise);
       border: 2px solid white;
-      top: 0;
     }
 
-    .sunset-marker {
+    .sunset-pin {
       background: var(--sunset);
       border: 2px solid white;
-      bottom: 0;
     }
 
-    .bar-label {
-      margin-top: 12px;
+    .sun-label-bottom {
+      font-size: 0.72rem;
       font-weight: 700;
-      font-size: 0.85rem;
+      color: var(--sunset);
+      text-align: center;
+      white-space: nowrap;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .sun-label-bottom small {
+      display: block;
+      font-size: 0.55rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .day-number-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
       color: var(--text);
-      text-align: center;
+      background: var(--surface-2);
+      border-radius: 20px;
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+      margin-top: 2px;
     }
 
-    .time-labels {
-      font-size: 0.7rem;
-      color: var(--text-soft);
-      text-align: center;
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .time-labels span {
+    .daylight-duration {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-top: 3px;
       white-space: nowrap;
     }
 
-    /* summary table */
     .summary-table {
       width: 100%;
       border-collapse: collapse;
@@ -489,7 +574,6 @@
       font-weight: 700;
     }
 
-    /* empty state */
     .empty-state {
       text-align: center;
       padding: 40px 20px;
@@ -500,7 +584,6 @@
       border: 1px dashed var(--border);
     }
 
-    /* footer */
     footer {
       text-align: center;
       font-size: 0.8rem;
@@ -516,7 +599,6 @@
       margin: 0 6px;
     }
 
-    /* menu overlay */
     .menu-overlay {
       position: fixed;
       inset: 0;
@@ -571,12 +653,10 @@
       background: var(--surface-2);
     }
 
-    /* hidden utility */
     .hidden {
       display: none !important;
     }
 
-    /* error message */
     .error-msg {
       background: #fef2f2;
       color: #b91c1c;
@@ -588,7 +668,14 @@
       margin-bottom: 16px;
     }
 
-    /* print styles */
+    .field-error {
+      font-size: 0.7rem;
+      color: #dc2626;
+      font-weight: 600;
+      margin-top: 2px;
+      text-align: center;
+    }
+
     @media print {
       .sticky-header, .menu-btn, .btn, .month-scroll, select, .table-responsive, .footer, .menu-overlay, .reset-btn, .no-print {
         display: none !important;
@@ -605,20 +692,28 @@
       .chart-scroll {
         overflow: visible;
       }
-      .chart-wrapper {
-        min-width: 0;
-        width: 100%;
-      }
       .container {
         max-width: 100%;
         padding: 0.5in;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .column-wrap {
+        min-width: 48px;
+      }
+      .sun-label-top, .sun-label-bottom {
+        font-size: 0.65rem;
+      }
+      .daylight-duration {
+        font-size: 0.55rem;
+        padding: 1px 6px;
       }
     }
   </style>
 </head>
 <body>
 
-<!-- Sticky Header -->
 <header class="sticky-header">
   <div class="app-title">
     <i class="fas fa-sun"></i> Day Difference
@@ -628,7 +723,6 @@
   </button>
 </header>
 
-<!-- Slide menu overlay -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-panel">
     <a href="#" data-menu="home"><i class="fas fa-home"></i> Home</a>
@@ -640,12 +734,10 @@
 </div>
 
 <main class="container" id="mainContainer">
-  <!-- Month tabs -->
   <div class="month-scroll">
     <div class="month-tabs" id="monthTabs"></div>
   </div>
 
-  <!-- Controls Card -->
   <div class="card">
     <label for="intervalSelect" class="label">Select Day Interval</label>
     <div class="select-wrapper">
@@ -662,7 +754,6 @@
     </div>
   </div>
 
-  <!-- Data entry table -->
   <div class="card" id="tableCard">
     <div class="table-responsive">
       <table id="dataTable">
@@ -673,9 +764,7 @@
             <th>PM (Sunset)</th>
           </tr>
         </thead>
-        <tbody id="tableBody">
-          <!-- dynamically filled -->
-        </tbody>
+        <tbody id="tableBody"></tbody>
       </table>
     </div>
 
@@ -686,19 +775,14 @@
     <div id="errorContainer"></div>
   </div>
 
-  <!-- Chart output (hidden initially) -->
   <div id="chartSection" class="hidden">
-    <!-- Chart card -->
     <div class="card chart-card" id="chartCard">
       <div class="chart-title" id="chartTitle">January — Sunrise & Sunset</div>
       <div class="chart-scroll">
-        <div class="chart-wrapper" id="chartWrapper">
-          <!-- chart injected by js -->
-        </div>
+        <div id="chartWrapper"></div>
       </div>
     </div>
 
-    <!-- Summary card -->
     <div class="card" id="summaryCard">
       <h3 style="font-weight: 700; font-size: 1.2rem; margin-bottom: 16px;">Daylight Difference</h3>
       <div class="table-responsive" style="border: none; margin-bottom: 0;">
@@ -712,7 +796,6 @@
       <div class="stat-row" id="statRow"></div>
     </div>
 
-    <!-- Chart controls -->
     <div class="card no-print">
       <div class="btn-row" style="justify-content: center;">
         <button class="btn btn-outline" id="downloadBtn"><i class="fas fa-download"></i> Download</button>
@@ -722,13 +805,11 @@
     </div>
   </div>
 
-  <!-- empty state -->
   <div id="emptyState" class="empty-state">
     <i class="fas fa-cloud-sun" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px; display: block;"></i>
     Select a month and day interval, enter Sunrise and Sunset times, then tap <strong>Show Graph / Chart</strong>.
   </div>
 
-  <!-- Footer -->
   <footer>
     <div>
       <a href="#" id="footerAbout">About</a> | <a href="#" id="footerPrivacy">Privacy Policy</a> | <a href="#" id="footerTerms">Terms</a> | <a href="#" id="footerContact">Contact</a>
@@ -742,11 +823,23 @@
     // ---------- CONSTANTS ----------
     const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const MONTH_DAYS = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+    // Strict valid ranges (in minutes from midnight)
+    const SUNRISE_MIN = 3 * 60;   // 3:00 AM
+    const SUNRISE_MAX = 7 * 60;   // 7:00 AM
+    const SUNSET_MIN  = 17 * 60;  // 5:00 PM
+    const SUNSET_MAX  = 20 * 60;  // 8:00 PM
+
+    // Default starting points when the user first increments
+    const DEFAULT_SUNRISE = 6 * 60; // 6:00 AM
+    const DEFAULT_SUNSET  = 17 * 60; // 5:00 PM
+
+    // Demo data
     const DEMO_DATA = {
       month: "January",
       interval: "7",
       days: [
-        { day: 7, sunrise: "06:00", sunset: "17:00" },
+        { day: 7,  sunrise: "06:00", sunset: "17:00" },
         { day: 14, sunrise: "06:02", sunset: "17:05" },
         { day: 21, sunrise: "06:08", sunset: "17:09" },
         { day: 28, sunrise: "06:22", sunset: "17:17" }
@@ -755,9 +848,9 @@
 
     // ---------- STATE ----------
     let currentMonth = "January";
-    let currentInterval = "7"; // string
-    let dayEntries = []; // { day, sunrise, sunset }
-    let lastChartData = null; // for share/download
+    let currentInterval = "7";
+    let dayEntries = []; // { day, sunrise, sunset } — sunrise/sunset are "HH:MM" or ""
+    let lastChartData = null;
 
     // ---------- DOM refs ----------
     const monthTabs = document.getElementById('monthTabs');
@@ -779,26 +872,34 @@
     const shareBtn = document.getElementById('shareBtn');
 
     // ---------- HELPERS ----------
-    function timeToMinutes(timeStr) {
-      if (!timeStr || !timeStr.includes(':')) return null;
-      const [h, m] = timeStr.split(':').map(Number);
+    function timeToMinutes(t) {
+      if (!t || !t.includes(':')) return null;
+      const [h, m] = t.split(':').map(Number);
       if (isNaN(h) || isNaN(m)) return null;
       return h * 60 + m;
+    }
+
+    function minutesToHHMM(mins) {
+      let m = ((mins % 1440) + 1440) % 1440;
+      const h = Math.floor(m / 60);
+      const mm = m % 60;
+      return `${h.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}`;
+    }
+
+    function minutesTo12h(mins) {
+      let m = ((mins % 1440) + 1440) % 1440;
+      let h = Math.floor(m / 60);
+      const mm = m % 60;
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${mm.toString().padStart(2,'0')} ${ampm}`;
     }
 
     function formatDuration(minutes) {
       if (minutes < 0) minutes = 0;
       const h = Math.floor(minutes / 60);
       const m = minutes % 60;
-      return `${h}h ${m.toString().padStart(2, '0')}m`;
-    }
-
-    function minutesTo12h(minutes) {
-      let h = Math.floor(minutes / 60);
-      const m = minutes % 60;
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      h = h % 12 || 12;
-      return `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
+      return `${h}h ${m.toString().padStart(2,'0')}m`;
     }
 
     function getMonthDays(monthName, year = new Date().getFullYear()) {
@@ -808,55 +909,119 @@
       return MONTH_DAYS[idx];
     }
 
-    function getIntervalDays(monthName, intervalValue) {
-      const totalDays = getMonthDays(monthName);
-      const val = parseInt(intervalValue, 10);
-      if (intervalValue.startsWith('28') || intervalValue.startsWith('29') || intervalValue.startsWith('30') || intervalValue.startsWith('31')) {
-        // "All Days - 28/29/30/31" but we must clamp to actual month days
-        return totalDays;
-      }
-      if (val === 3) return [7, 17, 27].filter(d => d <= totalDays);
-      if (val === 7) {
-        const arr = [7, 14, 21, 28];
-        return arr.filter(d => d <= totalDays);
-      }
-      if (val === 10) {
-        const arr = [10, 20, 30];
-        return arr.filter(d => d <= totalDays);
-      }
-      if (val === 15) {
-        const arr = [15, 30];
-        return arr.filter(d => d <= totalDays);
-      }
-      // fallback: all days
-      return Array.from({length: totalDays}, (_, i) => i + 1);
-    }
-
-    // build days based on interval
     function generateDayNumbers(month, interval) {
       const totalDays = getMonthDays(month);
       if (interval === '3') return [7,17,27].filter(d => d <= totalDays);
       if (interval === '7') return [7,14,21,28].filter(d => d <= totalDays);
       if (interval === '10') return [10,20,30].filter(d => d <= totalDays);
       if (interval === '15') return [15,30].filter(d => d <= totalDays);
-      if (interval === '28' || interval === '29' || interval === '30' || interval === '31') {
-        return Array.from({length: totalDays}, (_, i) => i + 1);
-      }
-      // fallback all days
       return Array.from({length: totalDays}, (_, i) => i + 1);
+    }
+
+    // ---------- VALIDATION ----------
+    function isValidSunrise(mins) {
+      return mins >= SUNRISE_MIN && mins <= SUNRISE_MAX;
+    }
+    function isValidSunset(mins) {
+      return mins >= SUNSET_MIN && mins <= SUNSET_MAX;
     }
 
     // ---------- RENDER MONTH TABS ----------
     function renderMonthTabs() {
-      monthTabs.innerHTML = MONTHS.map(m => 
+      monthTabs.innerHTML = MONTHS.map(m =>
         `<button class="month-tab ${m === currentMonth ? 'active' : ''}" data-month="${m}">${m}</button>`
       ).join('');
     }
 
-    // ---------- UPDATE TABLE ----------
+    // ---------- RENDER TABLE WITH STEPPERS ----------
+    function renderTable() {
+      tableBody.innerHTML = dayEntries.map((entry, idx) => {
+        const srMins = entry.sunrise ? timeToMinutes(entry.sunrise) : null;
+        const ssMins = entry.sunset ? timeToMinutes(entry.sunset) : null;
+        const srInvalid = srMins !== null && !isValidSunrise(srMins);
+        const ssInvalid = ssMins !== null && !isValidSunset(ssMins);
+
+        return `
+          <tr>
+            <td class="day-cell">${entry.day.toString().padStart(2,'0')}</td>
+            <td>
+              <div class="time-stepper">
+                <button class="stepper-btn" data-action="dec" data-type="sunrise" data-index="${idx}" aria-label="Decrease sunrise time">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <div class="time-display ${srInvalid ? 'invalid' : ''}" data-type="sunrise" data-index="${idx}">
+                  ${entry.sunrise ? minutesTo12h(srMins) : '— : —'}
+                </div>
+                <button class="stepper-btn" data-action="inc" data-type="sunrise" data-index="${idx}" aria-label="Increase sunrise time">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              ${srInvalid ? '<div class="field-error">Allowed: 3:00 AM – 7:00 AM</div>' : ''}
+            </td>
+            <td>
+              <div class="time-stepper">
+                <button class="stepper-btn" data-action="dec" data-type="sunset" data-index="${idx}" aria-label="Decrease sunset time">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <div class="time-display ${ssInvalid ? 'invalid' : ''}" data-type="sunset" data-index="${idx}">
+                  ${entry.sunset ? minutesTo12h(ssMins) : '— : —'}
+                </div>
+                <button class="stepper-btn" data-action="inc" data-type="sunset" data-index="${idx}" aria-label="Increase sunset time">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              ${ssInvalid ? '<div class="field-error">Allowed: 5:00 PM – 8:00 PM</div>' : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      attachStepperEvents();
+    }
+
+    function attachStepperEvents() {
+      document.querySelectorAll('.stepper-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const action = btn.dataset.action;
+          const type = btn.dataset.type;
+          const idx = parseInt(btn.dataset.index, 10);
+          const entry = dayEntries[idx];
+          if (!entry) return;
+
+          const isSunrise = type === 'sunrise';
+          const current = entry[type] ? timeToMinutes(entry[type]) : null;
+
+          // Determine starting point
+          let base;
+          if (current === null) {
+            base = isSunrise ? DEFAULT_SUNRISE : DEFAULT_SUNSET;
+          } else {
+            base = current;
+          }
+
+          // Step size: 5 minutes per click
+          const step = action === 'inc' ? 5 : -5;
+          let next = base + step;
+
+          // Clamp to valid range
+          if (isSunrise) {
+            if (next < SUNRISE_MIN) next = SUNRISE_MIN;
+            if (next > SUNRISE_MAX) next = SUNRISE_MAX;
+          } else {
+            if (next < SUNSET_MIN) next = SUNSET_MIN;
+            if (next > SUNSET_MAX) next = SUNSET_MAX;
+          }
+
+          entry[type] = minutesToHHMM(next);
+          renderTable();
+          saveToLocal();
+        });
+      });
+    }
+
+    // ---------- UPDATE TABLE FROM INTERVAL ----------
     function updateTableFromInterval() {
       const days = generateDayNumbers(currentMonth, currentInterval);
-      // preserve existing entries if possible
       const existingMap = new Map(dayEntries.map(e => [e.day, e]));
       dayEntries = days.map(day => {
         const existing = existingMap.get(day);
@@ -869,46 +1034,26 @@
       renderTable();
     }
 
-    function renderTable() {
-      tableBody.innerHTML = dayEntries.map((entry, idx) => `
-        <tr>
-          <td class="day-cell">${entry.day.toString().padStart(2,'0')}</td>
-          <td><input type="time" class="sunrise-input" data-index="${idx}" value="${entry.sunrise}" step="60"></td>
-          <td><input type="time" class="sunset-input" data-index="${idx}" value="${entry.sunset}" step="60"></td>
-        </tr>
-      `).join('');
-
-      // attach input listeners
-      document.querySelectorAll('.sunrise-input').forEach(inp => {
-        inp.addEventListener('input', (e) => {
-          const idx = e.target.dataset.index;
-          if (dayEntries[idx]) dayEntries[idx].sunrise = e.target.value;
-          saveToLocal();
-        });
-      });
-      document.querySelectorAll('.sunset-input').forEach(inp => {
-        inp.addEventListener('input', (e) => {
-          const idx = e.target.dataset.index;
-          if (dayEntries[idx]) dayEntries[idx].sunset = e.target.value;
-          saveToLocal();
-        });
-      });
-    }
-
-    // ---------- VALIDATE AND CHART ----------
+    // ---------- VALIDATE & BUILD CHART ----------
     function validateEntries() {
       for (let i = 0; i < dayEntries.length; i++) {
         const e = dayEntries[i];
         if (!e.sunrise || !e.sunset) {
-          return `Please fill Sunrise and Sunset for day ${e.day}.`;
+          return `Please set Sunrise and Sunset for day ${e.day}.`;
         }
         const sr = timeToMinutes(e.sunrise);
         const ss = timeToMinutes(e.sunset);
         if (sr === null || ss === null) {
-          return `Invalid time format for day ${e.day}.`;
+          return `Invalid time value for day ${e.day}.`;
+        }
+        if (!isValidSunrise(sr)) {
+          return `Day ${e.day}: Sunrise must be between 3:00 AM and 7:00 AM.`;
+        }
+        if (!isValidSunset(ss)) {
+          return `Day ${e.day}: Sunset must be between 5:00 PM and 8:00 PM.`;
         }
         if (ss <= sr) {
-          return `Sunset must be after Sunrise for day ${e.day}.`;
+          return `Day ${e.day}: Sunset must be after Sunrise.`;
         }
       }
       return null;
@@ -918,11 +1063,10 @@
       const error = validateEntries();
       if (error) {
         errorContainer.innerHTML = `<div class="error-msg">${error}</div>`;
-        return false;
+        return;
       }
       errorContainer.innerHTML = '';
 
-      // Prepare data with minutes
       const data = dayEntries.map(e => {
         const srMin = timeToMinutes(e.sunrise);
         const ssMin = timeToMinutes(e.sunset);
@@ -937,81 +1081,181 @@
       });
 
       lastChartData = data;
-      const monthName = currentMonth;
+      chartTitle.textContent = `${currentMonth} — Sunrise & Sunset`;
 
-      // Chart title
-      chartTitle.textContent = `${monthName} — Sunrise & Sunset`;
-
-      // Find min and max minutes for scaling
+      // Chart time range based on sunrise/sunset data, with padding
       const allTimes = data.flatMap(d => [d.srMin, d.ssMin]);
-      const minTime = Math.min(...allTimes) - 30;
-      const maxTime = Math.max(...allTimes) + 30;
-      const timeRange = maxTime - minTime;
+      const dataMin = Math.min(...allTimes);
+      const dataMax = Math.max(...allTimes);
+      const pad = 20;
+      let scaleMin = Math.min(dataMin - pad, SUNRISE_MIN);
+      let scaleMax = Math.max(dataMax + pad, SUNSET_MAX);
+      scaleMin = Math.max(0, scaleMin);
+      scaleMax = Math.min(1440, scaleMax);
+      const timeRange = scaleMax - scaleMin;
 
-      // Time axis labels: 4AM to 8PM every hour? We'll generate 4AM-8PM
-      const axisStart = 4 * 60; // 4 AM
-      const axisEnd = 20 * 60;  // 8 PM
-      const axisSteps = [];
-      for (let t = axisStart; t <= axisEnd; t += 60) {
-        axisSteps.push(t);
-      }
+      // Time axis ticks (every 2 hours for compactness)
+      const tickStart = Math.ceil(scaleMin / 60) * 60;
+      const tickEnd = Math.floor(scaleMax / 60) * 60;
+      const ticks = [];
+      for (let t = tickStart; t <= tickEnd; t += 120) ticks.push(t);
 
-      // Build bar chart HTML
-      const chartHeight = 340; // px
+      const axisHeight = 220; // px
 
-      const barsHtml = data.map(d => {
-        const srPos = ((d.srMin - minTime) / timeRange) * 100;
-        const ssPos = ((d.ssMin - minTime) / timeRange) * 100;
-        const barHeightPercent = ssPos - srPos;
+      // Build axis HTML — use absolute positioning with percentages
+      const axisHtml = ticks.map(t => {
+        const pct = ((t - scaleMin) / timeRange) * 100;
+        return `<div class="axis-label" style="position:absolute; top:${pct}%; right:0; transform:translateY(-50%);">${minutesTo12h(t)}</div>`;
+      }).join('');
 
-        // We use absolute positioning inside bar-visual
+      // Build columns
+      const columnsHtml = data.map(d => {
+        const srPct = ((d.srMin - scaleMin) / timeRange) * 100;
+        const ssPct = ((d.ssMin - scaleMin) / timeRange) * 100;
+        const barHeight = ssPct - srPct;
+
         return `
-          <div class="bar-item">
-            <div class="bar-visual">
-              <div class="daylight-bar" style="position: absolute; top: ${srPos}%; height: ${barHeightPercent}%; left: 0; width: 100%;">
-                <div class="sunrise-marker" style="top: 0; transform: translate(-50%, -50%);"></div>
-                <div class="sunset-marker" style="top: 100%; transform: translate(-50%, -50%);"></div>
+          <div class="column-wrap">
+            <div class="sun-label-top">
+              ${minutesTo12h(d.srMin)}
+              <small>Sunrise</small>
+            </div>
+            <div class="bar-area" style="height:${axisHeight}px;">
+              <div class="bar-track">
+                <div class="daylight-bar" style="top:${srPct}%; height:${barHeight}%;"></div>
+                <div class="sunrise-pin" style="top:${srPct}%;"></div>
+                <div class="sunset-pin" style="top:${ssPct}%;"></div>
               </div>
             </div>
-            <div class="bar-label">${d.day.toString().padStart(2,'0')}</div>
-            <div class="time-labels">
-              <span>↑ ${minutesTo12h(d.srMin)}</span>
-              <span>↓ ${minutesTo12h(d.ssMin)}</span>
-              <span style="font-weight:600; color: var(--primary);">${formatDuration(d.daylightMin)}</span>
+            <div class="sun-label-bottom">
+              ${minutesTo12h(d.ssMin)}
+              <small>Sunset</small>
             </div>
+            <div class="day-number-badge">${d.day.toString().padStart(2,'0')}</div>
+            <div class="daylight-duration">${formatDuration(d.daylightMin)}</div>
           </div>
         `;
       }).join('');
 
-      // Time axis labels positioned absolutely
-      const axisLabelsHtml = axisSteps.map(t => {
-        const pos = ((t - minTime) / timeRange) * 100;
-        if (pos < 0 || pos > 100) return '';
-        return `<span style="position: absolute; top: ${pos}%; right: 0; transform: translateY(-50%); font-size:0.65rem; color: var(--muted);">${minutesTo12h(t)}</span>`;
-      }).join('');
-
       chartWrapper.innerHTML = `
-        <div class="chart-bars" style="height: ${chartHeight}px; position: relative;">
-          <div class="time-axis" style="position:absolute; left:0; top:0; bottom:0; width:40px;">
-            ${axisLabelsHtml}
+        <div class="compact-chart">
+          <div class="time-axis-compact" style="position:relative; height:${axisHeight}px; margin-top:0;">
+            ${axisHtml}
           </div>
-          <div style="display: flex; gap: 12px; align-items: flex-end; height: 100%; padding-left: 40px; width: 100%;">
-            ${barsHtml}
+          <div class="columns-container">
+            ${columnsHtml}
           </div>
         </div>
       `;
 
-      // Build summary table
+      // The time-axis height needs to align with the bar-area. The column includes
+      // top label + bar-area + bottom label. The axis only aligns with bar-area.
+      // We'll offset the axis to match by giving it a top margin equal to top label height.
+      // Simpler: wrap axis with same structure.
+      // Rebuild more accurately:
+      const topLabelHeight = 34; // approx
+      chartWrapper.innerHTML = `
+        <div class="compact-chart">
+          <div style="width:42px; flex-shrink:0;"></div>
+          <div class="columns-container" style="flex:1;">
+            ${data.map(d => {
+              const srPct = ((d.srMin - scaleMin) / timeRange) * 100;
+              const ssPct = ((d.ssMin - scaleMin) / timeRange) * 100;
+              const barHeight = ssPct - srPct;
+              return `
+                <div class="column-wrap">
+                  <div class="sun-label-top" style="height:${topLabelHeight}px; display:flex; flex-direction:column; justify-content:center;">
+                    ${minutesTo12h(d.srMin)}
+                    <small>Sunrise</small>
+                  </div>
+                  <div class="bar-area" style="height:${axisHeight}px;">
+                    <div class="bar-track">
+                      <div class="daylight-bar" style="top:${srPct}%; height:${barHeight}%;"></div>
+                      <div class="sunrise-pin" style="top:${srPct}%;"></div>
+                      <div class="sunset-pin" style="top:${ssPct}%;"></div>
+                    </div>
+                  </div>
+                  <div class="sun-label-bottom" style="height:${topLabelHeight}px; display:flex; flex-direction:column; justify-content:center;">
+                    ${minutesTo12h(d.ssMin)}
+                    <small>Sunset</small>
+                  </div>
+                  <div class="day-number-badge">${d.day.toString().padStart(2,'0')}</div>
+                  <div class="daylight-duration">${formatDuration(d.daylightMin)}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+        <div style="position:relative; margin-left:42px; margin-top:${topLabelHeight}px; height:${axisHeight}px;">
+          ${ticks.map(t => {
+            const pct = ((t - scaleMin) / timeRange) * 100;
+            return `<div style="position:absolute; top:${pct}%; left:0; right:0; transform:translateY(-50%); display:flex; align-items:center; gap:6px; pointer-events:none;">
+              <span style="font-size:0.6rem; font-weight:500; color:var(--muted); white-space:nowrap; background:var(--surface); padding-right:4px;">${minutesTo12h(t)}</span>
+              <span style="flex:1; height:1px; background:var(--border); opacity:0.5;"></span>
+            </div>`;
+          }).join('')}
+        </div>
+      `;
+
+      // Add axis labels on left side cleanly — use flex layout version
+      // Final version: use a grid-like structure with a separate axis column
+      chartWrapper.innerHTML = `
+        <div style="display:flex; gap:4px; min-width:fit-content;">
+          <!-- Axis column -->
+          <div style="width:44px; flex-shrink:0; display:flex; flex-direction:column;">
+            <div style="height:${topLabelHeight}px;"></div>
+            <div style="height:${axisHeight}px; position:relative;">
+              ${ticks.map(t => {
+                const pct = ((t - scaleMin) / timeRange) * 100;
+                return `<div style="position:absolute; top:${pct}%; right:4px; transform:translateY(-50%); font-size:0.6rem; font-weight:500; color:var(--muted); white-space:nowrap;">${minutesTo12h(t)}</div>`;
+              }).join('')}
+            </div>
+            <div style="height:${topLabelHeight}px;"></div>
+            <div style="height:24px;"></div>
+            <div style="height:18px;"></div>
+          </div>
+          <!-- Columns -->
+          <div style="display:flex; gap:4px; flex:1;">
+            ${data.map(d => {
+              const srPct = ((d.srMin - scaleMin) / timeRange) * 100;
+              const ssPct = ((d.ssMin - scaleMin) / timeRange) * 100;
+              const barHeight = ssPct - srPct;
+              return `
+                <div class="column-wrap" style="min-width:52px;">
+                  <div class="sun-label-top" style="height:${topLabelHeight}px; display:flex; flex-direction:column; justify-content:center;">
+                    ${minutesTo12h(d.srMin)}
+                    <small>Sunrise</small>
+                  </div>
+                  <div style="height:${axisHeight}px; width:100%; position:relative;">
+                    <div style="width:100%; height:100%; position:relative;">
+                      <div class="daylight-bar" style="top:${srPct}%; height:${barHeight}%;"></div>
+                      <div class="sunrise-pin" style="top:${srPct}%;"></div>
+                      <div class="sunset-pin" style="top:${ssPct}%;"></div>
+                    </div>
+                  </div>
+                  <div class="sun-label-bottom" style="height:${topLabelHeight}px; display:flex; flex-direction:column; justify-content:center;">
+                    ${minutesTo12h(d.ssMin)}
+                    <small>Sunset</small>
+                  </div>
+                  <div class="day-number-badge">${d.day.toString().padStart(2,'0')}</div>
+                  <div class="daylight-duration">${formatDuration(d.daylightMin)}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      // Summary table
       summaryBody.innerHTML = data.map(d => `
         <tr>
           <td>${d.day.toString().padStart(2,'0')}</td>
-          <td>${d.sunrise}</td>
-          <td>${d.sunset}</td>
+          <td>${minutesTo12h(d.srMin)}</td>
+          <td>${minutesTo12h(d.ssMin)}</td>
           <td>${formatDuration(d.daylightMin)}</td>
         </tr>
       `).join('');
 
-      // Stats
       const daylights = data.map(d => d.daylightMin);
       const longest = Math.max(...daylights);
       const shortest = Math.min(...daylights);
@@ -1023,14 +1267,9 @@
         <div class="stat-item"><i class="fas fa-arrows-alt-h" style="color: #3b82f6;"></i> Difference: <strong>${diff} minutes</strong></div>
       `;
 
-      // Show chart, hide empty state
       chartSection.classList.remove('hidden');
       emptyState.classList.add('hidden');
-
-      // Scroll to chart
       chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      return true;
     }
 
     // ---------- LOCAL STORAGE ----------
@@ -1051,10 +1290,8 @@
           if (p.month && MONTHS.includes(p.month)) currentMonth = p.month;
           if (p.interval) currentInterval = p.interval;
           if (p.entries && Array.isArray(p.entries)) dayEntries = p.entries;
-          // ensure entries match current month/interval? we'll regenerate on init anyway
         } catch(e) {}
       }
-      // if no entries, use demo
       if (!dayEntries || dayEntries.length === 0) {
         currentMonth = DEMO_DATA.month;
         currentInterval = DEMO_DATA.interval;
@@ -1065,7 +1302,6 @@
     // ---------- RESET ----------
     function resetData() {
       if (confirm("Are you sure you want to clear the current month's data?")) {
-        // clear only times for current month
         dayEntries.forEach(e => { e.sunrise = ''; e.sunset = ''; });
         renderTable();
         saveToLocal();
@@ -1075,17 +1311,15 @@
       }
     }
 
-    // ---------- DOWNLOAD IMAGE ----------
+    // ---------- DOWNLOAD / PRINT / SHARE ----------
     async function downloadChartImage() {
       if (!lastChartData) {
         alert('Please generate chart first.');
         return;
       }
       const target = document.getElementById('chartSection');
-      // temporarily hide buttons for capture
       const controls = target.querySelector('.no-print');
       if (controls) controls.style.display = 'none';
-
       try {
         const canvas = await html2canvas(target, {
           scale: 2,
@@ -1105,18 +1339,16 @@
       }
     }
 
-    // ---------- SHARE ----------
     function shareChart() {
       if (!lastChartData) {
         alert('Generate chart first.');
         return;
       }
       const month = currentMonth;
-      const summary = lastChartData.map(d => `Day ${d.day}: ${d.sunrise} → ${d.sunset} (${formatDuration(d.daylightMin)})`).join('\n');
+      const summary = lastChartData.map(d => `Day ${d.day}: ${minutesTo12h(d.srMin)} → ${minutesTo12h(d.ssMin)} (${formatDuration(d.daylightMin)})`).join('\n');
       const text = `Day Difference Chart for ${month}\n\n${summary}\n\nCreated with Day Difference Generator`;
-
       if (navigator.share) {
-        navigator.share({ title: `Day Difference - ${month}`, text: text }).catch(() => {});
+        navigator.share({ title: `Day Difference - ${month}`, text }).catch(() => {});
       } else {
         navigator.clipboard.writeText(text).then(() => {
           alert('Chart information copied to clipboard!');
@@ -1126,9 +1358,8 @@
       }
     }
 
-    // ---------- EVENT LISTENERS ----------
+    // ---------- EVENTS ----------
     function initEvents() {
-      // month tabs
       monthTabs.addEventListener('click', (e) => {
         const tab = e.target.closest('.month-tab');
         if (!tab) return;
@@ -1136,17 +1367,14 @@
         if (m === currentMonth) return;
         currentMonth = m;
 
-        // adjust interval if incompatible (All Days 30/31)
         const totalDays = getMonthDays(currentMonth);
         if (currentInterval === '30' && totalDays < 30) currentInterval = '28';
         if (currentInterval === '31' && totalDays < 31) currentInterval = '28';
         if (currentInterval === '29' && totalDays < 29) currentInterval = '28';
 
-        // update active class
         document.querySelectorAll('.month-tab').forEach(t => t.classList.toggle('active', t.dataset.month === currentMonth));
         intervalSelect.value = currentInterval;
 
-        // regenerate table
         const existingMap = new Map(dayEntries.map(e => [e.day, e]));
         const days = generateDayNumbers(currentMonth, currentInterval);
         dayEntries = days.map(day => {
@@ -1155,12 +1383,10 @@
         });
         renderTable();
         saveToLocal();
-        // hide chart
         chartSection.classList.add('hidden');
         emptyState.classList.remove('hidden');
       });
 
-      // interval change
       intervalSelect.addEventListener('change', (e) => {
         currentInterval = e.target.value;
         const existingMap = new Map(dayEntries.map(e => [e.day, e]));
@@ -1175,15 +1401,9 @@
         emptyState.classList.remove('hidden');
       });
 
-      // show chart
-      showChartBtn.addEventListener('click', () => {
-        buildChart();
-      });
-
-      // reset
+      showChartBtn.addEventListener('click', buildChart);
       resetBtn.addEventListener('click', resetData);
 
-      // menu open/close
       menuBtn.addEventListener('click', () => menuOverlay.classList.add('open'));
       menuOverlay.addEventListener('click', (e) => {
         if (e.target === menuOverlay) menuOverlay.classList.remove('open');
@@ -1192,16 +1412,14 @@
         link.addEventListener('click', (e) => {
           e.preventDefault();
           menuOverlay.classList.remove('open');
-          alert('This is a demo. Menu item: ' + link.textContent.trim());
+          alert('Menu item: ' + link.textContent.trim() + ' (demo)');
         });
       });
 
-      // download / print / share
       downloadBtn.addEventListener('click', downloadChartImage);
       printBtn.addEventListener('click', () => window.print());
       shareBtn.addEventListener('click', shareChart);
 
-      // footer links demo
       document.querySelectorAll('footer a').forEach(a => {
         a.addEventListener('click', (e) => { e.preventDefault(); alert('Demo footer link.'); });
       });
@@ -1211,11 +1429,8 @@
     function init() {
       loadFromLocal();
       renderMonthTabs();
-
-      // set interval select
       intervalSelect.value = currentInterval;
 
-      // If entries exist and match days, keep; else regenerate
       const days = generateDayNumbers(currentMonth, currentInterval);
       if (!dayEntries || dayEntries.length !== days.length || !dayEntries.every(e => days.includes(e.day))) {
         dayEntries = days.map(day => {
@@ -1226,8 +1441,6 @@
 
       renderTable();
       initEvents();
-
-      // hide chart initially
       chartSection.classList.add('hidden');
       emptyState.classList.remove('hidden');
     }

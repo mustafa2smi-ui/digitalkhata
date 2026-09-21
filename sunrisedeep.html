@@ -414,11 +414,12 @@
     }
     .add-month-compact i { font-size: 0.75rem; }
 
+    /* ====== SCROLLABLE CONTINUOUS CHART ====== */
     .charts-unified-body {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
-      padding: 18px 14px;
+      padding: 16px 14px 20px;
     }
     .charts-unified-body::-webkit-scrollbar { height: 6px; }
     .charts-unified-body::-webkit-scrollbar-thumb {
@@ -426,79 +427,18 @@
       border-radius: 3px;
     }
 
-    /* ====== CONTINUOUS CHART ROW ====== */
-    .month-panels-row {
-      display: flex;
-      gap: 4px;
-      align-items: flex-start;
-      width: max-content;
-      min-width: 100%;
-    }
-
-    /* Each month — very tight panel, no card, no side padding */
-    .month-panel {
-      flex-shrink: 0;
-      width: 300px;
-      position: relative;
-      padding: 0 2px;
-    }
-
-    .month-panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      gap: 6px;
-      padding: 0 2px;
-    }
-    .month-panel-title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .month-panel-title i {
-      color: var(--primary);
-      font-size: 0.8rem;
-    }
-
-    .remove-chart-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      font-size: 0.65rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, color 0.15s;
-      flex-shrink: 0;
-    }
-    .remove-chart-btn:hover {
-      background: #fef2f2;
-      color: #b91c1c;
-    }
-
-    .chart-scroll-inner {
-      overflow: visible;
-      padding-bottom: 4px;
-    }
-
-    /* Chart grid layout */
-    .chart-grid-container {
+    /* The continuous chart row — one flex row that holds:
+       [shared axis] [month1 columns] [month2 columns] [month3 columns] ...
+       Month headers are drawn above using a separate row overlay. */
+    .continuous-chart {
       display: flex;
       gap: 2px;
+      align-items: flex-start;
       min-width: fit-content;
       position: relative;
     }
 
-    /* ---------- SHARED AXIS COLUMN (only on first month) ---------- */
+    /* ===== Shared time axis ===== */
     .shared-axis-col {
       width: 36px;
       flex-shrink: 0;
@@ -506,8 +446,8 @@
       flex-direction: column;
       position: relative;
     }
-    .shared-axis-spacer-top { height: 16px; }
-    .shared-axis-spacer-bottom { height: 16px; }
+    .shared-axis-months-spacer { height: 24px; }
+    .shared-axis-times-spacer { height: 16px; }
     .shared-axis-labels {
       flex: 1;
       position: relative;
@@ -522,30 +462,73 @@
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
+    .shared-axis-below-spacer { height: 16px; }
+    .shared-axis-below-badges { height: 34px; }
 
-    /* Placeholder to maintain alignment for months WITHOUT an axis */
-    .axis-placeholder {
-      width: 36px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    .axis-placeholder-top { height: 16px; }
-    .axis-placeholder-bottom { height: 16px; }
-    .axis-placeholder-spacer { flex: 1; }
-
-    /* Columns */
-    .columns-wrap {
+    /* ===== Each month is just a slice of columns (no wrapper, no gap) ===== */
+    .month-segment {
       display: flex;
       gap: 2px;
-      flex: 1;
+      flex-shrink: 0;
       position: relative;
+      padding: 0;
+      margin: 0;
     }
+
+    /* The month label sits above the columns of that month */
+    .month-segment-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      pointer-events: none;
+    }
+    .month-segment-header i {
+      color: var(--primary);
+      font-size: 0.65rem;
+      margin-right: 3px;
+    }
+
+    /* The remove button for a month — small, sits in the header row */
+    .month-remove-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.6rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      z-index: 5;
+      pointer-events: auto;
+    }
+    .month-remove-btn:hover {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    /* Column layout — identical to before, but no per-month wrapper margin */
     .column {
       min-width: 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
     }
     .sun-time-top {
       font-size: 0.6rem;
@@ -620,9 +603,14 @@
       margin-top: 2px;
       white-space: nowrap;
     }
-    .grid-lines {
+
+    /* grid lines overlay (spans the whole continuous chart body) */
+    .continuous-grid-overlay {
       position: absolute;
-      inset: 0;
+      left: 36px; /* skip the axis width */
+      right: 0;
+      top: 40px;  /* skip month header (24) + time-top label (16) */
+      height: 220px;
       pointer-events: none;
       z-index: 1;
     }
@@ -634,28 +622,53 @@
       background: var(--grid);
     }
 
-    /* summary inside panel */
-    .chart-summary {
+    /* ===== Month summary cards (below the chart, optional) ===== */
+    .summaries-section {
+      padding: 0 14px 14px;
       border-top: 1px solid var(--border);
-      padding-top: 8px;
-      margin-top: 8px;
     }
-    .chart-summary-title {
-      font-size: 0.66rem;
+    .summaries-title {
+      font-size: 0.72rem;
       font-weight: 700;
-      color: var(--text-soft);
-      margin-bottom: 5px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
+      color: var(--text-soft);
+      padding: 14px 4px 8px;
     }
-    .summary-table {
+    .summaries-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .summary-mini {
+      background: var(--surface-2);
+      border-radius: 16px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+    }
+    .summary-mini-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .summary-mini-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .summary-mini-title i { color: var(--primary); font-size: 0.75rem; }
+    .summary-mini .summary-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.7rem;
     }
-    .summary-table th {
+    .summary-mini .summary-table th {
       text-align: left;
-      padding: 4px 3px 3px 0;
+      padding: 3px 3px 2px 0;
       font-weight: 600;
       color: var(--muted);
       font-size: 0.55rem;
@@ -663,44 +676,43 @@
       letter-spacing: 0.05em;
       background: transparent;
     }
-    .summary-table td {
+    .summary-mini .summary-table td {
       padding: 3px 3px 3px 0;
       border-bottom: 1px solid var(--border);
       font-weight: 500;
       font-size: 0.7rem;
     }
-
-    .chart-stats {
+    .summary-mini .chart-stats {
       display: flex;
       flex-direction: column;
       gap: 3px;
       margin-top: 8px;
     }
-    .chart-stat {
+    .summary-mini .chart-stat {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--surface-2);
+      background: var(--surface);
       padding: 4px 8px;
       border-radius: 8px;
       font-size: 0.66rem;
       font-weight: 500;
     }
-    .chart-stat strong { font-weight: 700; color: var(--text); }
-    .chart-stat-longest strong { color: #d97706; }
-    .chart-stat-shortest strong { color: #7c3aed; }
-    .chart-stat-diff strong { color: #2563eb; }
+    .summary-mini .chart-stat strong { font-weight: 700; color: var(--text); }
+    .summary-mini .chart-stat-longest strong { color: #d97706; }
+    .summary-mini .chart-stat-shortest strong { color: #7c3aed; }
+    .summary-mini .chart-stat-diff strong { color: #2563eb; }
 
-    .chart-actions {
+    .summary-mini-actions {
       display: flex;
       gap: 4px;
       flex-wrap: wrap;
+      margin-top: 8px;
       padding-top: 8px;
-      margin-top: 6px;
       border-top: 1px solid var(--border);
     }
-    .chart-actions .btn {
-      padding: 5px 8px;
+    .summary-mini-actions .btn {
+      padding: 4px 8px;
       font-size: 0.62rem;
       border-radius: 30px;
     }
@@ -788,7 +800,8 @@
 
     @media print {
       .sticky-header, .menu-btn, .btn, .month-scroll, select, .table-responsive,
-      .footer, .menu-overlay, .reset-btn, .no-print, .add-month-compact, .remove-chart-btn {
+      .footer, .menu-overlay, .reset-btn, .no-print, .add-month-compact,
+      .month-remove-btn, .summary-mini-actions {
         display: none !important;
       }
       .charts-section {
@@ -797,23 +810,13 @@
         break-inside: avoid;
       }
       body { background: white; padding: 0; }
-      .charts-unified-body { overflow: visible; padding: 12px; }
-      .month-panels-row {
-        flex-wrap: wrap;
-        width: 100%;
-        gap: 8px;
-      }
-      .month-panel {
-        page-break-inside: avoid;
-        width: auto;
-        flex: 1 1 auto;
-        min-width: 280px;
-      }
+      .charts-unified-body { overflow: visible; padding: 10px; }
+      .continuous-chart { flex-wrap: wrap; }
+      .summaries-grid { grid-template-columns: repeat(2, 1fr); }
       .container { max-width: 100%; padding: 0.5in; }
     }
 
     @media (max-width: 420px) {
-      .month-panel { width: 280px; }
       .column { min-width: 28px; }
       .sun-time-top, .sun-time-bottom { font-size: 0.55rem; }
       .daylight-chip { font-size: 0.42rem; }
@@ -876,7 +879,7 @@
     <div id="errorContainer"></div>
   </div>
 
-  <!-- ==================== UNIFIED CHART AREA ==================== -->
+  <!-- ==================== UNIFIED CONTINUOUS CHART ==================== -->
   <div id="chartsSection" class="charts-section hidden">
     <div class="charts-section-header">
       <div class="charts-section-title">
@@ -886,10 +889,17 @@
         <i class="fas fa-plus"></i> Month
       </button>
     </div>
+
     <div class="charts-unified-body" id="chartsScroll">
-      <div class="month-panels-row" id="chartsRow">
-        <!-- Month panels injected here -->
+      <div class="continuous-chart" id="continuousChart">
+        <!-- shared axis + one month-segment per month will be injected -->
       </div>
+    </div>
+
+    <!-- Month summaries (daylight difference tables) -->
+    <div class="summaries-section" id="summariesSection">
+      <div class="summaries-title">Monthly Daylight Summaries</div>
+      <div class="summaries-grid" id="summariesGrid"></div>
     </div>
   </div>
 
@@ -920,10 +930,18 @@
     const DEFAULT_SUNRISE = 6 * 60;
     const DEFAULT_SUNSET  = 17 * 60;
 
-    // Shared global vertical scale — used for ALL months so bars are comparable.
-    // This is the key to making the time scale meaningful across the whole year.
-    const GLOBAL_SCALE_MIN = 3 * 60;    // 3:00 AM
-    const GLOBAL_SCALE_MAX = 21 * 60;   // 9:00 PM
+    // Shared global vertical scale — makes the single time axis meaningful
+    // for the entire continuous year chart.
+    const GLOBAL_SCALE_MIN = 3 * 60;   // 3 AM
+    const GLOBAL_SCALE_MAX = 21 * 60;  // 9 PM
+
+    // Heights used inside the chart so the axis, grid, and columns align.
+    const MONTH_HEADER_H = 24;
+    const TIME_TOP_H = 16;
+    const AXIS_HEIGHT = 220;
+    const TIME_BOTTOM_H = 16;
+    const BADGE_H = 22;
+    const DURATION_H = 16;
 
     const DEMO_DATA = {
       month: "January",
@@ -949,7 +967,8 @@
     const showChartBtn = document.getElementById('showChartBtn');
     const resetBtn = document.getElementById('resetBtn');
     const chartsSection = document.getElementById('chartsSection');
-    const chartsRow = document.getElementById('chartsRow');
+    const continuousChart = document.getElementById('continuousChart');
+    const summariesGrid = document.getElementById('summariesGrid');
     const chartsScroll = document.getElementById('chartsScroll');
     const emptyState = document.getElementById('emptyState');
     const errorContainer = document.getElementById('errorContainer');
@@ -1204,7 +1223,7 @@
       }, 0);
     }
 
-    // ---------- UNIFIED CHART RENDERING ----------
+    // ---------- CONTINUOUS CHART RENDERING ----------
     function renderGeneratedCharts() {
       if (generatedCharts.length === 0) {
         chartsSection.classList.add('hidden');
@@ -1227,18 +1246,58 @@
         }
       }
 
-      // Build all month panels in one continuous row.
-      // The FIRST panel gets the shared axis. Others get an axis placeholder
-      // to keep the vertical alignment identical.
-      let html = '';
-      generatedCharts.forEach((month, i) => {
-        html += buildMonthPanelHtml(month, i === 0);
-      });
-      chartsRow.innerHTML = html;
+      // Build the continuous chart: shared axis + month segments all inside
+      // ONE flex row, so the columns from consecutive months sit side by side
+      // with identical 2px gaps — no extra spacing between months.
+      const scaleMin = GLOBAL_SCALE_MIN;
+      const scaleMax = GLOBAL_SCALE_MAX;
+      const timeRange = scaleMax - scaleMin;
 
-      // attach events
-      chartsRow.querySelectorAll('.remove-chart-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+      const tickStart = Math.ceil(scaleMin / 60) * 60;
+      const tickEnd = Math.floor(scaleMax / 60) * 60;
+      const ticks = [];
+      for (let t = tickStart; t <= tickEnd; t += 120) ticks.push(t);
+
+      // axis HTML
+      const axisLabelsHtml = ticks.map(t => {
+        const pct = ((t - scaleMin) / timeRange) * 100;
+        return `<div class="shared-axis-label" style="top:${pct}%;">${minutesTo12h(t)}</div>`;
+      }).join('');
+
+      const sharedAxisHtml = `
+        <div class="shared-axis-col">
+          <div class="shared-axis-months-spacer"></div>
+          <div class="shared-axis-times-spacer"></div>
+          <div class="shared-axis-labels" style="height:${AXIS_HEIGHT}px;">
+            ${axisLabelsHtml}
+          </div>
+          <div class="shared-axis-below-spacer"></div>
+          <div class="shared-axis-below-badges"></div>
+        </div>
+      `;
+
+      // Build all month segments
+      let segmentsHtml = '';
+      generatedCharts.forEach(month => {
+        segmentsHtml += buildMonthSegmentHtml(month, scaleMin, timeRange);
+      });
+
+      // One grid overlay covering the entire chart body (skips axis)
+      const gridOverlayHtml = `
+        <div class="continuous-grid-overlay">
+          ${ticks.map(t => {
+            const pct = ((t - scaleMin) / timeRange) * 100;
+            return `<div class="grid-line" style="top:${pct}%;"></div>`;
+          }).join('')}
+        </div>
+      `;
+
+      continuousChart.innerHTML = gridOverlayHtml + sharedAxisHtml + segmentsHtml;
+
+      // Attach events for remove buttons
+      continuousChart.querySelectorAll('.month-remove-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
           const m = btn.dataset.month;
           if (confirm(`Remove the ${m} chart from the sequence? (Data will be kept in the table.)`)) {
             generatedCharts = generatedCharts.filter(x => x !== m);
@@ -1248,153 +1307,122 @@
         });
       });
 
-      chartsRow.querySelectorAll('[data-action="download"]').forEach(btn => {
-        btn.addEventListener('click', () => downloadChartImage(btn.dataset.month));
-      });
-      chartsRow.querySelectorAll('[data-action="print"]').forEach(btn => {
-        btn.addEventListener('click', () => window.print());
-      });
-      chartsRow.querySelectorAll('[data-action="share"]').forEach(btn => {
-        btn.addEventListener('click', () => shareChart(btn.dataset.month));
-      });
+      // Build summaries grid (one mini card per month)
+      renderSummaries();
+
+      setTimeout(() => {
+        if (chartsScroll) {
+          chartsScroll.scrollTo({ left: chartsScroll.scrollWidth, behavior: 'smooth' });
+        }
+      }, 80);
     }
 
-    // Build one month panel. showAxis = true for the first chart only.
-    function buildMonthPanelHtml(month, showAxis) {
+    // Build the columns for one month, wrapped in a thin segment.
+    // No border, no margin — only the columns themselves with 2px gaps.
+    function buildMonthSegmentHtml(month, scaleMin, timeRange) {
       const entries = allMonthData[month];
       if (!entries) return '';
 
       const filled = entries.filter(e => e.sunrise && e.sunset);
+
+      // The segment always includes the month header row (absolute positioned)
+      // plus the actual column data. If no data, show a single placeholder column.
+      let columnsHtml = '';
       if (filled.length === 0) {
-        return `
-          <div class="month-panel">
-            <div class="month-panel-header">
-              <div class="month-panel-title"><i class="fas fa-sun"></i> ${month}</div>
-              <button class="remove-chart-btn" data-month="${month}" title="Remove chart"><i class="fas fa-times"></i></button>
-            </div>
-            <div style="text-align:center; padding: 24px 8px; color: var(--muted); font-size: 0.78rem;">
-              No data entered yet for ${month}.<br>
-              Please enter times in the table above and click Show Graph / Chart.
+        // placeholder column with muted message (one column width)
+        columnsHtml = `
+          <div class="column" style="min-width: 60px;">
+            <div style="height:${MONTH_HEADER_H + TIME_TOP_H + AXIS_HEIGHT + TIME_BOTTOM_H + BADGE_H + DURATION_H}px; display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 0.7rem; text-align:center; padding: 4px;">
+              No data
             </div>
           </div>
         `;
+      } else {
+        const data = filled.map(e => {
+          const srMin = timeToMinutes(e.sunrise);
+          const ssMin = timeToMinutes(e.sunset);
+          return { day: e.day, srMin, ssMin, daylightMin: ssMin - srMin };
+        });
+
+        columnsHtml = data.map(d => {
+          const srPct = ((d.srMin - scaleMin) / timeRange) * 100;
+          const ssPct = ((d.ssMin - scaleMin) / timeRange) * 100;
+          const barHeight = ssPct - srPct;
+          return `
+            <div class="column">
+              <div class="sun-time-top">${minutesToShort(d.srMin)}</div>
+              <div class="bar-area" style="height:${AXIS_HEIGHT}px;">
+                <div class="bar-area-inner">
+                  <div class="daylight-bar" style="top:${srPct}%; height:${barHeight}%;"></div>
+                  <div class="sunrise-pin" style="top:${srPct}%;"></div>
+                  <div class="sunset-pin" style="top:${ssPct}%;"></div>
+                </div>
+              </div>
+              <div class="sun-time-bottom">${minutesToShort(d.ssMin)}</div>
+              <div class="day-badge">${d.day.toString().padStart(2,'0')}</div>
+              <div class="daylight-chip">${formatDuration(d.daylightMin)}</div>
+            </div>
+          `;
+        }).join('');
       }
 
-      const data = filled.map(e => {
-        const srMin = timeToMinutes(e.sunrise);
-        const ssMin = timeToMinutes(e.sunset);
-        return { day: e.day, sunrise: e.sunrise, sunset: e.sunset, srMin, ssMin, daylightMin: ssMin - srMin };
-      });
-
-      // ==== SHARED GLOBAL SCALE ====
-      // All months use the same min/max so bars are visually comparable across
-      // the entire year, and the single time scale on the left is meaningful.
-      const scaleMin = GLOBAL_SCALE_MIN;
-      const scaleMax = GLOBAL_SCALE_MAX;
-      const timeRange = scaleMax - scaleMin;
-
-      // 2-hour ticks
-      const tickStart = Math.ceil(scaleMin / 60) * 60;
-      const tickEnd = Math.floor(scaleMax / 60) * 60;
-      const ticks = [];
-      for (let t = tickStart; t <= tickEnd; t += 120) ticks.push(t);
-
-      const axisHeight = 220;
-
-      // Build the axis labels (only used if showAxis)
-      const axisLabelsHtml = ticks.map(t => {
-        const pct = ((t - scaleMin) / timeRange) * 100;
-        return `<div class="shared-axis-label" style="top:${pct}%;">${minutesTo12h(t)}</div>`;
-      }).join('');
-
-      const gridLinesHtml = ticks.map(t => {
-        const pct = ((t - scaleMin) / timeRange) * 100;
-        return `<div class="grid-line" style="top:${pct}%;"></div>`;
-      }).join('');
-
-      const columnsHtml = data.map(d => {
-        const srPct = ((d.srMin - scaleMin) / timeRange) * 100;
-        const ssPct = ((d.ssMin - scaleMin) / timeRange) * 100;
-        const barHeight = ssPct - srPct;
-        return `
-          <div class="column">
-            <div class="sun-time-top">${minutesToShort(d.srMin)}</div>
-            <div class="bar-area" style="height:${axisHeight}px;">
-              <div class="bar-area-inner">
-                <div class="daylight-bar" style="top:${srPct}%; height:${barHeight}%;"></div>
-                <div class="sunrise-pin" style="top:${srPct}%;"></div>
-                <div class="sunset-pin" style="top:${ssPct}%;"></div>
-              </div>
-            </div>
-            <div class="sun-time-bottom">${minutesToShort(d.ssMin)}</div>
-            <div class="day-badge">${d.day.toString().padStart(2,'0')}</div>
-            <div class="daylight-chip">${formatDuration(d.daylightMin)}</div>
-          </div>
-        `;
-      }).join('');
-
-      const summaryRows = data.map(d => `
-        <tr>
-          <td>${d.day.toString().padStart(2,'0')}</td>
-          <td>${minutesToShort(d.srMin)}</td>
-          <td>${minutesToShort(d.ssMin)}</td>
-          <td>${formatDuration(d.daylightMin)}</td>
-        </tr>
-      `).join('');
-
-      const daylights = data.map(d => d.daylightMin);
-      const longest = Math.max(...daylights);
-      const shortest = Math.min(...daylights);
-      const diff = longest - shortest;
-
-      // Use either the shared axis column (first chart) or a placeholder
-      const axisBlock = showAxis
-        ? `
-          <div class="shared-axis-col">
-            <div class="shared-axis-spacer-top"></div>
-            <div class="shared-axis-labels" style="height:${axisHeight}px;">
-              ${axisLabelsHtml}
-            </div>
-            <div class="shared-axis-spacer-bottom"></div>
-            <div style="height:20px;"></div>
-            <div style="height:14px;"></div>
-          </div>
-        `
-        : `
-          <div class="axis-placeholder">
-            <div class="axis-placeholder-top"></div>
-            <div class="axis-placeholder-spacer" style="height:${axisHeight}px;"></div>
-            <div class="axis-placeholder-bottom"></div>
-            <div style="height:20px;"></div>
-            <div style="height:14px;"></div>
-          </div>
-        `;
-
       return `
-        <div class="month-panel">
-          <div class="month-panel-header">
-            <div class="month-panel-title"><i class="fas fa-sun"></i> ${month}</div>
-            <button class="remove-chart-btn" data-month="${month}" title="Remove chart"><i class="fas fa-times"></i></button>
+        <div class="month-segment" data-month="${month}">
+          <div class="month-segment-header">
+            <i class="fas fa-sun"></i> ${month}
           </div>
+          <button class="month-remove-btn no-print" data-month="${month}" title="Remove chart">
+            <i class="fas fa-times"></i>
+          </button>
+          ${columnsHtml}
+        </div>
+      `;
+    }
 
-          <div class="chart-scroll-inner">
-            <div class="chart-grid-container">
-              ${axisBlock}
-              <div class="columns-wrap" style="height:auto;">
-                <div style="position:absolute; left:0; right:0; top:16px; height:${axisHeight}px; z-index:1; pointer-events:none;">
-                  ${gridLinesHtml}
-                </div>
-                ${columnsHtml}
+    // Build the per-month summary mini-cards below the chart
+    function renderSummaries() {
+      let html = '';
+      generatedCharts.forEach(month => {
+        const entries = allMonthData[month] || [];
+        const filled = entries.filter(e => e.sunrise && e.sunset);
+        if (filled.length === 0) {
+          html += `
+            <div class="summary-mini">
+              <div class="summary-mini-header">
+                <div class="summary-mini-title"><i class="fas fa-sun"></i> ${month}</div>
               </div>
+              <div style="color: var(--muted); font-size: 0.75rem; text-align:center; padding: 10px;">No data</div>
             </div>
-          </div>
+          `;
+          return;
+        }
+        const data = filled.map(e => {
+          const srMin = timeToMinutes(e.sunrise);
+          const ssMin = timeToMinutes(e.sunset);
+          return { day: e.day, srMin, ssMin, daylightMin: ssMin - srMin };
+        });
 
-          <div class="chart-summary">
-            <div class="chart-summary-title">Daylight Difference</div>
+        const summaryRows = data.map(d => `
+          <tr>
+            <td>${d.day.toString().padStart(2,'0')}</td>
+            <td>${minutesToShort(d.srMin)}</td>
+            <td>${minutesToShort(d.ssMin)}</td>
+            <td>${formatDuration(d.daylightMin)}</td>
+          </tr>
+        `).join('');
+
+        const daylights = data.map(d => d.daylightMin);
+        const longest = Math.max(...daylights);
+        const shortest = Math.min(...daylights);
+        const diff = longest - shortest;
+
+        html += `
+          <div class="summary-mini" data-month="${month}">
+            <div class="summary-mini-header">
+              <div class="summary-mini-title"><i class="fas fa-sun"></i> ${month}</div>
+            </div>
             <table class="summary-table">
-              <thead>
-                <tr><th>Day</th><th>Rise</th><th>Set</th><th>Daylight</th></tr>
-              </thead>
+              <thead><tr><th>Day</th><th>Rise</th><th>Set</th><th>Light</th></tr></thead>
               <tbody>${summaryRows}</tbody>
             </table>
             <div class="chart-stats">
@@ -1411,15 +1439,26 @@
                 <strong>${diff} min</strong>
               </div>
             </div>
+            <div class="summary-mini-actions no-print">
+              <button class="btn btn-outline" data-action="download" data-month="${month}" title="Download"><i class="fas fa-download"></i></button>
+              <button class="btn btn-outline" data-action="print" title="Print"><i class="fas fa-print"></i></button>
+              <button class="btn btn-outline" data-action="share" data-month="${month}" title="Share"><i class="fas fa-share-alt"></i></button>
+            </div>
           </div>
+        `;
+      });
+      summariesGrid.innerHTML = html;
 
-          <div class="chart-actions no-print">
-            <button class="btn btn-outline" data-action="download" data-month="${month}" title="Download"><i class="fas fa-download"></i></button>
-            <button class="btn btn-outline" data-action="print" title="Print"><i class="fas fa-print"></i></button>
-            <button class="btn btn-outline" data-action="share" data-month="${month}" title="Share"><i class="fas fa-share-alt"></i></button>
-          </div>
-        </div>
-      `;
+      // attach action buttons
+      summariesGrid.querySelectorAll('[data-action="download"]').forEach(btn => {
+        btn.addEventListener('click', () => downloadChartImage(btn.dataset.month));
+      });
+      summariesGrid.querySelectorAll('[data-action="print"]').forEach(btn => {
+        btn.addEventListener('click', () => window.print());
+      });
+      summariesGrid.querySelectorAll('[data-action="share"]').forEach(btn => {
+        btn.addEventListener('click', () => shareChart(btn.dataset.month));
+      });
     }
 
     // Add next chart (next chronological month)
@@ -1438,12 +1477,6 @@
       renderGeneratedCharts();
       renderMonthTabs();
       saveToLocal();
-
-      setTimeout(() => {
-        if (chartsScroll) {
-          chartsScroll.scrollTo({ left: chartsScroll.scrollWidth, behavior: 'smooth' });
-        }
-      }, 100);
     }
 
     // Generate chart for the currently selected month
@@ -1491,11 +1524,11 @@
         allMonthData,
         generatedCharts
       };
-      localStorage.setItem('dayDiffDataV6', JSON.stringify(payload));
+      localStorage.setItem('dayDiffDataV7', JSON.stringify(payload));
     }
 
     function loadFromLocal() {
-      const saved = localStorage.getItem('dayDiffDataV6');
+      const saved = localStorage.getItem('dayDiffDataV7');
       let loaded = false;
       if (saved) {
         try {
@@ -1544,16 +1577,16 @@
 
     // ---------- DOWNLOAD / PRINT / SHARE ----------
     async function downloadChartImage(month) {
-      // Find the specific month panel
-      const panels = chartsRow.querySelectorAll('.month-panel');
+      // Find the corresponding summary mini card and use it as the capture target,
+      // since the continuous chart doesn't have a per-month wrapper.
+      const cards = summariesGrid.querySelectorAll('.summary-mini');
       let target = null;
-      panels.forEach(p => {
-        const title = p.querySelector('.month-panel-title')?.textContent?.trim();
-        if (title === month) target = p;
+      cards.forEach(c => {
+        if (c.dataset.month === month) target = c;
       });
       if (!target) { alert('Chart not found.'); return; }
 
-      const actions = target.querySelector('.chart-actions');
+      const actions = target.querySelector('.summary-mini-actions');
       if (actions) actions.style.display = 'none';
       try {
         const canvas = await html2canvas(target, {

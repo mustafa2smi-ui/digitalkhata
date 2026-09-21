@@ -419,7 +419,7 @@
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
-      padding: 16px 14px 20px;
+      padding: 16px 16px 20px 12px;
     }
     .charts-unified-body::-webkit-scrollbar { height: 6px; }
     .charts-unified-body::-webkit-scrollbar-thumb {
@@ -427,45 +427,47 @@
       border-radius: 3px;
     }
 
-    /* The continuous chart row — one flex row that holds:
-       [shared axis] [month1 columns] [month2 columns] [month3 columns] ...
-       Month headers are drawn above using a separate row overlay. */
     .continuous-chart {
       display: flex;
       gap: 2px;
       align-items: flex-start;
       min-width: fit-content;
       position: relative;
+      /* extra left padding to make room for the axis labels */
+      padding-left: 4px;
     }
 
-    /* ===== Shared time axis ===== */
+    /* ===== Shared time axis (widened so full labels are visible) ===== */
     .shared-axis-col {
-      width: 36px;
+      width: 54px;             /* widened from 36px to fit "10 AM" etc. */
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
       position: relative;
     }
-    .shared-axis-months-spacer { height: 24px; }
-    .shared-axis-times-spacer { height: 16px; }
+    .shared-axis-months-spacer {
+      height: 34px;            /* taller — month header moved higher */
+    }
+    .shared-axis-times-spacer { height: 20px; }
     .shared-axis-labels {
       flex: 1;
       position: relative;
     }
     .shared-axis-label {
       position: absolute;
-      right: 4px;
+      right: 6px;              /* a bit more breathing room from the chart */
       transform: translateY(-50%);
-      font-size: 0.55rem;
+      font-size: 0.68rem;      /* slightly larger for legibility */
       font-weight: 600;
-      color: var(--muted);
+      color: var(--text-soft);
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
     }
-    .shared-axis-below-spacer { height: 16px; }
-    .shared-axis-below-badges { height: 34px; }
+    .shared-axis-below-spacer { height: 20px; }
+    .shared-axis-below-badges { height: 38px; }
 
-    /* ===== Each month is just a slice of columns (no wrapper, no gap) ===== */
+    /* ===== Each month is a slice of columns (no wrapper gap) ===== */
     .month-segment {
       display: flex;
       gap: 2px;
@@ -475,17 +477,18 @@
       margin: 0;
     }
 
-    /* The month label sits above the columns of that month */
+    /* Month label — moved clearly above the Sunrise time row */
     .month-segment-header {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 24px;
+      height: 34px;            /* taller header row */
       display: flex;
-      align-items: center;
+      align-items: flex-start; /* align to top of header area */
       justify-content: center;
-      font-size: 0.72rem;
+      padding-top: 2px;
+      font-size: 0.78rem;
       font-weight: 700;
       color: var(--text);
       letter-spacing: -0.01em;
@@ -493,17 +496,18 @@
     }
     .month-segment-header i {
       color: var(--primary);
-      font-size: 0.65rem;
-      margin-right: 3px;
+      font-size: 0.7rem;
+      margin-right: 4px;
+      margin-top: 1px;
     }
 
-    /* The remove button for a month — small, sits in the header row */
+    /* Remove button — top-right of the segment header */
     .month-remove-btn {
       position: absolute;
       top: 0;
       right: 0;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       border: none;
       background: transparent;
@@ -522,13 +526,14 @@
       color: #b91c1c;
     }
 
-    /* Column layout — identical to before, but no per-month wrapper margin */
+    /* Column layout — extra top padding keeps Sunrise labels clear of month name */
     .column {
       min-width: 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
       position: relative;
+      padding-top: 12px;       /* push the Sunrise time further down */
     }
     .sun-time-top {
       font-size: 0.6rem;
@@ -537,9 +542,10 @@
       text-align: center;
       white-space: nowrap;
       line-height: 1.2;
-      height: 16px;
+      height: 20px;            /* taller slot for clean spacing */
       display: flex;
       align-items: center;
+      justify-content: center;
       font-variant-numeric: tabular-nums;
     }
     .bar-area { width: 100%; position: relative; }
@@ -577,39 +583,44 @@
       text-align: center;
       white-space: nowrap;
       line-height: 1.2;
-      height: 16px;
+      height: 20px;
       display: flex;
       align-items: center;
+      justify-content: center;
       font-variant-numeric: tabular-nums;
     }
+    /* Day number badge — nudged downward so it doesn't sit on the grid line */
     .day-badge {
-      font-size: 0.58rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--text);
       background: var(--surface-2);
       border-radius: 10px;
-      padding: 1px 5px;
+      padding: 1px 6px;
       border: 1px solid var(--border);
-      margin-top: 2px;
+      margin-top: 12px;        /* pushed down away from grid line */
       font-variant-numeric: tabular-nums;
+      line-height: 1.4;
+      position: relative;
+      z-index: 2;
     }
     .daylight-chip {
-      font-size: 0.48rem;
+      font-size: 0.5rem;
       font-weight: 600;
       color: var(--primary);
       background: var(--primary-soft);
-      padding: 1px 4px;
+      padding: 1px 5px;
       border-radius: 6px;
-      margin-top: 2px;
+      margin-top: 3px;
       white-space: nowrap;
     }
 
-    /* grid lines overlay (spans the whole continuous chart body) */
+    /* Grid lines overlay — starts below month header + sun-time-top label */
     .continuous-grid-overlay {
       position: absolute;
-      left: 36px; /* skip the axis width */
+      left: 54px;              /* matches shared axis width */
       right: 0;
-      top: 40px;  /* skip month header (24) + time-top label (16) */
+      top: 66px;               /* 34 (month) + 12 (col pad) + 20 (sun-time top) */
       height: 220px;
       pointer-events: none;
       z-index: 1;
@@ -622,9 +633,9 @@
       background: var(--grid);
     }
 
-    /* ===== Month summary cards (below the chart, optional) ===== */
+    /* ===== Month summary cards (below the chart) ===== */
     .summaries-section {
-      padding: 0 14px 14px;
+      padding: 0 16px 16px;
       border-top: 1px solid var(--border);
     }
     .summaries-title {
@@ -817,9 +828,16 @@
     }
 
     @media (max-width: 420px) {
-      .column { min-width: 28px; }
-      .sun-time-top, .sun-time-bottom { font-size: 0.55rem; }
+      .column { min-width: 28px; padding-top: 10px; }
+      .sun-time-top, .sun-time-bottom { font-size: 0.55rem; height: 18px; }
       .daylight-chip { font-size: 0.42rem; }
+      .day-badge { font-size: 0.55rem; margin-top: 10px; }
+      .shared-axis-col { width: 48px; }
+      .shared-axis-label { font-size: 0.6rem; right: 4px; }
+      .continuous-grid-overlay { left: 48px; }
+      .month-segment-header { font-size: 0.7rem; height: 30px; }
+      .shared-axis-months-spacer { height: 30px; }
+      .continuous-grid-overlay { top: 58px; }
     }
   </style>
 </head>
@@ -891,12 +909,9 @@
     </div>
 
     <div class="charts-unified-body" id="chartsScroll">
-      <div class="continuous-chart" id="continuousChart">
-        <!-- shared axis + one month-segment per month will be injected -->
-      </div>
+      <div class="continuous-chart" id="continuousChart"></div>
     </div>
 
-    <!-- Month summaries (daylight difference tables) -->
     <div class="summaries-section" id="summariesSection">
       <div class="summaries-title">Monthly Daylight Summaries</div>
       <div class="summaries-grid" id="summariesGrid"></div>
@@ -936,12 +951,7 @@
     const GLOBAL_SCALE_MAX = 21 * 60;  // 9 PM
 
     // Heights used inside the chart so the axis, grid, and columns align.
-    const MONTH_HEADER_H = 24;
-    const TIME_TOP_H = 16;
     const AXIS_HEIGHT = 220;
-    const TIME_BOTTOM_H = 16;
-    const BADGE_H = 22;
-    const DURATION_H = 16;
 
     const DEMO_DATA = {
       month: "January",
@@ -1246,9 +1256,6 @@
         }
       }
 
-      // Build the continuous chart: shared axis + month segments all inside
-      // ONE flex row, so the columns from consecutive months sit side by side
-      // with identical 2px gaps — no extra spacing between months.
       const scaleMin = GLOBAL_SCALE_MIN;
       const scaleMax = GLOBAL_SCALE_MAX;
       const timeRange = scaleMax - scaleMin;
@@ -1258,12 +1265,15 @@
       const ticks = [];
       for (let t = tickStart; t <= tickEnd; t += 120) ticks.push(t);
 
-      // axis HTML
+      // --- SHARED AXIS ---
+      // Widened axis column so full labels like "10 AM" and "12 PM" fit.
       const axisLabelsHtml = ticks.map(t => {
         const pct = ((t - scaleMin) / timeRange) * 100;
         return `<div class="shared-axis-label" style="top:${pct}%;">${minutesTo12h(t)}</div>`;
       }).join('');
 
+      // Spacer heights must match the column structure:
+      // month header (34) + column padding-top (12) + sun-time-top (20) = 66
       const sharedAxisHtml = `
         <div class="shared-axis-col">
           <div class="shared-axis-months-spacer"></div>
@@ -1276,13 +1286,13 @@
         </div>
       `;
 
-      // Build all month segments
+      // --- MONTH SEGMENTS ---
       let segmentsHtml = '';
       generatedCharts.forEach(month => {
         segmentsHtml += buildMonthSegmentHtml(month, scaleMin, timeRange);
       });
 
-      // One grid overlay covering the entire chart body (skips axis)
+      // --- GRID OVERLAY ---
       const gridOverlayHtml = `
         <div class="continuous-grid-overlay">
           ${ticks.map(t => {
@@ -1294,7 +1304,7 @@
 
       continuousChart.innerHTML = gridOverlayHtml + sharedAxisHtml + segmentsHtml;
 
-      // Attach events for remove buttons
+      // remove buttons
       continuousChart.querySelectorAll('.month-remove-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1307,7 +1317,6 @@
         });
       });
 
-      // Build summaries grid (one mini card per month)
       renderSummaries();
 
       setTimeout(() => {
@@ -1317,22 +1326,18 @@
       }, 80);
     }
 
-    // Build the columns for one month, wrapped in a thin segment.
-    // No border, no margin — only the columns themselves with 2px gaps.
+    // Build the columns for one month.
     function buildMonthSegmentHtml(month, scaleMin, timeRange) {
       const entries = allMonthData[month];
       if (!entries) return '';
 
       const filled = entries.filter(e => e.sunrise && e.sunset);
 
-      // The segment always includes the month header row (absolute positioned)
-      // plus the actual column data. If no data, show a single placeholder column.
       let columnsHtml = '';
       if (filled.length === 0) {
-        // placeholder column with muted message (one column width)
         columnsHtml = `
           <div class="column" style="min-width: 60px;">
-            <div style="height:${MONTH_HEADER_H + TIME_TOP_H + AXIS_HEIGHT + TIME_BOTTOM_H + BADGE_H + DURATION_H}px; display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 0.7rem; text-align:center; padding: 4px;">
+            <div style="height:${34 + 12 + 20 + AXIS_HEIGHT + 20 + 12 + 22}px; display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 0.7rem; text-align:center; padding: 4px;">
               No data
             </div>
           </div>
@@ -1449,7 +1454,6 @@
       });
       summariesGrid.innerHTML = html;
 
-      // attach action buttons
       summariesGrid.querySelectorAll('[data-action="download"]').forEach(btn => {
         btn.addEventListener('click', () => downloadChartImage(btn.dataset.month));
       });
@@ -1524,11 +1528,11 @@
         allMonthData,
         generatedCharts
       };
-      localStorage.setItem('dayDiffDataV7', JSON.stringify(payload));
+      localStorage.setItem('dayDiffDataV8', JSON.stringify(payload));
     }
 
     function loadFromLocal() {
-      const saved = localStorage.getItem('dayDiffDataV7');
+      const saved = localStorage.getItem('dayDiffDataV8');
       let loaded = false;
       if (saved) {
         try {
@@ -1577,8 +1581,6 @@
 
     // ---------- DOWNLOAD / PRINT / SHARE ----------
     async function downloadChartImage(month) {
-      // Find the corresponding summary mini card and use it as the capture target,
-      // since the continuous chart doesn't have a per-month wrapper.
       const cards = summariesGrid.querySelectorAll('.summary-mini');
       let target = null;
       cards.forEach(c => {

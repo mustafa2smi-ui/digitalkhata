@@ -379,11 +379,8 @@
       align-items: center;
       gap: 8px;
     }
-    .charts-section-title i {
-      color: var(--primary);
-    }
+    .charts-section-title i { color: var(--primary); }
 
-    /* Compact "+ Month" button */
     .add-month-compact {
       display: inline-flex;
       align-items: center;
@@ -415,76 +412,67 @@
       background: var(--muted);
       box-shadow: none;
     }
-    .add-month-compact i {
-      font-size: 0.75rem;
-    }
+    .add-month-compact i { font-size: 0.75rem; }
 
-    /* Unified body — holds all month panels in a row (scrollable) */
     .charts-unified-body {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
-      padding: 18px;
+      padding: 18px 14px;
     }
-    .charts-unified-body::-webkit-scrollbar {
-      height: 6px;
-    }
+    .charts-unified-body::-webkit-scrollbar { height: 6px; }
     .charts-unified-body::-webkit-scrollbar-thumb {
       background: var(--border);
       border-radius: 3px;
     }
 
+    /* ====== CONTINUOUS CHART ROW ====== */
     .month-panels-row {
       display: flex;
-      gap: 20px;
+      gap: 4px;
       align-items: flex-start;
       width: max-content;
       min-width: 100%;
     }
 
-    /* Each month panel — no card border, just a section */
+    /* Each month — very tight panel, no card, no side padding */
     .month-panel {
       flex-shrink: 0;
-      width: 340px;
-      padding: 0 4px;
+      width: 300px;
       position: relative;
-      border-right: 1px dashed var(--border);
-      padding-right: 20px;
-    }
-    .month-panel:last-child {
-      border-right: none;
-      padding-right: 4px;
+      padding: 0 2px;
     }
 
     .month-panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
-      gap: 8px;
+      margin-bottom: 6px;
+      gap: 6px;
+      padding: 0 2px;
     }
     .month-panel-title {
-      font-size: 1.05rem;
+      font-size: 0.9rem;
       font-weight: 700;
       letter-spacing: -0.01em;
       color: var(--text);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .month-panel-title i {
       color: var(--primary);
-      font-size: 0.9rem;
+      font-size: 0.8rem;
     }
 
     .remove-chart-btn {
-      width: 26px;
-      height: 26px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       border: none;
       background: transparent;
       color: var(--muted);
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -497,47 +485,56 @@
       color: #b91c1c;
     }
 
-    /* chart area inside panel */
     .chart-scroll-inner {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 6px;
-      scrollbar-width: thin;
-    }
-    .chart-scroll-inner::-webkit-scrollbar {
-      height: 5px;
-    }
-    .chart-scroll-inner::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 3px;
+      overflow: visible;
+      padding-bottom: 4px;
     }
 
+    /* Chart grid layout */
     .chart-grid-container {
       display: flex;
-      gap: 4px;
+      gap: 2px;
       min-width: fit-content;
       position: relative;
     }
-    .axis-col {
-      width: 38px;
+
+    /* ---------- SHARED AXIS COLUMN (only on first month) ---------- */
+    .shared-axis-col {
+      width: 36px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
       position: relative;
     }
-    .axis-spacer-top { height: 18px; }
-    .axis-spacer-bottom { height: 18px; }
-    .axis-labels { flex: 1; position: relative; }
-    .axis-label {
+    .shared-axis-spacer-top { height: 16px; }
+    .shared-axis-spacer-bottom { height: 16px; }
+    .shared-axis-labels {
+      flex: 1;
+      position: relative;
+    }
+    .shared-axis-label {
       position: absolute;
-      right: 2px;
+      right: 4px;
       transform: translateY(-50%);
       font-size: 0.55rem;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--muted);
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
+
+    /* Placeholder to maintain alignment for months WITHOUT an axis */
+    .axis-placeholder {
+      width: 36px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .axis-placeholder-top { height: 16px; }
+    .axis-placeholder-bottom { height: 16px; }
+    .axis-placeholder-spacer { flex: 1; }
+
+    /* Columns */
     .columns-wrap {
       display: flex;
       gap: 2px;
@@ -545,19 +542,19 @@
       position: relative;
     }
     .column {
-      min-width: 36px;
+      min-width: 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .sun-time-top {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--sunrise);
       text-align: center;
       white-space: nowrap;
       line-height: 1.2;
-      height: 18px;
+      height: 16px;
       display: flex;
       align-items: center;
       font-variant-numeric: tabular-nums;
@@ -567,59 +564,59 @@
 
     .daylight-bar {
       width: 60%;
-      max-width: 22px;
+      max-width: 18px;
       background: linear-gradient(to bottom, #fcd34d, #fbbf24, #f59e0b);
       border-radius: 999px;
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 3px 8px rgba(245,158,11,0.25);
-      min-height: 12px;
+      min-height: 10px;
       z-index: 3;
     }
     .sunrise-pin, .sunset-pin {
       position: absolute;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       z-index: 4;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
     .sunrise-pin { background: var(--sunrise); border: 1.5px solid white; }
     .sunset-pin { background: var(--sunset); border: 1.5px solid white; }
 
     .sun-time-bottom {
-      font-size: 0.62rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--sunset);
       text-align: center;
       white-space: nowrap;
       line-height: 1.2;
-      height: 18px;
+      height: 16px;
       display: flex;
       align-items: center;
       font-variant-numeric: tabular-nums;
     }
     .day-badge {
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       font-weight: 700;
       color: var(--text);
       background: var(--surface-2);
-      border-radius: 12px;
-      padding: 1px 6px;
+      border-radius: 10px;
+      padding: 1px 5px;
       border: 1px solid var(--border);
-      margin-top: 3px;
+      margin-top: 2px;
       font-variant-numeric: tabular-nums;
     }
     .daylight-chip {
-      font-size: 0.5rem;
+      font-size: 0.48rem;
       font-weight: 600;
       color: var(--primary);
       background: var(--primary-soft);
-      padding: 1px 5px;
-      border-radius: 8px;
+      padding: 1px 4px;
+      border-radius: 6px;
       margin-top: 2px;
       white-space: nowrap;
     }
@@ -640,74 +637,71 @@
     /* summary inside panel */
     .chart-summary {
       border-top: 1px solid var(--border);
-      padding-top: 12px;
-      margin-top: 12px;
+      padding-top: 8px;
+      margin-top: 8px;
     }
     .chart-summary-title {
-      font-size: 0.72rem;
+      font-size: 0.66rem;
       font-weight: 700;
       color: var(--text-soft);
-      margin-bottom: 8px;
+      margin-bottom: 5px;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
     .summary-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
     }
     .summary-table th {
       text-align: left;
-      padding: 5px 4px 3px 0;
+      padding: 4px 3px 3px 0;
       font-weight: 600;
       color: var(--muted);
-      font-size: 0.58rem;
+      font-size: 0.55rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       background: transparent;
     }
     .summary-table td {
-      padding: 4px 4px 4px 0;
+      padding: 3px 3px 3px 0;
       border-bottom: 1px solid var(--border);
       font-weight: 500;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
     }
 
     .chart-stats {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      margin-top: 10px;
+      gap: 3px;
+      margin-top: 8px;
     }
     .chart-stat {
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--surface-2);
-      padding: 5px 10px;
-      border-radius: 10px;
-      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.66rem;
       font-weight: 500;
     }
-    .chart-stat strong {
-      font-weight: 700;
-      color: var(--text);
-    }
+    .chart-stat strong { font-weight: 700; color: var(--text); }
     .chart-stat-longest strong { color: #d97706; }
     .chart-stat-shortest strong { color: #7c3aed; }
     .chart-stat-diff strong { color: #2563eb; }
 
     .chart-actions {
       display: flex;
-      gap: 6px;
+      gap: 4px;
       flex-wrap: wrap;
-      padding-top: 12px;
-      margin-top: 8px;
+      padding-top: 8px;
+      margin-top: 6px;
       border-top: 1px solid var(--border);
     }
     .chart-actions .btn {
-      padding: 6px 11px;
-      font-size: 0.7rem;
+      padding: 5px 8px;
+      font-size: 0.62rem;
       border-radius: 30px;
     }
 
@@ -803,24 +797,26 @@
         break-inside: avoid;
       }
       body { background: white; padding: 0; }
-      .charts-unified-body, .chart-scroll-inner { overflow: visible; }
+      .charts-unified-body { overflow: visible; padding: 12px; }
       .month-panels-row {
         flex-wrap: wrap;
         width: 100%;
+        gap: 8px;
       }
       .month-panel {
         page-break-inside: avoid;
-        border-right: none;
-        padding-right: 4px;
+        width: auto;
+        flex: 1 1 auto;
+        min-width: 280px;
       }
       .container { max-width: 100%; padding: 0.5in; }
     }
 
     @media (max-width: 420px) {
-      .month-panel { width: 300px; }
-      .column { min-width: 32px; }
-      .sun-time-top, .sun-time-bottom { font-size: 0.58rem; }
-      .daylight-chip { font-size: 0.45rem; }
+      .month-panel { width: 280px; }
+      .column { min-width: 28px; }
+      .sun-time-top, .sun-time-bottom { font-size: 0.55rem; }
+      .daylight-chip { font-size: 0.42rem; }
     }
   </style>
 </head>
@@ -892,7 +888,7 @@
     </div>
     <div class="charts-unified-body" id="chartsScroll">
       <div class="month-panels-row" id="chartsRow">
-        <!-- Month panels injected here (no card wrappers) -->
+        <!-- Month panels injected here -->
       </div>
     </div>
   </div>
@@ -923,6 +919,11 @@
 
     const DEFAULT_SUNRISE = 6 * 60;
     const DEFAULT_SUNSET  = 17 * 60;
+
+    // Shared global vertical scale — used for ALL months so bars are comparable.
+    // This is the key to making the time scale meaningful across the whole year.
+    const GLOBAL_SCALE_MIN = 3 * 60;    // 3:00 AM
+    const GLOBAL_SCALE_MAX = 21 * 60;   // 9:00 PM
 
     const DEMO_DATA = {
       month: "January",
@@ -1024,7 +1025,6 @@
           renderMonthTabs();
           renderTable();
           saveToLocal();
-          // Charts stay visible
         });
       });
     }
@@ -1212,7 +1212,6 @@
       }
       chartsSection.classList.remove('hidden');
 
-      // update "+ Month" button state
       const allAdded = generatedCharts.length >= MONTHS.length;
       if (addNextChartBtn) {
         addNextChartBtn.disabled = allAdded;
@@ -1228,10 +1227,12 @@
         }
       }
 
-      // build all month panels in one continuous row
+      // Build all month panels in one continuous row.
+      // The FIRST panel gets the shared axis. Others get an axis placeholder
+      // to keep the vertical alignment identical.
       let html = '';
-      generatedCharts.forEach(month => {
-        html += buildMonthPanelHtml(month);
+      generatedCharts.forEach((month, i) => {
+        html += buildMonthPanelHtml(month, i === 0);
       });
       chartsRow.innerHTML = html;
 
@@ -1258,8 +1259,8 @@
       });
     }
 
-    // Build a single month panel (no separate card/border — it's a section inside the unified area)
-    function buildMonthPanelHtml(month) {
+    // Build one month panel. showAxis = true for the first chart only.
+    function buildMonthPanelHtml(month, showAxis) {
       const entries = allMonthData[month];
       if (!entries) return '';
 
@@ -1271,7 +1272,7 @@
               <div class="month-panel-title"><i class="fas fa-sun"></i> ${month}</div>
               <button class="remove-chart-btn" data-month="${month}" title="Remove chart"><i class="fas fa-times"></i></button>
             </div>
-            <div style="text-align:center; padding: 30px 10px; color: var(--muted); font-size: 0.85rem;">
+            <div style="text-align:center; padding: 24px 8px; color: var(--muted); font-size: 0.78rem;">
               No data entered yet for ${month}.<br>
               Please enter times in the table above and click Show Graph / Chart.
             </div>
@@ -1285,25 +1286,25 @@
         return { day: e.day, sunrise: e.sunrise, sunset: e.sunset, srMin, ssMin, daylightMin: ssMin - srMin };
       });
 
-      const allTimes = data.flatMap(d => [d.srMin, d.ssMin]);
-      const dataMin = Math.min(...allTimes);
-      const dataMax = Math.max(...allTimes);
-      let scaleMin = Math.min(dataMin - 20, SUNRISE_MIN);
-      let scaleMax = Math.max(dataMax + 20, SUNSET_MAX);
-      scaleMin = Math.max(0, scaleMin);
-      scaleMax = Math.min(1440, scaleMax);
+      // ==== SHARED GLOBAL SCALE ====
+      // All months use the same min/max so bars are visually comparable across
+      // the entire year, and the single time scale on the left is meaningful.
+      const scaleMin = GLOBAL_SCALE_MIN;
+      const scaleMax = GLOBAL_SCALE_MAX;
       const timeRange = scaleMax - scaleMin;
 
+      // 2-hour ticks
       const tickStart = Math.ceil(scaleMin / 60) * 60;
       const tickEnd = Math.floor(scaleMax / 60) * 60;
       const ticks = [];
       for (let t = tickStart; t <= tickEnd; t += 120) ticks.push(t);
 
-      const axisHeight = 200;
+      const axisHeight = 220;
 
+      // Build the axis labels (only used if showAxis)
       const axisLabelsHtml = ticks.map(t => {
         const pct = ((t - scaleMin) / timeRange) * 100;
-        return `<div class="axis-label" style="top:${pct}%;">${minutesTo12h(t)}</div>`;
+        return `<div class="shared-axis-label" style="top:${pct}%;">${minutesTo12h(t)}</div>`;
       }).join('');
 
       const gridLinesHtml = ticks.map(t => {
@@ -1346,6 +1347,29 @@
       const shortest = Math.min(...daylights);
       const diff = longest - shortest;
 
+      // Use either the shared axis column (first chart) or a placeholder
+      const axisBlock = showAxis
+        ? `
+          <div class="shared-axis-col">
+            <div class="shared-axis-spacer-top"></div>
+            <div class="shared-axis-labels" style="height:${axisHeight}px;">
+              ${axisLabelsHtml}
+            </div>
+            <div class="shared-axis-spacer-bottom"></div>
+            <div style="height:20px;"></div>
+            <div style="height:14px;"></div>
+          </div>
+        `
+        : `
+          <div class="axis-placeholder">
+            <div class="axis-placeholder-top"></div>
+            <div class="axis-placeholder-spacer" style="height:${axisHeight}px;"></div>
+            <div class="axis-placeholder-bottom"></div>
+            <div style="height:20px;"></div>
+            <div style="height:14px;"></div>
+          </div>
+        `;
+
       return `
         <div class="month-panel">
           <div class="month-panel-header">
@@ -1355,17 +1379,9 @@
 
           <div class="chart-scroll-inner">
             <div class="chart-grid-container">
-              <div class="axis-col">
-                <div class="axis-spacer-top"></div>
-                <div class="axis-labels" style="height:${axisHeight}px;">
-                  ${axisLabelsHtml}
-                </div>
-                <div class="axis-spacer-bottom"></div>
-                <div style="height:22px;"></div>
-                <div style="height:16px;"></div>
-              </div>
+              ${axisBlock}
               <div class="columns-wrap" style="height:auto;">
-                <div style="position:absolute; left:0; right:0; top:18px; height:${axisHeight}px; z-index:1; pointer-events:none;">
+                <div style="position:absolute; left:0; right:0; top:16px; height:${axisHeight}px; z-index:1; pointer-events:none;">
                   ${gridLinesHtml}
                 </div>
                 ${columnsHtml}
@@ -1383,15 +1399,15 @@
             </table>
             <div class="chart-stats">
               <div class="chart-stat chart-stat-longest">
-                <span><i class="fas fa-arrow-up" style="margin-right:4px;"></i>Longest</span>
+                <span><i class="fas fa-arrow-up" style="margin-right:3px;"></i>Longest</span>
                 <strong>${formatDuration(longest)}</strong>
               </div>
               <div class="chart-stat chart-stat-shortest">
-                <span><i class="fas fa-arrow-down" style="margin-right:4px;"></i>Shortest</span>
+                <span><i class="fas fa-arrow-down" style="margin-right:3px;"></i>Shortest</span>
                 <strong>${formatDuration(shortest)}</strong>
               </div>
               <div class="chart-stat chart-stat-diff">
-                <span><i class="fas fa-arrows-alt-h" style="margin-right:4px;"></i>Difference</span>
+                <span><i class="fas fa-arrows-alt-h" style="margin-right:3px;"></i>Difference</span>
                 <strong>${diff} min</strong>
               </div>
             </div>
@@ -1475,11 +1491,11 @@
         allMonthData,
         generatedCharts
       };
-      localStorage.setItem('dayDiffDataV5', JSON.stringify(payload));
+      localStorage.setItem('dayDiffDataV6', JSON.stringify(payload));
     }
 
     function loadFromLocal() {
-      const saved = localStorage.getItem('dayDiffDataV5');
+      const saved = localStorage.getItem('dayDiffDataV6');
       let loaded = false;
       if (saved) {
         try {
@@ -1528,13 +1544,15 @@
 
     // ---------- DOWNLOAD / PRINT / SHARE ----------
     async function downloadChartImage(month) {
-      const panel = chartsRow.querySelector(`.month-panel[data-month="${month}"]`);
-      const fallback = Array.from(chartsRow.querySelectorAll('.month-panel')).find(p => {
+      // Find the specific month panel
+      const panels = chartsRow.querySelectorAll('.month-panel');
+      let target = null;
+      panels.forEach(p => {
         const title = p.querySelector('.month-panel-title')?.textContent?.trim();
-        return title === month;
+        if (title === month) target = p;
       });
-      const target = panel || fallback;
       if (!target) { alert('Chart not found.'); return; }
+
       const actions = target.querySelector('.chart-actions');
       if (actions) actions.style.display = 'none';
       try {

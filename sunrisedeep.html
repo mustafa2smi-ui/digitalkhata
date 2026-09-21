@@ -89,60 +89,99 @@
       padding: 20px 16px 40px;
     }
 
-    /* Month tabs with saved-data indicator */
-    .month-scroll {
+    /* ==================== SEQUENTIAL MONTH CHART TABS ==================== */
+    .chart-tabs-scroll {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       margin: 8px 0 20px;
       padding: 4px 0;
     }
-    .month-scroll::-webkit-scrollbar { display: none; }
-    .month-tabs {
+    .chart-tabs-scroll::-webkit-scrollbar { display: none; }
+
+    .chart-tabs {
       display: flex;
       gap: 8px;
       flex-wrap: nowrap;
+      align-items: center;
       width: max-content;
       padding: 4px 0;
     }
-    .month-tab {
+
+    .chart-tab {
       position: relative;
       padding: 10px 18px;
       border-radius: 40px;
       background: var(--surface);
       border: 1px solid var(--border);
-      font-weight: 500;
+      font-weight: 600;
       font-size: 0.9rem;
       color: var(--text-soft);
       white-space: nowrap;
       transition: all 0.2s ease;
       box-shadow: var(--shadow-sm);
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .month-tab.active {
+    .chart-tab.active {
       background: var(--primary);
       border-color: var(--primary);
       color: white;
-      font-weight: 600;
       box-shadow: 0 8px 16px -6px rgba(245,158,11,0.3);
     }
-    /* small dot to indicate saved data for the month */
-    .month-tab.has-data::after {
+    .chart-tab.has-data::after {
       content: '';
-      position: absolute;
-      top: 6px;
-      right: 8px;
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: var(--primary);
-      border: 1.5px solid white;
+      display: inline-block;
+      margin-left: 2px;
     }
-    .month-tab.active.has-data::after {
+    .chart-tab.active.has-data::after {
       background: white;
-      border-color: var(--primary);
     }
 
+    /* "+ Add Next Month" button */
+    .add-month-btn {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px dashed var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .add-month-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: white;
+      border-style: solid;
+      transform: scale(1.05);
+    }
+    .add-month-btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+    .add-month-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: var(--muted);
+      color: var(--muted);
+      background: var(--surface-2);
+    }
+
+    /* ---------- cards etc. ---------- */
     .card {
       background: var(--surface);
       border-radius: var(--radius-card);
@@ -220,7 +259,7 @@
       width: 46px;
     }
 
-    /* ---------- COMPACT TIME STEPPER ---------- */
+    /* ---------- TIME STEPPER ---------- */
     .time-stepper {
       display: inline-flex;
       align-items: center;
@@ -270,7 +309,7 @@
     .time-display.invalid { color: #dc2626; }
     .time-display.empty { color: var(--muted); }
 
-    /* minute picker popover */
+    /* minute picker */
     .minute-picker {
       position: fixed;
       z-index: 200;
@@ -369,7 +408,7 @@
       scrollbar-width: thin;
     }
 
-    /* ---------- COMPACT CHART WITH GRID ---------- */
+    /* ==================== CHART ==================== */
     .chart-grid-container {
       display: flex;
       gap: 4px;
@@ -388,10 +427,7 @@
     .axis-spacer-top { height: 20px; }
     .axis-spacer-bottom { height: 20px; }
 
-    .axis-labels {
-      flex: 1;
-      position: relative;
-    }
+    .axis-labels { flex: 1; position: relative; }
 
     .axis-label {
       position: absolute;
@@ -431,10 +467,7 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .bar-area {
-      width: 100%;
-      position: relative;
-    }
+    .bar-area { width: 100%; position: relative; }
 
     .bar-area-inner {
       width: 100%;
@@ -442,16 +475,18 @@
       position: relative;
     }
 
+    /* ============ FIXED: pill-shaped / symmetric rounded bar ============ */
     .daylight-bar {
       width: 60%;
       max-width: 30px;
       background: linear-gradient(to bottom, #fcd34d, #fbbf24, #f59e0b);
-      border-radius: 20px 20px 3px 3px;
+      /* Symmetric rounded ends — pill-like */
+      border-radius: 999px;
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 3px 8px rgba(245,158,11,0.25);
-      min-height: 3px;
+      min-height: 14px;
       z-index: 3;
     }
 
@@ -503,7 +538,6 @@
       white-space: nowrap;
     }
 
-    /* grid lines layer */
     .grid-lines {
       position: absolute;
       inset: 0;
@@ -638,8 +672,20 @@
       text-align: center;
     }
 
+    /* small info banner when all 12 months added */
+    .all-months-banner {
+      font-size: 0.8rem;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 14px;
+      padding: 8px 12px;
+      margin-top: 6px;
+      text-align: center;
+      font-weight: 600;
+    }
+
     @media print {
-      .sticky-header, .menu-btn, .btn, .month-scroll, select, .table-responsive,
+      .sticky-header, .menu-btn, .btn, .chart-tabs-scroll, select, .table-responsive,
       .footer, .menu-overlay, .reset-btn, .no-print {
         display: none !important;
       }
@@ -674,8 +720,10 @@
 </div>
 
 <main class="container" id="mainContainer">
-  <div class="month-scroll">
-    <div class="month-tabs" id="monthTabs"></div>
+
+  <!-- Sequential month tabs with "+" button -->
+  <div class="chart-tabs-scroll">
+    <div class="chart-tabs" id="chartTabs"></div>
   </div>
 
   <div class="card">
@@ -741,7 +789,7 @@
 
   <div id="emptyState" class="empty-state">
     <i class="fas fa-cloud-sun" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px; display: block;"></i>
-    Select a month and day interval, enter Sunrise and Sunset times, then tap <strong>Show Graph / Chart</strong>.
+    Tap the <strong>+</strong> button above to add a month, then enter Sunrise and Sunset times and tap <strong>Show Graph / Chart</strong>.
   </div>
 
   <footer>
@@ -778,14 +826,17 @@
     };
 
     // ---------- STATE ----------
+    // addedMonths: sequential list of months the user has added, in order.
+    // Example: ["January"] or ["January","February"] or ["January","February","March"]
+    let addedMonths = ["January"];
     let currentMonth = "January";
     let currentInterval = "7";
-    // All-month data: { "January": [ {day, sunrise, sunset} ], ... }
+    // All month data keyed by month name
     let allMonthData = {};
     let lastChartData = null;
 
     // ---------- DOM ----------
-    const monthTabs = document.getElementById('monthTabs');
+    const chartTabs = document.getElementById('chartTabs');
     const intervalSelect = document.getElementById('intervalSelect');
     const tableBody = document.getElementById('tableBody');
     const showChartBtn = document.getElementById('showChartBtn');
@@ -855,12 +906,89 @@
     function isValidSunrise(mins) { return mins >= SUNRISE_MIN && mins <= SUNRISE_MAX; }
     function isValidSunset(mins)  { return mins >= SUNSET_MIN && mins <= SUNSET_MAX; }
 
-    // ---------- MONTH TABS ----------
-    function renderMonthTabs() {
-      monthTabs.innerHTML = MONTHS.map(m => {
+    // ---------- MONTH TABS (sequential only) ----------
+    function renderChartTabs() {
+      const allAdded = addedMonths.length === MONTHS.length;
+      const tabsHtml = addedMonths.map(m => {
         const hasData = allMonthData[m] && allMonthData[m].some(e => e.sunrise && e.sunset);
-        return `<button class="month-tab ${m === currentMonth ? 'active' : ''} ${hasData ? 'has-data' : ''}" data-month="${m}">${m}</button>`;
+        return `<button class="chart-tab ${m === currentMonth ? 'active' : ''} ${hasData ? 'has-data' : ''}" data-month="${m}">${m}</button>`;
       }).join('');
+
+      const addBtnHtml = `
+        <button class="add-month-btn" id="addMonthBtn" aria-label="Add next month" ${allAdded ? 'disabled' : ''} title="${allAdded ? 'All 12 months have been added' : 'Add next month'}">
+          <i class="fas ${allAdded ? 'fa-check' : 'fa-plus'}"></i>
+        </button>
+      `;
+
+      chartTabs.innerHTML = tabsHtml + addBtnHtml;
+
+      // attach events
+      chartTabs.querySelectorAll('.chart-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const m = tab.dataset.month;
+          if (m === currentMonth) return;
+          currentMonth = m;
+          renderChartTabs();
+          renderTable();
+          saveToLocal();
+          chartSection.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+        });
+      });
+
+      const addBtn = document.getElementById('addMonthBtn');
+      if (addBtn && !allAdded) {
+        addBtn.addEventListener('click', addNextMonth);
+      } else if (addBtn && allAdded) {
+        addBtn.addEventListener('click', () => {
+          alert('All 12 months have been added.');
+        });
+      }
+    }
+
+    // Add the next chronological month
+    function addNextMonth() {
+      if (addedMonths.length >= MONTHS.length) {
+        alert('All 12 months have been added.');
+        return;
+      }
+      // Find the last added month's index
+      const lastMonth = addedMonths[addedMonths.length - 1];
+      const lastIdx = MONTHS.indexOf(lastMonth);
+      const nextMonth = MONTHS[lastIdx + 1]; // guaranteed to exist since we haven't added all
+
+      // Ensure this month has an entry array based on current interval
+      ensureMonthEntries(nextMonth);
+
+      addedMonths.push(nextMonth);
+      currentMonth = nextMonth; // switch to newly added month
+      renderChartTabs();
+      renderTable();
+      saveToLocal();
+      chartSection.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+
+      // Scroll the tabs container to the end
+      const scroll = document.querySelector('.chart-tabs-scroll');
+      if (scroll) {
+        scroll.scrollTo({ left: scroll.scrollWidth, behavior: 'smooth' });
+      }
+    }
+
+    // Ensure a month has entries for the current interval, preserving existing
+    function ensureMonthEntries(month) {
+      const days = generateDayNumbers(month, currentInterval);
+      const existing = allMonthData[month] || [];
+      const existingMap = new Map(existing.map(e => [e.day, e]));
+      allMonthData[month] = days.map(day => {
+        const e = existingMap.get(day);
+        return { day, sunrise: e?.sunrise || '', sunset: e?.sunset || '' };
+      });
+    }
+
+    // Re-generate entries for ALL added months when interval changes
+    function refreshAllAddedMonths() {
+      addedMonths.forEach(m => ensureMonthEntries(m));
     }
 
     // ---------- TABLE ----------
@@ -903,9 +1031,8 @@
     }
 
     function attachStepperEvents() {
-      // +/- buttons
       document.querySelectorAll('.stepper-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', () => {
           const action = btn.dataset.action;
           const type = btn.dataset.type;
           const idx = parseInt(btn.dataset.index, 10);
@@ -917,7 +1044,6 @@
           const current = entry[type] ? timeToMinutes(entry[type]) : null;
           const base = current !== null ? current : (isSunrise ? DEFAULT_SUNRISE : DEFAULT_SUNSET);
 
-          // 1-minute step
           const step = action === 'inc' ? 1 : -1;
           let next = base + step;
 
@@ -935,9 +1061,8 @@
         });
       });
 
-      // Tap on time display → minute picker
       document.querySelectorAll('.time-display').forEach(el => {
-        el.addEventListener('click', (e) => {
+        el.addEventListener('click', () => {
           const type = el.dataset.type;
           const idx = parseInt(el.dataset.index, 10);
           openMinutePicker(el, type, idx);
@@ -974,7 +1099,6 @@
       const picker = document.createElement('div');
       picker.className = 'minute-picker';
 
-      // 60 minute cells (00-59)
       let cellsHtml = '';
       for (let m = 0; m < 60; m++) {
         cellsHtml += `<div class="minute-cell ${m === currentMinutes ? 'selected' : ''}" data-minute="${m}">:${m.toString().padStart(2,'0')}</div>`;
@@ -988,7 +1112,6 @@
       document.body.appendChild(picker);
       activePicker = picker;
 
-      // Position below the anchor
       const pickerRect = picker.getBoundingClientRect();
       let top = rect.bottom + 6;
       let left = rect.left + rect.width / 2 - pickerRect.width / 2;
@@ -1002,7 +1125,6 @@
       picker.style.top = top + 'px';
       picker.style.left = left + 'px';
 
-      // Click on minute cell
       picker.querySelectorAll('.minute-cell').forEach(cell => {
         cell.addEventListener('click', () => {
           const minute = parseInt(cell.dataset.minute, 10);
@@ -1030,55 +1152,62 @@
       }, 0);
     }
 
-    // ---------- DATA PERSISTENCE ----------
-    function initializeMonthData() {
-      // Ensure all 12 months have an entry array based on the current interval
-      MONTHS.forEach(m => {
-        const days = generateDayNumbers(m, currentInterval);
-        const existing = allMonthData[m] || [];
-        const existingMap = new Map(existing.map(e => [e.day, e]));
-        allMonthData[m] = days.map(day => {
-          const e = existingMap.get(day);
-          return { day, sunrise: e?.sunrise || '', sunset: e?.sunset || '' };
-        });
-      });
-    }
-
+    // ---------- PERSISTENCE ----------
     function saveToLocal() {
       const payload = {
+        addedMonths,
         currentMonth,
         currentInterval,
         allMonthData
       };
-      localStorage.setItem('dayDiffDataV2', JSON.stringify(payload));
+      localStorage.setItem('dayDiffDataV3', JSON.stringify(payload));
     }
 
     function loadFromLocal() {
-      const saved = localStorage.getItem('dayDiffDataV2');
+      const saved = localStorage.getItem('dayDiffDataV3');
       if (saved) {
         try {
           const p = JSON.parse(saved);
-          if (p.currentMonth && MONTHS.includes(p.currentMonth)) currentMonth = p.currentMonth;
-          if (p.currentInterval) currentInterval = p.currentInterval;
-          if (p.allMonthData && typeof p.allMonthData === 'object') {
-            allMonthData = p.allMonthData;
+          if (Array.isArray(p.addedMonths) && p.addedMonths.length > 0) {
+            // sanitize: keep only valid, unique, sequential months
+            const filtered = p.addedMonths.filter(m => MONTHS.includes(m));
+            // ensure sequential order starting from January (or the first valid month)
+            addedMonths = [];
+            if (filtered.length > 0) {
+              let idx = MONTHS.indexOf(filtered[0]);
+              addedMonths.push(MONTHS[idx]);
+              for (let i = 1; i < filtered.length; i++) {
+                if (MONTHS.indexOf(filtered[i]) === idx + 1) {
+                  idx++;
+                  addedMonths.push(filtered[i]);
+                }
+              }
+            } else {
+              addedMonths = ["January"];
+            }
           }
+          if (p.currentMonth && addedMonths.includes(p.currentMonth)) currentMonth = p.currentMonth;
+          if (p.currentInterval) currentInterval = p.currentInterval;
+          if (p.allMonthData && typeof p.allMonthData === 'object') allMonthData = p.allMonthData;
         } catch(e) {}
       }
 
-      // If nothing loaded, seed demo data
-      const anyData = MONTHS.some(m => allMonthData[m] && allMonthData[m].some(e => e.sunrise && e.sunset));
+      // If nothing loaded or invalid, seed demo
+      const anyData = addedMonths.some(m => allMonthData[m] && allMonthData[m].some(e => e.sunrise && e.sunset));
       if (!anyData) {
-        // Seed demo for January
-        allMonthData = {};
+        addedMonths = ["January"];
         currentMonth = DEMO_DATA.month;
         currentInterval = DEMO_DATA.interval;
+        allMonthData = {};
         const demoDays = generateDayNumbers(DEMO_DATA.month, DEMO_DATA.interval);
         allMonthData[DEMO_DATA.month] = demoDays.map(day => {
           const d = DEMO_DATA.days.find(x => x.day === day);
           return { day, sunrise: d?.sunrise || '', sunset: d?.sunset || '' };
         });
       }
+
+      // Make sure currentMonth is inside addedMonths
+      if (!addedMonths.includes(currentMonth)) currentMonth = addedMonths[0];
     }
 
     // ---------- VALIDATION ----------
@@ -1097,7 +1226,7 @@
       return null;
     }
 
-    // ---------- BUILD CHART ----------
+    // ---------- CHART ----------
     function buildChart() {
       const error = validateEntries();
       if (error) {
@@ -1116,7 +1245,6 @@
       lastChartData = data;
       chartTitle.textContent = `${currentMonth} — Sunrise & Sunset`;
 
-      // Scale
       const allTimes = data.flatMap(d => [d.srMin, d.ssMin]);
       const dataMin = Math.min(...allTimes);
       const dataMax = Math.max(...allTimes);
@@ -1126,7 +1254,6 @@
       scaleMax = Math.min(1440, scaleMax);
       const timeRange = scaleMax - scaleMin;
 
-      // 2-hour ticks
       const tickStart = Math.ceil(scaleMin / 60) * 60;
       const tickEnd = Math.floor(scaleMax / 60) * 60;
       const ticks = [];
@@ -1134,7 +1261,6 @@
 
       const axisHeight = 220;
 
-      // Build tick HTML for both axis labels and grid lines
       const axisLabelsHtml = ticks.map(t => {
         const pct = ((t - scaleMin) / timeRange) * 100;
         return `<div class="axis-label" style="top:${pct}%;">${minutesTo12h(t)}</div>`;
@@ -1145,7 +1271,6 @@
         return `<div class="grid-line" style="top:${pct}%;"></div>`;
       }).join('');
 
-      // Columns
       const columnsHtml = data.map(d => {
         const srPct = ((d.srMin - scaleMin) / timeRange) * 100;
         const ssPct = ((d.ssMin - scaleMin) / timeRange) * 100;
@@ -1187,7 +1312,6 @@
         </div>
       `;
 
-      // Summary
       summaryBody.innerHTML = data.map(d => `
         <tr>
           <td>${d.day.toString().padStart(2,'0')}</td>
@@ -1219,7 +1343,7 @@
         const entries = allMonthData[currentMonth] || [];
         entries.forEach(e => { e.sunrise = ''; e.sunset = ''; });
         renderTable();
-        renderMonthTabs();
+        renderChartTabs();
         saveToLocal();
         chartSection.classList.add('hidden');
         emptyState.classList.remove('hidden');
@@ -1266,27 +1390,11 @@
 
     // ---------- EVENTS ----------
     function initEvents() {
-      // Month tab switching — preserves all data
-      monthTabs.addEventListener('click', (e) => {
-        const tab = e.target.closest('.month-tab');
-        if (!tab) return;
-        const m = tab.dataset.month;
-        if (m === currentMonth) return;
-        currentMonth = m;
-
-        document.querySelectorAll('.month-tab').forEach(t => t.classList.toggle('active', t.dataset.month === currentMonth));
-        renderTable();
-        saveToLocal();
-        chartSection.classList.add('hidden');
-        emptyState.classList.remove('hidden');
-      });
-
-      // Interval change — regenerates day lists for ALL months, preserving existing times
       intervalSelect.addEventListener('change', (e) => {
         currentInterval = e.target.value;
-        initializeMonthData();
+        refreshAllAddedMonths();
         renderTable();
-        renderMonthTabs();
+        renderChartTabs();
         saveToLocal();
         chartSection.classList.add('hidden');
         emptyState.classList.remove('hidden');
@@ -1319,9 +1427,9 @@
     // ---------- INIT ----------
     function init() {
       loadFromLocal();
-      // Ensure all 12 months have entry arrays for the current interval
-      initializeMonthData();
-      renderMonthTabs();
+      // Ensure added months have entries for the current interval
+      refreshAllAddedMonths();
+      renderChartTabs();
       intervalSelect.value = currentInterval;
       renderTable();
       initEvents();

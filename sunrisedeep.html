@@ -1,0 +1,3912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Day Difference - Sunrise Sunset Chart</title>
+
+<meta name="description"
+      content="Create Sunrise, Sunset and Daylight Difference charts for selected dates of each month.">
+
+<meta name="theme-color" content="#0f172a">
+
+<style>
+
+:root{
+    --bg:#f5f7fb;
+    --surface:#ffffff;
+    --surface2:#f8fafc;
+    --text:#172033;
+    --muted:#64748b;
+    --border:#dbe2ea;
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --sun:#f59e0b;
+    --sunset:#ef4444;
+    --grid:#dfe5ec;
+    --axis:#475569;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    min-height:100vh;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.app-header{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#0f172a;
+    color:#fff;
+    padding:12px 14px;
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+}
+
+.header-inner{
+    max-width:1200px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:1.15rem;
+    font-weight:700;
+}
+
+.logo-icon{
+    font-size:1.3rem;
+}
+
+.menu-btn{
+    border:0;
+    background:rgba(255,255,255,.1);
+    color:#fff;
+    width:40px;
+    height:38px;
+    border-radius:8px;
+    font-size:1.25rem;
+    cursor:pointer;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:14px;
+}
+
+
+/* =========================================================
+   MONTH TABS
+========================================================= */
+
+.month-tabs{
+    display:flex;
+    overflow-x:auto;
+    gap:6px;
+    padding:4px 1px 10px;
+    scrollbar-width:thin;
+}
+
+.month-tabs::-webkit-scrollbar{
+    height:5px;
+}
+
+.month-tabs::-webkit-scrollbar-thumb{
+    background:#cbd5e1;
+    border-radius:10px;
+}
+
+.month-tab{
+    flex:0 0 auto;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text);
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:.85rem;
+    cursor:pointer;
+    white-space:nowrap;
+}
+
+.month-tab.active{
+    background:var(--primary);
+    color:#fff;
+    border-color:var(--primary);
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:0 4px 18px rgba(15,23,42,.08);
+}
+
+.input-card{
+    padding:14px;
+    margin-bottom:14px;
+}
+
+.card-title{
+    font-size:1rem;
+    font-weight:700;
+    margin-bottom:12px;
+}
+
+.controls-row{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px;
+}
+
+.control-group{
+    display:flex;
+    align-items:center;
+    gap:7px;
+}
+
+.control-group label{
+    font-size:.82rem;
+    color:var(--muted);
+    font-weight:600;
+}
+
+select{
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:8px;
+    padding:8px 10px;
+    color:var(--text);
+}
+
+.primary-btn{
+    border:0;
+    background:var(--primary);
+    color:#fff;
+    padding:9px 14px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.primary-btn:hover{
+    background:var(--primary-dark);
+}
+
+
+/* =========================================================
+   DATA TABLE
+========================================================= */
+
+.table-wrap{
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-radius:10px;
+    margin-top:14px;
+}
+
+.data-table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:440px;
+}
+
+.data-table th,
+.data-table td{
+    padding:8px;
+    border-bottom:1px solid var(--border);
+    text-align:center;
+    font-size:.84rem;
+}
+
+.data-table th{
+    background:var(--surface2);
+    font-weight:700;
+}
+
+.data-table tr:last-child td{
+    border-bottom:0;
+}
+
+.day-cell{
+    font-weight:700;
+    width:60px;
+}
+
+.time-control{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+}
+
+.step-btn{
+    width:28px;
+    height:28px;
+    padding:0;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:6px;
+    font-size:1rem;
+    cursor:pointer;
+}
+
+.time-display{
+    min-width:70px;
+    padding:6px 5px;
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:7px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:.82rem;
+}
+
+.duration-cell{
+    font-weight:700;
+    color:#b45309;
+}
+
+
+/* =========================================================
+   GENERATED SECTION
+========================================================= */
+
+.generated-section{
+    margin-top:16px;
+}
+
+.generated-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.generated-title{
+    font-size:1rem;
+    font-weight:800;
+}
+
+.add-month-btn{
+    border:1px solid var(--primary);
+    background:#fff;
+    color:var(--primary);
+    border-radius:7px;
+    padding:5px 9px;
+    font-size:.78rem;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.chart-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:0 4px 18px rgba(15,23,42,.08);
+    overflow:hidden;
+}
+
+.chart-scroll{
+    width:100%;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:10px 8px 14px;
+}
+
+
+/* =========================================================
+   CONTINUOUS CHART
+========================================================= */
+
+.continuous-chart{
+    display:flex;
+    align-items:stretch;
+    min-width:max-content;
+    position:relative;
+}
+
+
+/* =========================================================
+   SHARED TIME AXIS
+========================================================= */
+
+.shared-axis{
+    width:48px;
+    min-width:48px;
+    position:relative;
+    z-index:5;
+}
+
+.axis-header-space{
+    height:40px;
+}
+
+.axis-bar-area{
+    height:220px;
+    position:relative;
+}
+
+.axis-label{
+    position:absolute;
+    right:4px;
+    transform:translateY(-50%);
+    font-size:.66rem;
+    line-height:1;
+    color:var(--axis);
+    white-space:nowrap;
+}
+
+
+/* =========================================================
+   CHART MAIN
+========================================================= */
+
+.chart-main{
+    position:relative;
+    min-width:max-content;
+}
+
+.months-track{
+    display:flex;
+    gap:0;
+    position:relative;
+    z-index:2;
+}
+
+
+/* =========================================================
+   CONTINUOUS GRID
+========================================================= */
+
+.grid-overlay{
+    position:absolute;
+    left:0;
+    right:0;
+    top:40px;
+    height:220px;
+    pointer-events:none;
+    z-index:0;
+}
+
+.grid-line{
+    position:absolute;
+    left:0;
+    right:0;
+    height:1px;
+    background:var(--grid);
+}
+
+
+/* =========================================================
+   MONTH SEGMENT
+========================================================= */
+
+.month-segment{
+    position:relative;
+    flex:0 0 auto;
+    display:flex;
+    gap:2px;
+    padding:0;
+    margin:0;
+    z-index:2;
+}
+
+
+/*
+   Month name + date are now above every column.
+
+   Example:
+
+       January
+          07
+        06:15
+           |
+         BAR
+           |
+        18:02
+
+*/
+
+.month-label{
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    height:20px;
+    line-height:20px;
+    font-size:.72rem;
+    font-weight:800;
+    color:#334155;
+    white-space:nowrap;
+    z-index:8;
+}
+/* =========================================================
+   REMOVE MONTH BUTTON
+========================================================= */
+
+.month-remove-btn{
+    position:absolute;
+
+    top:0;
+    left:50%;
+
+    transform:translateX(
+        calc(-50% + 42px)
+    );
+
+    height:18px;
+    min-width:18px;
+
+    padding:0 4px;
+
+    border:1px solid #fecaca;
+    border-radius:5px;
+
+    background:#fff;
+    color:#dc2626;
+
+    font-size:.65rem;
+    font-weight:800;
+
+    line-height:16px;
+
+    cursor:pointer;
+
+    z-index:20;
+}
+
+.month-remove-btn:hover{
+    background:#fee2e2;
+}
+
+/* =========================================================
+   DAY COLUMN
+========================================================= */
+
+.day-column{
+    position:relative;
+
+    width:34px;
+    min-width:34px;
+
+    height:312px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+
+    z-index:2;
+}
+
+.dawn{
+    height:18px;
+    line-height:18px;
+
+    font-size:.55rem;
+    font-weight:700;
+
+    color:#2563eb;
+
+    white-space:nowrap;
+
+    z-index:5;
+}
+/* =========================================================
+   DATE UNDER MONTH NAME
+========================================================= */
+
+.date-label{
+    height:18px;
+    line-height:18px;
+    margin-top:20px;
+
+    min-width:22px;
+
+    font-size:.63rem;
+    font-weight:800;
+    color:#334155;
+
+    white-space:nowrap;
+
+    background:#fff;
+    border:1px solid #dbe2ea;
+    border-radius:5px;
+
+    padding:0 3px;
+
+    z-index:10;
+}
+
+
+/* =========================================================
+   SUNRISE
+========================================================= */
+
+.sunrise{
+    height:18px;
+    line-height:18px;
+
+    font-size:.57rem;
+    font-weight:700;
+
+    color:#b45309;
+
+    white-space:nowrap;
+
+    z-index:5;
+}
+
+/* =========================================================
+   BAR AREA
+========================================================= */
+
+.bar-area{
+    height:220px;
+    width:100%;
+    position:relative;
+}
+
+
+/* =========================================================
+   DAYLIGHT BAR
+========================================================= */
+
+.daylight-bar{
+    position:absolute;
+
+    left:7px;
+    right:7px;
+
+    border-radius:7px;
+
+    background:linear-gradient(
+        to bottom,
+        #fbbf24,
+        #f59e0b
+    );
+
+    box-shadow:
+        0 1px 3px rgba(0,0,0,.15);
+
+    min-height:5px;
+
+    z-index:3;
+}
+
+
+/* =========================================================
+   SUN MARKERS
+========================================================= */
+
+.sun-marker{
+    position:absolute;
+
+    left:50%;
+
+    width:5px;
+    height:5px;
+
+    transform:translateX(-50%);
+
+    border-radius:50%;
+
+    z-index:4;
+}
+
+.sunrise-marker{
+    background:#f59e0b;
+}
+
+.sunset-marker{
+    background:#ef4444;
+}
+
+
+/* =========================================================
+   SUNSET
+========================================================= */
+
+.sunset{
+    height:18px;
+    line-height:18px;
+
+    font-size:.57rem;
+    font-weight:700;
+
+    color:#dc2626;
+
+    white-space:nowrap;
+
+    z-index:5;
+}
+
+.night{
+    height:18px;
+    line-height:18px;
+
+    font-size:.55rem;
+    font-weight:700;
+
+    color:#7c3aed;
+
+    white-space:nowrap;
+
+    z-index:5;
+}
+  /* =========================================================
+   DAWN BAR
+========================================================= */
+
+.dawn-bar{
+    position:absolute;
+
+    left:7px;
+    right:7px;
+
+    border-radius:7px;
+
+    background:linear-gradient(
+        to bottom,
+        #60a5fa,
+        #2563eb
+    );
+
+    box-shadow:
+        0 1px 3px rgba(0,0,0,.15);
+
+    min-height:4px;
+
+    z-index:3;
+}
+
+
+/* =========================================================
+   NIGHT BAR
+========================================================= */
+
+.night-bar{
+    position:absolute;
+
+    left:7px;
+    right:7px;
+
+    border-radius:7px;
+
+    background:linear-gradient(
+        to bottom,
+        #a78bfa,
+        #7c3aed
+    );
+
+    box-shadow:
+        0 1px 3px rgba(0,0,0,.15);
+
+    min-height:4px;
+
+    z-index:3;
+}
+/* =========================================================
+   DAYLIGHT DURATION
+========================================================= */
+
+.duration{
+    height:18px;
+    line-height:18px;
+
+    margin-top:1px;
+
+    font-size:.54rem;
+    color:#92400e;
+    font-weight:700;
+
+    white-space:nowrap;
+
+    z-index:5;
+}
+
+
+/* =========================================================
+   EMPTY MONTH
+========================================================= */
+
+.empty-month{
+    width:110px;
+    min-width:110px;
+    height:312px;
+    position:relative;
+}
+
+.empty-month .month-label{
+    top:0;
+}
+
+.empty-message{
+    position:absolute;
+    top:135px;
+    left:0;
+    right:0;
+    text-align:center;
+    color:var(--muted);
+    font-size:.7rem;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.summary-section{
+    padding:12px;
+    border-top:1px solid var(--border);
+}
+
+.summary-title{
+    font-size:.9rem;
+    font-weight:800;
+    margin-bottom:9px;
+}
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:8px;
+}
+
+.summary-card{
+    border:1px solid var(--border);
+    background:var(--surface2);
+    border-radius:8px;
+    padding:9px;
+}
+
+.summary-month{
+    font-weight:800;
+    font-size:.82rem;
+    margin-bottom:5px;
+}
+
+.summary-line{
+    font-size:.72rem;
+    color:var(--muted);
+    line-height:1.5;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.chart-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    padding:10px 12px 12px;
+    border-top:1px solid var(--border);
+}
+
+.chart-actions button{
+    padding:7px 11px;
+    border-radius:7px;
+    border:1px solid var(--border);
+    background:#fff;
+    cursor:pointer;
+    font-size:.76rem;
+    font-weight:700;
+}
+
+
+/* =========================================================
+   MINUTE MODAL
+========================================================= */
+
+.modal-backdrop{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+
+    display:none;
+
+    align-items:flex-end;
+    justify-content:center;
+
+    z-index:300;
+}
+
+.modal-backdrop.show{
+    display:flex;
+}
+
+.minute-modal{
+    width:min(420px,100%);
+
+    background:#fff;
+
+    border-radius:16px 16px 0 0;
+
+    padding:16px;
+
+    max-height:80vh;
+
+    overflow:auto;
+}
+
+.modal-title{
+    font-weight:800;
+    margin-bottom:12px;
+}
+
+.minute-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:7px;
+}
+
+.minute-btn{
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:7px;
+    padding:8px 4px;
+    cursor:pointer;
+}
+
+.minute-btn.active{
+    background:var(--primary);
+    color:#fff;
+    border-color:var(--primary);
+}
+
+.close-modal{
+    width:100%;
+    margin-top:12px;
+    border:0;
+    background:#0f172a;
+    color:#fff;
+    padding:10px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast{
+    position:fixed;
+
+    left:50%;
+    bottom:20px;
+
+    transform:
+        translateX(-50%)
+        translateY(80px);
+
+    background:#0f172a;
+    color:#fff;
+
+    padding:9px 14px;
+
+    border-radius:8px;
+
+    font-size:.78rem;
+
+    z-index:500;
+
+    opacity:0;
+
+    transition:.25s;
+
+    pointer-events:none;
+}
+
+.toast.show{
+    opacity:1;
+
+    transform:
+        translateX(-50%)
+        translateY(0);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:600px){
+
+    .container{
+        padding:10px;
+    }
+
+    .controls-row{
+        align-items:stretch;
+    }
+
+    .control-group{
+        flex:1;
+    }
+
+    .control-group select{
+        width:100%;
+    }
+
+    .primary-btn{
+        width:100%;
+    }
+
+    .day-column{
+        width:34px;
+        min-width:34px;
+    }
+
+    .shared-axis{
+        width:46px;
+        min-width:46px;
+    }
+
+    .axis-label{
+        font-size:.62rem;
+    }
+
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print{
+
+    @page{
+        size:A4 landscape;
+        margin:6mm;
+    }
+
+    body{
+        background:#fff;
+    }
+
+    .app-header,
+    .month-tabs,
+    .input-card,
+    .generated-header,
+    .chart-actions{
+        display:none !important;
+    }
+
+    .container{
+        max-width:none;
+        padding:0;
+    }
+
+    .generated-section{
+        margin:0;
+    }
+
+    .chart-card{
+        box-shadow:none;
+        border:0;
+    }
+
+    .chart-scroll{
+        overflow:visible !important;
+        padding:0;
+    }
+
+    .summary-section{
+        display:none;
+    }
+
+    .day-column{
+        width:25px;
+        min-width:25px;
+    }
+
+    .shared-axis{
+        width:40px;
+        min-width:40px;
+    }
+
+    .sunrise,
+    .sunset{
+        font-size:.46rem;
+    }
+
+    .date-label{
+        font-size:.48rem;
+    }
+
+    .duration{
+        font-size:.43rem;
+    }
+
+    .month-label{
+        font-size:.58rem;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="app-header">
+
+    <div class="header-inner">
+
+        <div class="logo">
+
+            <span class="logo-icon">☀️</span>
+
+            <span>
+                Day Difference
+            </span>
+
+        </div>
+
+        <button
+            class="menu-btn"
+            onclick="toggleMenu()">
+
+            ☰
+
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+
+<!-- =====================================================
+     MONTH TABS
+===================================================== -->
+
+<div
+    class="month-tabs"
+    id="monthTabs">
+</div>
+
+
+<!-- =====================================================
+     INPUT CARD
+===================================================== -->
+
+<section class="card input-card">
+
+    <div
+        class="card-title"
+        id="inputTitle">
+
+        January
+
+    </div>
+
+
+    <div class="controls-row">
+
+        <div class="control-group">
+
+            <label for="intervalSelect">
+                Days:
+            </label>
+
+            <select id="intervalSelect">
+
+                <option value="3">
+                    3 Days
+                </option>
+
+                <option value="7" selected>
+                    7 Days
+                </option>
+
+                <option value="10">
+                    10 Days
+                </option>
+
+                <option value="15">
+                    15 Days
+                </option>
+
+                <option value="all">
+                    All Days
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button
+            class="primary-btn"
+            onclick="showChartForCurrentMonth()">
+
+            Show Chart
+
+        </button>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+        <table class="data-table">
+
+            <thead>
+
+                <tr>
+
+    <th>Day</th>
+
+    <th>Dawn</th>
+
+    <th>Sunrise</th>
+
+    <th>Sunset</th>
+
+    <th>Night</th>
+
+    <th>Dawn → Sunrise</th>
+
+    <th>Daylight</th>
+
+    <th>Sunset → Night</th>
+
+</tr>
+
+            </thead>
+
+            <tbody
+                id="dataTableBody">
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     GENERATED CHART
+===================================================== -->
+
+<section class="generated-section">
+
+
+    <div class="generated-header">
+
+        <div class="generated-title">
+            Generated Charts
+        </div>
+
+
+        <button
+            class="add-month-btn"
+            onclick="addNextMonth()">
+
+            + Month
+
+        </button>
+
+    </div>
+
+
+    <div class="chart-card">
+
+
+        <div
+            class="chart-scroll"
+            id="chartScroll">
+
+            <div
+                class="continuous-chart"
+                id="continuousChart">
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-section">
+
+            <div class="summary-title">
+                Monthly Summary
+            </div>
+
+            <div
+                class="summary-grid"
+                id="summaryGrid">
+            </div>
+
+        </div>
+
+
+        <div class="chart-actions">
+
+            <button onclick="downloadChartImage()">
+                Download
+            </button>
+
+            <button onclick="printChart()">
+                Print
+            </button>
+
+            <button onclick="shareChart()">
+                Share
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- =====================================================
+     MINUTE MODAL
+===================================================== -->
+
+<div
+    class="modal-backdrop"
+    id="minuteModal">
+
+    <div class="minute-modal">
+
+        <div class="modal-title">
+            Select Minute
+        </div>
+
+        <div
+            class="minute-grid"
+            id="minuteGrid">
+        </div>
+
+        <button
+            class="close-modal"
+            onclick="closeMinuteModal()">
+
+            Close
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<div
+    class="toast"
+    id="toast">
+</div>
+
+
+<script>
+
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const MONTHS = [
+
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+
+];
+
+
+const DAYS_IN_MONTH = [
+
+    31,
+    28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31
+
+];
+
+
+const STORAGE_KEY =
+    "dayDiffDataV8";
+
+
+const GENERATED_KEY =
+    "dayDiffGeneratedV8";
+
+
+/*
+    Main chart scale:
+
+    03:00 → 21:00
+
+    Tick labels:
+
+    04:00
+    06:00
+    08:00
+    10:00
+    12:00
+    14:00
+    16:00
+    18:00
+    20:00
+*/
+
+const SCALE_MIN =
+    3 * 60;
+
+const SCALE_MAX =
+    21 * 60;
+
+
+const TICK_MIN =
+    4 * 60;
+
+const TICK_MAX =
+    20 * 60;
+
+const TICK_STEP =
+    120;
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let currentMonth = 0;
+
+let currentMinuteTarget = null;
+
+let data =
+    loadData();
+
+let generatedMonths =
+    loadGeneratedMonths();
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        renderMonthTabs();
+
+        renderTable();
+
+        renderGeneratedCharts();
+
+    }
+);
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+function loadData(){
+
+    try{
+
+        const saved =
+            localStorage.getItem(STORAGE_KEY);
+
+        if(saved){
+
+            return JSON.parse(saved);
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+    return {};
+
+}
+
+
+function saveData(){
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(data)
+    );
+
+}
+
+
+function loadGeneratedMonths(){
+
+    try{
+
+        const saved =
+            localStorage.getItem(GENERATED_KEY);
+
+        if(saved){
+
+            return JSON.parse(saved);
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+    return [0];
+
+}
+
+
+function saveGeneratedMonths(){
+
+    localStorage.setItem(
+        GENERATED_KEY,
+        JSON.stringify(generatedMonths)
+    );
+
+}
+
+
+/* =========================================================
+   MONTH TABS
+========================================================= */
+
+function renderMonthTabs(){
+
+    const container =
+        document.getElementById(
+            "monthTabs"
+        );
+
+    container.innerHTML = "";
+
+
+    MONTHS.forEach(
+        (month,index) => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.className =
+                "month-tab" +
+                (
+                    index === currentMonth
+                    ? " active"
+                    : ""
+                );
+
+
+            button.textContent =
+                month;
+
+
+            button.onclick = () => {
+
+                currentMonth =
+                    index;
+
+                renderMonthTabs();
+
+                renderTable();
+
+            };
+
+
+            container.appendChild(
+                button
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   GET DAYS
+========================================================= */
+
+function getDaysForCurrentMonth(){
+
+    const select =
+        document.getElementById(
+            "intervalSelect"
+        );
+
+    const value =
+        select.value;
+
+    const maxDays =
+        getMonthDays(currentMonth);
+
+
+    if(value === "all"){
+
+        return Array.from(
+            {
+                length:maxDays
+            },
+            (_,i)=>i+1
+        );
+
+    }
+
+
+    const interval =
+        parseInt(
+            value,
+            10
+        );
+
+
+    const days = [];
+
+
+    for(
+        let day=interval;
+        day<=maxDays;
+        day+=interval
+    ){
+
+        days.push(day);
+
+    }
+
+
+    
+
+
+    return days;
+
+}
+
+
+function getMonthDays(monthIndex){
+
+    let days =
+        DAYS_IN_MONTH[
+            monthIndex
+        ];
+
+
+    const year =
+        new Date().getFullYear();
+
+
+    if(
+        monthIndex === 1 &&
+        isLeapYear(year)
+    ){
+
+        days = 29;
+
+    }
+
+
+    return days;
+
+}
+
+
+function isLeapYear(year){
+
+    return (
+        year % 4 === 0 &&
+        (
+            year % 100 !== 0 ||
+            year % 400 === 0
+        )
+    );
+
+}
+
+
+/* =========================================================
+   DATA
+========================================================= */
+
+function ensureMonthData(monthIndex){
+
+    if(!data[monthIndex]){
+
+        data[monthIndex] = {};
+
+    }
+
+}
+
+
+function getDayData(
+    monthIndex,
+    day
+){
+
+    ensureMonthData(
+        monthIndex
+    );
+
+
+    if(
+        !data[monthIndex][day]
+    ){
+
+        data[monthIndex][day] = {
+
+            dawn:"04:50",
+
+            sunrise:"06:00",
+
+            sunset:"18:00",
+
+            night:"19:20"
+
+        };
+
+    }
+
+
+    const record =
+        data[
+            monthIndex
+        ][day];
+
+
+    /*
+       Existing old data migration.
+
+       Agar purane record me Dawn/Night nahi hai,
+       to automatically calculate karke add hoga.
+    */
+
+    if(!record.dawn){
+
+        const sunriseMinutes =
+            timeToMinutes(
+                record.sunrise
+            );
+
+
+        record.dawn =
+            minutesToTime(
+                Math.max(
+                    3 * 60,
+                    sunriseMinutes - 70
+                )
+            );
+
+    }
+
+
+    if(!record.night){
+
+        const sunsetMinutes =
+            timeToMinutes(
+                record.sunset
+            );
+
+
+        record.night =
+            minutesToTime(
+                Math.min(
+                    21 * 60,
+                    sunsetMinutes + 80
+                )
+            );
+
+    }
+
+
+    return record;
+
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+
+function renderTable(){
+
+    const body =
+        document.getElementById(
+            "dataTableBody"
+        );
+
+
+    const title =
+        document.getElementById(
+            "inputTitle"
+        );
+
+
+    title.textContent =
+        MONTHS[currentMonth];
+
+
+    body.innerHTML = "";
+
+
+    const days =
+        getDaysForCurrentMonth();
+
+
+    days.forEach(
+        day => {
+
+            const record =
+                getDayData(
+                    currentMonth,
+                    day
+                );
+
+
+            const dawnDuration =
+                calculateDuration(
+                    record.dawn,
+                    record.sunrise
+                );
+
+
+            const daylight =
+                calculateDuration(
+                    record.sunrise,
+                    record.sunset
+                );
+
+
+            const nightDuration =
+                calculateDuration(
+                    record.sunset,
+                    record.night
+                );
+
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            tr.innerHTML = `
+
+                <!-- DAY -->
+
+                <td class="day-cell">
+
+                    ${String(day).padStart(2,"0")}
+
+                </td>
+
+
+                <!-- DAWN -->
+
+                <td>
+
+                    <div class="time-control">
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'dawn',-1)">
+                            −
+                        </button>
+
+
+                        <button
+                            class="time-display dawn-time"
+                            onclick="openMinutePicker(${day},'dawn')">
+
+                            ${formatTime(record.dawn)}
+
+                        </button>
+
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'dawn',1)">
+                            +
+                        </button>
+
+                    </div>
+
+                </td>
+
+
+                <!-- SUNRISE -->
+
+                <td>
+
+                    <div class="time-control">
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'sunrise',-1)">
+                            −
+                        </button>
+
+
+                        <button
+                            class="time-display"
+                            onclick="openMinutePicker(${day},'sunrise')">
+
+                            ${formatTime(record.sunrise)}
+
+                        </button>
+
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'sunrise',1)">
+                            +
+                        </button>
+
+                    </div>
+
+                </td>
+
+
+                <!-- SUNSET -->
+
+                <td>
+
+                    <div class="time-control">
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'sunset',-1)">
+                            −
+                        </button>
+
+
+                        <button
+                            class="time-display"
+                            onclick="openMinutePicker(${day},'sunset')">
+
+                            ${formatTime(record.sunset)}
+
+                        </button>
+
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'sunset',1)">
+                            +
+                        </button>
+
+                    </div>
+
+                </td>
+
+
+                <!-- NIGHT -->
+
+                <td>
+
+                    <div class="time-control">
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'night',-1)">
+                            −
+                        </button>
+
+
+                        <button
+                            class="time-display night-time"
+                            onclick="openMinutePicker(${day},'night')">
+
+                            ${formatTime(record.night)}
+
+                        </button>
+
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'night',1)">
+                            +
+                        </button>
+
+                    </div>
+
+                </td>
+
+
+                <!-- DAWN DIFFERENCE -->
+
+                <td class="duration-cell dawn-duration-cell">
+
+                    ${dawnDuration}
+
+                </td>
+
+
+                <!-- DAYLIGHT -->
+
+                <td class="duration-cell">
+
+                    ${daylight}
+
+                </td>
+
+
+                <!-- NIGHT DIFFERENCE -->
+
+                <td class="duration-cell night-duration-cell">
+
+                    ${nightDuration}
+
+                </td>
+
+            `;
+
+
+            body.appendChild(
+                tr
+            );
+
+        }
+    );
+
+
+    saveData();
+
+}
+
+/* =========================================================
+   TIME FUNCTIONS
+========================================================= */
+
+function timeToMinutes(time){
+
+    const parts =
+        time
+        .split(":")
+        .map(Number);
+
+
+    return (
+        parts[0] * 60 +
+        parts[1]
+    );
+
+}
+
+
+function minutesToTime(minutes){
+
+    minutes =
+        Math.round(minutes);
+
+
+    const h =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    const m =
+        minutes % 60;
+
+
+    return (
+        String(h).padStart(2,"0") +
+        ":" +
+        String(m).padStart(2,"0")
+    );
+
+}
+
+
+/*
+   IMPORTANT:
+   No AM / PM now.
+*/
+
+function formatTime(time){
+
+    const parts =
+        time
+        .split(":");
+
+
+    return (
+        String(parts[0]).padStart(2,"0") +
+        ":" +
+        String(parts[1]).padStart(2,"0")
+    );
+
+}
+
+
+/* =========================================================
+   LIMITS
+========================================================= */
+
+function getLimits(type){
+
+    /* =========================
+       DAWN
+       03:00 → 07:00
+    ========================= */
+
+    if(type === "dawn"){
+
+        return {
+
+            min:3 * 60,
+
+            max:7 * 60
+
+        };
+
+    }
+
+
+    /* =========================
+       SUNRISE
+       03:00 → 07:00
+    ========================= */
+
+    if(type === "sunrise"){
+
+        return {
+
+            min:3 * 60,
+
+            max:7 * 60
+
+        };
+
+    }
+
+
+    /* =========================
+       SUNSET
+       17:00 → 20:00
+    ========================= */
+
+    if(type === "sunset"){
+
+        return {
+
+            min:17 * 60,
+
+            max:20 * 60
+
+        };
+
+    }
+
+
+    /* =========================
+       NIGHT / AFTER SUNSET
+       17:00 → 21:00
+    ========================= */
+
+    if(type === "night"){
+
+        return {
+
+            min:17 * 60,
+
+            max:21 * 60
+
+        };
+
+    }
+
+
+    return {
+
+        min:3 * 60,
+
+        max:21 * 60
+
+    };
+
+}
+
+
+/* =========================================================
+   CHANGE MINUTE
+========================================================= */
+
+function changeMinute(
+    day,
+    type,
+    change
+){
+
+    const record =
+        getDayData(
+            currentMonth,
+            day
+        );
+
+
+    let value =
+        timeToMinutes(
+            record[type]
+        );
+
+
+    const limits =
+        getLimits(type);
+
+
+    value += change;
+
+
+    if(
+        value < limits.min
+    ){
+
+        value =
+            limits.min;
+
+    }
+
+
+    if(
+        value > limits.max
+    ){
+
+        value =
+            limits.max;
+
+    }
+
+
+    record[type] =
+        minutesToTime(value);
+
+
+    saveData();
+
+    renderTable();
+
+
+    if(
+        generatedMonths.includes(
+            currentMonth
+        )
+    ){
+
+        renderGeneratedCharts();
+
+    }
+
+}
+
+
+/* =========================================================
+   MINUTE PICKER
+========================================================= */
+
+function openMinutePicker(
+    day,
+    type
+){
+
+    currentMinuteTarget = {
+
+        month:currentMonth,
+
+        day:day,
+
+        type:type
+
+    };
+
+
+    const record =
+        getDayData(
+            currentMonth,
+            day
+        );
+
+
+    const current =
+        timeToMinutes(
+            record[type]
+        );
+
+
+    const currentMinute =
+        current % 60;
+
+
+    const grid =
+        document.getElementById(
+            "minuteGrid"
+        );
+
+
+    grid.innerHTML = "";
+
+
+    for(
+        let minute=0;
+        minute<60;
+        minute++
+    ){
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.className =
+            "minute-btn" +
+            (
+                minute === currentMinute
+                ? " active"
+                : ""
+            );
+
+
+        button.textContent =
+            String(minute).padStart(
+                2,
+                "0"
+            );
+
+
+        button.onclick = () => {
+
+            setMinute(minute);
+
+        };
+
+
+        grid.appendChild(
+            button
+        );
+
+    }
+
+
+    document
+        .getElementById(
+            "minuteModal"
+        )
+        .classList.add("show");
+
+}
+
+
+function setMinute(minute){
+
+    if(!currentMinuteTarget){
+
+        return;
+
+    }
+
+
+    const {
+        month,
+        day,
+        type
+    } =
+        currentMinuteTarget;
+
+
+    const record =
+        getDayData(
+            month,
+            day
+        );
+
+
+    let value =
+        timeToMinutes(
+            record[type]
+        );
+
+
+    const hour =
+        Math.floor(
+            value / 60
+        );
+
+
+    let newValue =
+        hour * 60 +
+        minute;
+
+
+    const limits =
+        getLimits(type);
+
+
+    if(
+        newValue < limits.min
+    ){
+
+        newValue =
+            limits.min;
+
+    }
+
+
+    if(
+        newValue > limits.max
+    ){
+
+        newValue =
+            limits.max;
+
+    }
+
+
+    record[type] =
+        minutesToTime(
+            newValue
+        );
+
+
+    saveData();
+
+    closeMinuteModal();
+
+    renderTable();
+
+
+    if(
+        generatedMonths.includes(
+            month
+        )
+    ){
+
+        renderGeneratedCharts();
+
+    }
+
+}
+
+
+function closeMinuteModal(){
+
+    document
+        .getElementById(
+            "minuteModal"
+        )
+        .classList.remove("show");
+
+
+    currentMinuteTarget =
+        null;
+
+}
+
+
+/* =========================================================
+   DURATION
+========================================================= */
+
+function calculateDuration(
+    sunrise,
+    sunset
+){
+
+    const start =
+        timeToMinutes(
+            sunrise
+        );
+
+
+    const end =
+        timeToMinutes(
+            sunset
+        );
+
+
+    const diff =
+        end - start;
+
+
+    if(diff <= 0){
+
+        return "--";
+
+    }
+
+
+    const hours =
+        Math.floor(
+            diff / 60
+        );
+
+
+    const minutes =
+        diff % 60;
+
+
+    return (
+        hours +
+        "h " +
+        String(minutes).padStart(
+            2,
+            "0"
+        ) +
+        "m"
+    );
+
+}
+
+
+/* =========================================================
+   CHART POSITION
+========================================================= */
+
+function timeToPercent(minutes){
+
+    return (
+        (
+            minutes -
+            SCALE_MIN
+        ) /
+        (
+            SCALE_MAX -
+            SCALE_MIN
+        )
+    ) * 100;
+
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+function buildGridOverlay(){
+
+    let html =
+        `<div class="grid-overlay">`;
+
+
+    for(
+        let minute=TICK_MIN;
+        minute<=TICK_MAX;
+        minute+=TICK_STEP
+    ){
+
+        const percent =
+            timeToPercent(
+                minute
+            );
+
+
+        html += `
+
+            <div
+                class="grid-line"
+                style="top:${percent}%">
+            </div>
+
+        `;
+
+    }
+
+
+    html += `
+        </div>
+    `;
+
+
+    return html;
+
+}
+
+
+/* =========================================================
+   SHARED AXIS
+========================================================= */
+
+function buildSharedAxis(){
+
+    let html = `
+
+        <div class="shared-axis">
+
+            <div class="axis-header-space"></div>
+
+            <div class="axis-bar-area">
+
+    `;
+
+
+    for(
+        let minute=TICK_MIN;
+        minute<=TICK_MAX;
+        minute+=TICK_STEP
+    ){
+
+        const percent =
+            timeToPercent(
+                minute
+            );
+
+
+        html += `
+
+            <div
+                class="axis-label"
+                style="top:${percent}%">
+
+                ${formatAxisTime(minute)}
+
+            </div>
+
+        `;
+
+    }
+
+
+    html += `
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    return html;
+
+}
+
+
+/*
+   No AM / PM.
+   24-hour format only.
+*/
+
+function formatAxisTime(minutes){
+
+    const hour =
+        Math.floor(
+            minutes / 60
+        );
+
+
+    return (
+        String(hour).padStart(
+            2,
+            "0"
+        ) +
+        ":00"
+    );
+
+}
+
+
+/* =========================================================
+   BUILD MONTH
+========================================================= */
+/*
+
+            function buildMonthSegment(
+    monthIndex
+){
+
+    const days =
+        getDaysForMonth(
+            monthIndex
+        );
+
+
+    if(
+        days.length === 0
+    ){
+
+        return `
+
+            <div class="empty-month">
+
+                <div class="month-label">
+                    ${MONTHS[monthIndex]}
+                </div>
+
+                <button
+                    class="month-remove-btn"
+                    onclick="removeMonth(${monthIndex})"
+                    title="Remove ${MONTHS[monthIndex]}">
+
+                    ×
+
+                </button>
+
+                <div class="empty-message">
+                    No data
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    let html = `
+
+        <div class="month-segment">
+
+            <div class="month-label">
+                ${MONTHS[monthIndex]}
+            </div>
+
+
+            <button
+                class="month-remove-btn"
+                onclick="removeMonth(${monthIndex})"
+                title="Remove ${MONTHS[monthIndex]}">
+
+                ×
+
+            </button>
+
+    `;
+
+
+    days.forEach(
+        day => {
+
+            const record =
+                getDayData(
+                    monthIndex,
+                    day
+                );
+
+
+            const sunrise =
+                timeToMinutes(
+                    record.sunrise
+                );
+
+
+            const sunset =
+                timeToMinutes(
+                    record.sunset
+                );
+
+
+            let top =
+                timeToPercent(
+                    sunrise
+                );
+
+
+            let bottom =
+                timeToPercent(
+                    sunset
+                );
+
+
+            top =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        top
+                    )
+                );
+
+
+            bottom =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        bottom
+                    )
+                );
+
+
+            const height =
+                Math.max(
+                    1,
+                    bottom - top
+                );
+
+
+            const duration =
+                calculateDuration(
+                    record.sunrise,
+                    record.sunset
+                );
+
+
+            html += `
+
+                <div class="day-column">
+
+
+                    <!-- DATE -->
+
+                    <div class="date-label">
+
+                        ${String(day).padStart(2,"0")}
+
+                    </div>
+
+
+                    <!-- SUNRISE -->
+
+                    <div class="sunrise">
+
+                        ${formatTime(
+                            record.sunrise
+                        )}
+
+                    </div>
+
+
+                    <!-- BAR AREA -->
+
+                    <div class="bar-area">
+
+
+                        <div
+                            class="daylight-bar"
+                            style="
+                                top:${top}%;
+                                height:${height}%;
+                            "
+                            title="${MONTHS[monthIndex]} ${String(day).padStart(2,"0")} - ${duration}">
+                        </div>
+
+
+                        <div
+                            class="sun-marker sunrise-marker"
+                            style="
+                                top:calc(${top}% - 2px)
+                            ">
+                        </div>
+
+
+                        <div
+                            class="sun-marker sunset-marker"
+                            style="
+                                top:calc(${bottom}% - 2px)
+                            ">
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- SUNSET -->
+
+                    <div class="sunset">
+
+                        ${formatTime(
+                            record.sunset
+                        )}
+
+                    </div>
+
+
+                    <!-- DURATION -->
+
+                    <div class="duration">
+
+                        ${duration}
+
+                    </div>
+
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    return html;
+
+}
+*/
+  function buildMonthSegment(
+    monthIndex
+){
+
+    const days =
+        getDaysForMonth(
+            monthIndex
+        );
+
+
+    if(
+        days.length === 0
+    ){
+
+        return `
+
+            <div class="empty-month">
+
+                <div class="month-label">
+                    ${MONTHS[monthIndex]}
+                </div>
+
+                <button
+                    class="month-remove-btn"
+                    onclick="removeMonth(${monthIndex})"
+                    title="Remove ${MONTHS[monthIndex]}">
+
+                    ×
+
+                </button>
+
+                <div class="empty-message">
+                    No data
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    let html = `
+
+        <div class="month-segment">
+
+            <div class="month-label">
+                ${MONTHS[monthIndex]}
+            </div>
+
+
+            <button
+                class="month-remove-btn"
+                onclick="removeMonth(${monthIndex})"
+                title="Remove ${MONTHS[monthIndex]}">
+
+                ×
+
+            </button>
+
+    `;
+
+
+    days.forEach(
+        day => {
+
+            const record =
+                getDayData(
+                    monthIndex,
+                    day
+                );
+
+
+            /* =========================
+               TIME VALUES
+            ========================= */
+
+            const dawn =
+                timeToMinutes(
+                    record.dawn
+                );
+
+
+            const sunrise =
+                timeToMinutes(
+                    record.sunrise
+                );
+
+
+            const sunset =
+                timeToMinutes(
+                    record.sunset
+                );
+
+
+            const night =
+                timeToMinutes(
+                    record.night
+                );
+
+
+            /* =========================
+               POSITION
+            ========================= */
+
+            let dawnTop =
+                timeToPercent(
+                    dawn
+                );
+
+
+            let sunriseTop =
+                timeToPercent(
+                    sunrise
+                );
+
+
+            let sunsetTop =
+                timeToPercent(
+                    sunset
+                );
+
+
+            let nightTop =
+                timeToPercent(
+                    night
+                );
+
+
+            /* =========================
+               CLAMP
+            ========================= */
+
+            dawnTop =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        dawnTop
+                    )
+                );
+
+
+            sunriseTop =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        sunriseTop
+                    )
+                );
+
+
+            sunsetTop =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        sunsetTop
+                    )
+                );
+
+
+            nightTop =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        nightTop
+                    )
+                );
+
+
+            /* =========================
+               DURATIONS
+            ========================= */
+
+            const dawnDuration =
+                calculateDuration(
+                    record.dawn,
+                    record.sunrise
+                );
+
+
+            const daylight =
+                calculateDuration(
+                    record.sunrise,
+                    record.sunset
+                );
+
+
+            const nightDuration =
+                calculateDuration(
+                    record.sunset,
+                    record.night
+                );
+
+
+            /* =========================
+               BAR HEIGHTS
+            ========================= */
+
+            const dawnHeight =
+                Math.max(
+                    0.5,
+                    sunriseTop -
+                    dawnTop
+                );
+
+
+            const daylightHeight =
+                Math.max(
+                    1,
+                    sunsetTop -
+                    sunriseTop
+                );
+
+
+            const nightHeight =
+                Math.max(
+                    0.5,
+                    nightTop -
+                    sunsetTop
+                );
+
+
+            html += `
+
+                <div class="day-column">
+
+
+                    <!-- DATE -->
+
+                    <div class="date-label">
+
+                        ${String(day).padStart(2,"0")}
+
+                    </div>
+
+
+                    <!-- DAWN TIME -->
+
+                    <div class="dawn">
+
+                        ${formatTime(
+                            record.dawn
+                        )}
+
+                    </div>
+
+
+                    <!-- SUNRISE TIME -->
+
+                    <div class="sunrise">
+
+                        ${formatTime(
+                            record.sunrise
+                        )}
+
+                    </div>
+
+
+                    <!-- BAR AREA -->
+
+                    <div class="bar-area">
+
+
+                        <!-- DAWN -->
+
+                        <div
+                            class="dawn-bar"
+                            style="
+                                top:${dawnTop}%;
+                                height:${dawnHeight}%;
+                            "
+                            title="
+                                ${MONTHS[monthIndex]}
+                                ${String(day).padStart(2,"0")}
+                                | Dawn:
+                                ${formatTime(record.dawn)}
+                                →
+                                Sunrise:
+                                ${formatTime(record.sunrise)}
+                                | ${dawnDuration}
+                            ">
+                        </div>
+
+
+                        <!-- DAYLIGHT -->
+
+                        <div
+                            class="daylight-bar"
+                            style="
+                                top:${sunriseTop}%;
+                                height:${daylightHeight}%;
+                            "
+                            title="
+                                ${MONTHS[monthIndex]}
+                                ${String(day).padStart(2,"0")}
+                                | Sunrise:
+                                ${formatTime(record.sunrise)}
+                                →
+                                Sunset:
+                                ${formatTime(record.sunset)}
+                                | ${daylight}
+                            ">
+                        </div>
+
+
+                        <!-- NIGHT -->
+
+                        <div
+                            class="night-bar"
+                            style="
+                                top:${sunsetTop}%;
+                                height:${nightHeight}%;
+                            "
+                            title="
+                                ${MONTHS[monthIndex]}
+                                ${String(day).padStart(2,"0")}
+                                | Sunset:
+                                ${formatTime(record.sunset)}
+                                →
+                                Night:
+                                ${formatTime(record.night)}
+                                | ${nightDuration}
+                            ">
+                        </div>
+
+
+                        <!-- DAWN MARKER -->
+
+                        <div
+                            class="sun-marker dawn-marker"
+                            style="
+                                top:calc(${dawnTop}% - 2px)
+                            ">
+                        </div>
+
+
+                        <!-- SUNRISE MARKER -->
+
+                        <div
+                            class="sun-marker sunrise-marker"
+                            style="
+                                top:calc(${sunriseTop}% - 2px)
+                            ">
+                        </div>
+
+
+                        <!-- SUNSET MARKER -->
+
+                        <div
+                            class="sun-marker sunset-marker"
+                            style="
+                                top:calc(${sunsetTop}% - 2px)
+                            ">
+                        </div>
+
+
+                        <!-- NIGHT MARKER -->
+
+                        <div
+                            class="sun-marker night-marker"
+                            style="
+                                top:calc(${nightTop}% - 2px)
+                            ">
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- SUNSET -->
+
+                    <div class="sunset">
+
+                        ${formatTime(
+                            record.sunset
+                        )}
+
+                    </div>
+
+
+                    <!-- NIGHT TIME -->
+
+                    <div class="night">
+
+                        ${formatTime(
+                            record.night
+                        )}
+
+                    </div>
+
+
+                    <!-- DAYLIGHT DURATION -->
+
+                    <div class="duration">
+
+                        ${daylight}
+
+                    </div>
+
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    return html;
+
+}
+/* =========================================================
+   GET DAYS FOR MONTH
+========================================================= */
+
+/* =========================================================
+   GET DAYS FOR MONTH
+========================================================= */
+
+function getDaysForMonth(monthIndex){
+
+    const select =
+        document.getElementById(
+            "intervalSelect"
+        );
+
+    const value =
+        select.value;
+
+    const maxDays =
+        getMonthDays(monthIndex);
+
+
+    /* =========================================
+       ALL DAYS
+    ========================================= */
+
+    if(value === "all"){
+
+        return Array.from(
+            {
+                length:maxDays
+            },
+            (_,i)=>i+1
+        );
+
+    }
+
+
+    /* =========================================
+       SELECTED INTERVAL
+       Example:
+       3 Days  → 3,6,9,12...
+       7 Days  → 7,14,21,28
+       10 Days → 10,20,30
+       15 Days → 15,30
+    ========================================= */
+
+    const interval =
+        parseInt(
+            value,
+            10
+        );
+
+
+    const days = [];
+
+
+    for(
+        let day=interval;
+        day<=maxDays;
+        day+=interval
+    ){
+
+        days.push(day);
+
+    }
+
+
+    return days;
+
+}
+
+/* =========================================================
+   RENDER GENERATED CHARTS
+========================================================= */
+
+function renderGeneratedCharts(){
+
+    const container =
+        document.getElementById(
+            "continuousChart"
+        );
+
+
+    if(
+        generatedMonths.length === 0
+    ){
+
+        container.innerHTML = `
+
+            ${buildSharedAxis()}
+
+            <div class="chart-main">
+
+                ${buildGridOverlay()}
+
+                <div class="months-track">
+
+                    <div class="empty-month">
+
+                        <div class="month-label">
+                            No chart
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    generatedMonths =
+        [...new Set(generatedMonths)]
+        .sort(
+            (a,b)=>a-b
+        );
+
+
+    let segments = "";
+
+
+    generatedMonths.forEach(
+        monthIndex => {
+
+            segments +=
+                buildMonthSegment(
+                    monthIndex
+                );
+
+        }
+    );
+
+
+    container.innerHTML = `
+
+        ${buildSharedAxis()}
+
+        <div class="chart-main">
+
+            ${buildGridOverlay()}
+
+            <div class="months-track">
+
+                ${segments}
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    saveGeneratedMonths();
+
+
+}
+
+
+/* =========================================================
+   SHOW CURRENT MONTH
+========================================================= */
+
+function showChartForCurrentMonth(){
+
+    ensureMonthData(
+        currentMonth
+    );
+
+
+    if(
+        !generatedMonths.includes(
+            currentMonth
+        )
+    ){
+
+        generatedMonths.push(
+            currentMonth
+        );
+
+    }
+
+
+    generatedMonths =
+        [...new Set(generatedMonths)]
+        .sort(
+            (a,b)=>a-b
+        );
+
+
+    saveGeneratedMonths();
+
+    renderGeneratedCharts();
+
+
+    showToast(
+        MONTHS[currentMonth] +
+        " chart added/updated"
+    );
+
+}
+
+
+/* =========================================================
+   ADD NEXT MONTH
+========================================================= */
+
+function addNextMonth(){
+
+    let lastMonth =
+        generatedMonths.length
+        ? Math.max(
+            ...generatedMonths
+        )
+        : -1;
+
+
+    const nextMonth =
+        lastMonth + 1;
+
+
+    if(
+        nextMonth > 11
+    ){
+
+        showToast(
+            "All 12 months are already added."
+        );
+
+        return;
+
+    }
+
+
+    ensureMonthData(
+        nextMonth
+    );
+
+
+    generatedMonths.push(
+        nextMonth
+    );
+
+
+    generatedMonths =
+        [...new Set(generatedMonths)]
+        .sort(
+            (a,b)=>a-b
+        );
+
+
+    saveGeneratedMonths();
+
+
+    /*
+       Automatically move to next month.
+    */
+
+    currentMonth =
+        nextMonth;
+
+
+    renderMonthTabs();
+
+    renderTable();
+
+    renderGeneratedCharts();
+
+
+    setTimeout(
+        () => {
+
+            const scroll =
+                document.getElementById(
+                    "chartScroll"
+                );
+
+
+            scroll.scrollLeft =
+                scroll.scrollWidth;
+
+        },
+        100
+    );
+
+
+    showToast(
+        MONTHS[nextMonth] +
+        " added"
+    );
+
+}
+
+
+/* =========================================================
+   INTERVAL CHANGE
+========================================================= */
+
+document
+    .getElementById(
+        "intervalSelect"
+    )
+    .addEventListener(
+        "change",
+        () => {
+
+            renderTable();
+
+            renderGeneratedCharts();
+
+        }
+    );
+
+/* =========================================================
+   REMOVE GENERATED MONTH
+========================================================= */
+
+function removeMonth(monthIndex){
+
+    /*
+       Remove only from generated chart.
+
+       IMPORTANT:
+       Month ka entered Sunrise/Sunset data
+       delete nahi hoga.
+    */
+
+    generatedMonths =
+        generatedMonths.filter(
+            month =>
+                month !== monthIndex
+        );
+
+
+    saveGeneratedMonths();
+
+    renderGeneratedCharts();
+
+
+    /*
+       Agar wahi month currently selected hai,
+       to usi month ko input ke liye selected
+       rehne denge.
+    */
+
+    showToast(
+        MONTHS[monthIndex] +
+        " removed from chart"
+    );
+
+}
+/* =========================================================
+   DOWNLOAD
+========================================================= */
+
+async function downloadChartImage(){
+
+    if(
+        typeof html2canvas ===
+        "undefined"
+    ){
+
+        showToast(
+            "Use Print → Save as PDF for best quality."
+        );
+
+        printChart();
+
+        return;
+
+    }
+
+
+    const chart =
+        document.getElementById(
+            "continuousChart"
+        );
+
+
+    try{
+
+        const canvas =
+            await html2canvas(
+                chart,
+                {
+                    backgroundColor:"#ffffff",
+                    scale:2,
+                    useCORS:true
+                }
+            );
+
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+
+        link.download =
+            "day-difference-chart.png";
+
+
+        link.href =
+            canvas.toDataURL(
+                "image/png"
+            );
+
+
+        link.click();
+
+
+    }catch(error){
+
+        console.error(error);
+
+
+        showToast(
+            "Download failed. Use Print instead."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+function printChart(){
+
+    window.print();
+
+}
+
+
+/* =========================================================
+   SHARE
+========================================================= */
+
+async function shareChart(){
+
+    const text =
+        "Day Difference - Sunrise, Sunset & Daylight Chart";
+
+
+    if(
+        navigator.share
+    ){
+
+        try{
+
+            await navigator.share({
+
+                title:
+                    "Day Difference",
+
+                text:
+                    text
+
+            });
+
+        }catch(error){
+
+            /*
+               User cancelled sharing.
+            */
+
+        }
+
+    }else{
+
+        showToast(
+            "Sharing is not supported on this browser."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+function toggleMenu(){
+
+    showToast(
+        "Day Difference"
+    );
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer = null;
+
+
+function showToast(message){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2200
+        );
+
+}
+
+
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
+
+document
+    .getElementById(
+        "minuteModal"
+    )
+    .addEventListener(
+        "click",
+        event => {
+
+            if(
+                event.target.id ===
+                "minuteModal"
+            ){
+
+                closeMinuteModal();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   HTML2CANVAS
+========================================================= */
+
+(function(){
+
+    const script =
+        document.createElement(
+            "script"
+        );
+
+
+    script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+
+
+    script.async = true;
+
+
+    document.head.appendChild(
+        script
+    );
+
+})();
+
+</script>
+
+</body>
+</html>

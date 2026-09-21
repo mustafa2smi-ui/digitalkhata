@@ -1562,14 +1562,7 @@ function getDaysForCurrentMonth(){
     }
 
 
-    if(
-        days[days.length-1] !==
-        maxDays
-    ){
-
-        days.push(maxDays);
-
-    }
+    
 
 
     return days;
@@ -2613,29 +2606,21 @@ function formatAxisTime(minutes){
    GET DAYS FOR MONTH
 ========================================================= */
 
-function getDaysForMonth(
-    monthIndex
-){
+function getDaysForCurrentMonth(){
 
     const select =
         document.getElementById(
             "intervalSelect"
         );
 
-
     const value =
         select.value;
 
-
     const maxDays =
-        getMonthDays(
-            monthIndex
-        );
+        getMonthDays(currentMonth);
 
 
-    if(
-        value === "all"
-    ){
+    if(value === "all"){
 
         return Array.from(
             {
@@ -2664,16 +2649,6 @@ function getDaysForMonth(
     ){
 
         days.push(day);
-
-    }
-
-
-    if(
-        days[days.length-1] !==
-        maxDays
-    ){
-
-        days.push(maxDays);
 
     }
 

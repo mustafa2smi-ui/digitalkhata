@@ -2929,7 +2929,44 @@ document
         }
     );
 
+/* =========================================================
+   REMOVE GENERATED MONTH
+========================================================= */
 
+function removeMonth(monthIndex){
+
+    /*
+       Remove only from generated chart.
+
+       IMPORTANT:
+       Month ka entered Sunrise/Sunset data
+       delete nahi hoga.
+    */
+
+    generatedMonths =
+        generatedMonths.filter(
+            month =>
+                month !== monthIndex
+        );
+
+
+    saveGeneratedMonths();
+
+    renderGeneratedCharts();
+
+
+    /*
+       Agar wahi month currently selected hai,
+       to usi month ko input ke liye selected
+       rehne denge.
+    */
+
+    showToast(
+        MONTHS[monthIndex] +
+        " removed from chart"
+    );
+
+}
 /* =========================================================
    DOWNLOAD
 ========================================================= */

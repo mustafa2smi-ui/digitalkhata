@@ -222,7 +222,7 @@ select{
 .data-table{
     width:100%;
     border-collapse:collapse;
-    min-width:980px;
+    min-width:440px;
 }
 
 .data-table th,
@@ -353,12 +353,12 @@ select{
     z-index:5;
 }
 
- .axis-header-space{
-    height:74px;
+.axis-header-space{
+    height:40px;
 }
 
 .axis-bar-area{
-    height:320px;
+    height:220px;
     position:relative;
 }
 
@@ -398,8 +398,8 @@ select{
     position:absolute;
     left:0;
     right:0;
-    top:74px;
-    height:320px;
+    top:40px;
+    height:220px;
     pointer-events:none;
     z-index:0;
 }
@@ -502,10 +502,10 @@ select{
 .day-column{
     position:relative;
 
-    width:48px;
-    min-width:48px;
+    width:34px;
+    min-width:34px;
 
-    height:394px;
+    height:312px;
 
     display:flex;
     flex-direction:column;
@@ -515,7 +515,6 @@ select{
 }
 
 .dawn{
-    display:none;
     height:18px;
     line-height:18px;
 
@@ -560,7 +559,6 @@ select{
 ========================================================= */
 
 .sunrise{
-    display:none;
     height:18px;
     line-height:18px;
 
@@ -579,7 +577,7 @@ select{
 ========================================================= */
 
 .bar-area{
-    height:320px;
+    height:220px;
     width:100%;
     position:relative;
 }
@@ -621,21 +619,14 @@ select{
 
     left:50%;
 
-    width:8px;
-    height:8px;
+    width:5px;
+    height:5px;
 
-    transform:translate(-50%,-50%);
+    transform:translateX(-50%);
 
     border-radius:50%;
 
-    box-shadow:none;
-    border:0;
-
     z-index:4;
-}
-
-.dawn-marker{
-    background:#2563eb;
 }
 
 .sunrise-marker{
@@ -643,11 +634,7 @@ select{
 }
 
 .sunset-marker{
-    background:#f59e0b;
-}
-
-.night-marker{
-    background:#7c3aed;
+    background:#ef4444;
 }
 
 
@@ -656,7 +643,6 @@ select{
 ========================================================= */
 
 .sunset{
-    display:none;
     height:18px;
     line-height:18px;
 
@@ -671,7 +657,6 @@ select{
 }
 
 .night{
-    display:none;
     height:18px;
     line-height:18px;
 
@@ -736,90 +721,6 @@ select{
 
     z-index:3;
 }
-
-/* =========================================================
-   MIDTIME + EVENING CIRCLE MARKERS
-   Marker only — no duration/calculation
-========================================================= */
-
-.special-time-marker{
-
-    position:absolute;
-
-    left:50%;
-
-    width:18px;
-    height:18px;
-
-    transform:translate(-50%,-50%);
-
-    border-radius:50%;
-
-    display:flex;
-
-    align-items:center;
-    justify-content:center;
-
-    box-sizing:border-box;
-
-    color:#fff;
-
-    font-size:6px;
-
-    font-weight:800;
-
-    line-height:1;
-
-    white-space:nowrap;
-
-    text-align:center;
-
-    border:0;
-
-    box-shadow:none;
-
-    z-index:12;
-
-}
-
-.midtime-marker{
-    background:#16a34a;
-}
-
-.evening-marker{
-    background:#f97316;
-}
-
-.midtime-time{
-    color:#15803d;
-}
-
-.evening-time{
-    color:#c2410c;
-}
-
-
-/* =========================================================
-   ENDPOINT TIME CIRCLES
-   Same compact style as Midtime / Evening.
-========================================================= */
-
-.dawn-endpoint{
-    background:#2563eb;
-}
-
-.sunrise-endpoint{
-    background:#f59e0b;
-}
-
-.sunset-endpoint{
-    background:#f59e0b;
-}
-
-.night-endpoint{
-    background:#7c3aed;
-}
-
 /* =========================================================
    DAYLIGHT DURATION
 ========================================================= */
@@ -1070,8 +971,8 @@ select{
     }
 
     .day-column{
-        width:48px;
-        min-width:48px;
+        width:34px;
+        min-width:34px;
     }
 
     .shared-axis{
@@ -1143,16 +1044,8 @@ select{
     }
 
     .sunrise,
-    .sunset,
-    .dawn,
-    .night{
+    .sunset{
         font-size:.46rem;
-    }
-
-    .special-time-marker{
-        width:18px;
-        height:18px;
-        font-size:5.5px;
     }
 
     .date-label{
@@ -1293,10 +1186,6 @@ select{
     <th>Dawn</th>
 
     <th>Sunrise</th>
-
-    <th>Midtime</th>
-
-    <th>Evening</th>
 
     <th>Sunset</th>
 
@@ -1821,10 +1710,6 @@ function getDayData(
 
             sunrise:"06:00",
 
-            midtime:"12:00",
-
-            evening:"16:30",
-
             sunset:"18:00",
 
             night:"19:20"
@@ -1881,26 +1766,6 @@ function getDayData(
                     sunsetMinutes + 80
                 )
             );
-
-    }
-
-
-    /* =====================================================
-       MIDTIME + EVENING
-
-       Marker-only values. No duration is calculated.
-    ===================================================== */
-
-    if(!record.midtime){
-
-        record.midtime = "12:00";
-
-    }
-
-
-    if(!record.evening){
-
-        record.evening = "16:30";
 
     }
 
@@ -1979,8 +1844,12 @@ function renderTable(){
 
             tr.innerHTML = `
 
+                <!-- DAY -->
+
                 <td class="day-cell">
+
                     ${String(day).padStart(2,"0")}
+
                 </td>
 
 
@@ -1996,6 +1865,7 @@ function renderTable(){
                             −
                         </button>
 
+
                         <button
                             class="time-display dawn-time"
                             onclick="openMinutePicker(${day},'dawn')">
@@ -2003,6 +1873,7 @@ function renderTable(){
                             ${formatTime(record.dawn)}
 
                         </button>
+
 
                         <button
                             class="step-btn"
@@ -2027,6 +1898,7 @@ function renderTable(){
                             −
                         </button>
 
+
                         <button
                             class="time-display"
                             onclick="openMinutePicker(${day},'sunrise')">
@@ -2035,71 +1907,10 @@ function renderTable(){
 
                         </button>
 
+
                         <button
                             class="step-btn"
                             onclick="changeMinute(${day},'sunrise',1)">
-                            +
-                        </button>
-
-                    </div>
-
-                </td>
-
-
-                <!-- MIDTIME : MARKER ONLY -->
-
-                <td>
-
-                    <div class="time-control">
-
-                        <button
-                            class="step-btn"
-                            onclick="changeMinute(${day},'midtime',-1)">
-                            −
-                        </button>
-
-                        <button
-                            class="time-display midtime-time"
-                            onclick="openMinutePicker(${day},'midtime')">
-
-                            ${formatTime(record.midtime)}
-
-                        </button>
-
-                        <button
-                            class="step-btn"
-                            onclick="changeMinute(${day},'midtime',1)">
-                            +
-                        </button>
-
-                    </div>
-
-                </td>
-
-
-                <!-- EVENING : MARKER ONLY -->
-
-                <td>
-
-                    <div class="time-control">
-
-                        <button
-                            class="step-btn"
-                            onclick="changeMinute(${day},'evening',-1)">
-                            −
-                        </button>
-
-                        <button
-                            class="time-display evening-time"
-                            onclick="openMinutePicker(${day},'evening')">
-
-                            ${formatTime(record.evening)}
-
-                        </button>
-
-                        <button
-                            class="step-btn"
-                            onclick="changeMinute(${day},'evening',1)">
                             +
                         </button>
 
@@ -2120,6 +1931,7 @@ function renderTable(){
                             −
                         </button>
 
+
                         <button
                             class="time-display"
                             onclick="openMinutePicker(${day},'sunset')">
@@ -2127,6 +1939,7 @@ function renderTable(){
                             ${formatTime(record.sunset)}
 
                         </button>
+
 
                         <button
                             class="step-btn"
@@ -2151,6 +1964,7 @@ function renderTable(){
                             −
                         </button>
 
+
                         <button
                             class="time-display night-time"
                             onclick="openMinutePicker(${day},'night')">
@@ -2158,6 +1972,7 @@ function renderTable(){
                             ${formatTime(record.night)}
 
                         </button>
+
 
                         <button
                             class="step-btn"
@@ -2173,21 +1988,27 @@ function renderTable(){
                 <!-- DAWN DIFFERENCE -->
 
                 <td class="duration-cell dawn-duration-cell">
+
                     ${dawnDuration}
+
                 </td>
 
 
                 <!-- DAYLIGHT -->
 
                 <td class="duration-cell">
+
                     ${daylight}
+
                 </td>
 
 
                 <!-- NIGHT DIFFERENCE -->
 
                 <td class="duration-cell night-duration-cell">
+
                     ${nightDuration}
+
                 </td>
 
             `;
@@ -2204,7 +2025,6 @@ function renderTable(){
     saveData();
 
 }
-
 
 /* =========================================================
    TIME FUNCTIONS
@@ -2278,73 +2098,84 @@ function formatTime(time){
 
 function getLimits(type){
 
+    /* =========================
+       DAWN
+       03:00 → 07:00
+    ========================= */
+
     if(type === "dawn"){
 
         return {
+
             min:3 * 60,
+
             max:7 * 60
+
         };
 
     }
 
+
+    /* =========================
+       SUNRISE
+       03:00 → 07:00
+    ========================= */
 
     if(type === "sunrise"){
 
         return {
+
             min:3 * 60,
+
             max:7 * 60
+
         };
 
     }
 
 
-    /* Midtime is only a marker. */
-
-    if(type === "midtime"){
-
-        return {
-            min:8 * 60,
-            max:16 * 60
-        };
-
-    }
-
-
-    /* Evening is only a marker. */
-
-    if(type === "evening"){
-
-        return {
-            min:12 * 60,
-            max:19 * 60
-        };
-
-    }
-
+    /* =========================
+       SUNSET
+       17:00 → 20:00
+    ========================= */
 
     if(type === "sunset"){
 
         return {
+
             min:17 * 60,
+
             max:20 * 60
+
         };
 
     }
 
 
+    /* =========================
+       NIGHT / AFTER SUNSET
+       17:00 → 21:00
+    ========================= */
+
     if(type === "night"){
 
         return {
+
             min:17 * 60,
+
             max:21 * 60
+
         };
 
     }
 
 
     return {
+
         min:3 * 60,
+
         max:21 * 60
+
     };
 
 }
@@ -3133,6 +2964,10 @@ function formatAxisTime(minutes){
                 );
 
 
+            /* =========================
+               TIME VALUES
+            ========================= */
+
             const dawn =
                 timeToMinutes(
                     record.dawn
@@ -3142,18 +2977,6 @@ function formatAxisTime(minutes){
             const sunrise =
                 timeToMinutes(
                     record.sunrise
-                );
-
-
-            const midtime =
-                timeToMinutes(
-                    record.midtime
-                );
-
-
-            const evening =
-                timeToMinutes(
-                    record.evening
                 );
 
 
@@ -3169,74 +2992,81 @@ function formatAxisTime(minutes){
                 );
 
 
+            /* =========================
+               POSITION
+            ========================= */
+
             let dawnTop =
-                timeToPercent(dawn);
+                timeToPercent(
+                    dawn
+                );
 
 
             let sunriseTop =
-                timeToPercent(sunrise);
-
-
-            let midtimeTop =
-                timeToPercent(midtime);
-
-
-            let eveningTop =
-                timeToPercent(evening);
+                timeToPercent(
+                    sunrise
+                );
 
 
             let sunsetTop =
-                timeToPercent(sunset);
+                timeToPercent(
+                    sunset
+                );
 
 
             let nightTop =
-                timeToPercent(night);
+                timeToPercent(
+                    night
+                );
 
+
+            /* =========================
+               CLAMP
+            ========================= */
 
             dawnTop =
                 Math.max(
                     0,
-                    Math.min(100,dawnTop)
+                    Math.min(
+                        100,
+                        dawnTop
+                    )
                 );
 
 
             sunriseTop =
                 Math.max(
                     0,
-                    Math.min(100,sunriseTop)
-                );
-
-
-            midtimeTop =
-                Math.max(
-                    0,
-                    Math.min(100,midtimeTop)
-                );
-
-
-            eveningTop =
-                Math.max(
-                    0,
-                    Math.min(100,eveningTop)
+                    Math.min(
+                        100,
+                        sunriseTop
+                    )
                 );
 
 
             sunsetTop =
                 Math.max(
                     0,
-                    Math.min(100,sunsetTop)
+                    Math.min(
+                        100,
+                        sunsetTop
+                    )
                 );
 
 
             nightTop =
                 Math.max(
                     0,
-                    Math.min(100,nightTop)
+                    Math.min(
+                        100,
+                        nightTop
+                    )
                 );
 
 
-            /* Only these 3 durations are calculated.
-               Midtime and Evening have NO duration. */
+            /* =========================
+               DURATIONS
+            ========================= */
 
             const dawnDuration =
                 calculateDuration(
@@ -3259,24 +3089,31 @@ function formatAxisTime(minutes){
                 );
 
 
+            /* =========================
+               BAR HEIGHTS
+            ========================= */
+
             const dawnHeight =
                 Math.max(
                     0.5,
-                    sunriseTop - dawnTop
+                    sunriseTop -
+                    dawnTop
                 );
 
 
             const daylightHeight =
                 Math.max(
                     1,
-                    sunsetTop - sunriseTop
+                    sunsetTop -
+                    sunriseTop
                 );
 
 
             const nightHeight =
                 Math.max(
                     0.5,
-                    nightTop - sunsetTop
+                    nightTop -
+                    sunsetTop
                 );
 
 
@@ -3285,6 +3122,8 @@ function formatAxisTime(minutes){
                 <div class="day-column">
 
 
+                    <!-- DATE -->
+
                     <div class="date-label">
 
                         ${String(day).padStart(2,"0")}
@@ -3292,28 +3131,38 @@ function formatAxisTime(minutes){
                     </div>
 
 
+                    <!-- DAWN TIME -->
+
                     <div class="dawn">
 
-                        ${formatTime(record.dawn)}
+                        ${formatTime(
+                            record.dawn
+                        )}
 
                     </div>
 
+
+                    <!-- SUNRISE TIME -->
 
                     <div class="sunrise">
 
-                        ${formatTime(record.sunrise)}
+                        ${formatTime(
+                            record.sunrise
+                        )}
 
                     </div>
 
+
+                    <!-- BAR AREA -->
 
                     <div class="bar-area">
 
 
-                        <!-- DAWN BAR REMOVED: only fixed endpoint circle is shown -->
+                        <!-- DAWN -->
 
                         <div
                             class="dawn-bar"
-                            style="display:none;
+                            style="
                                 top:${dawnTop}%;
                                 height:${dawnHeight}%;
                             "
@@ -3322,14 +3171,15 @@ function formatAxisTime(minutes){
                                 ${String(day).padStart(2,"0")}
                                 | Dawn:
                                 ${formatTime(record.dawn)}
-                                → Sunrise:
+                                →
+                                Sunrise:
                                 ${formatTime(record.sunrise)}
                                 | ${dawnDuration}
                             ">
                         </div>
 
 
-                        <!-- DAYLIGHT BAR -->
+                        <!-- DAYLIGHT -->
 
                         <div
                             class="daylight-bar"
@@ -3342,18 +3192,19 @@ function formatAxisTime(minutes){
                                 ${String(day).padStart(2,"0")}
                                 | Sunrise:
                                 ${formatTime(record.sunrise)}
-                                → Sunset:
+                                →
+                                Sunset:
                                 ${formatTime(record.sunset)}
                                 | ${daylight}
                             ">
                         </div>
 
 
-                        <!-- NIGHT BAR REMOVED: only fixed endpoint circle is shown -->
+                        <!-- NIGHT -->
 
                         <div
                             class="night-bar"
-                            style="display:none;
+                            style="
                                 top:${sunsetTop}%;
                                 height:${nightHeight}%;
                             "
@@ -3362,87 +3213,80 @@ function formatAxisTime(minutes){
                                 ${String(day).padStart(2,"0")}
                                 | Sunset:
                                 ${formatTime(record.sunset)}
-                                → Night:
+                                →
+                                Night:
                                 ${formatTime(record.night)}
                                 | ${nightDuration}
                             ">
                         </div>
 
 
-                        <!-- MIDTIME : CIRCLE ONLY -->
+                        <!-- DAWN MARKER -->
 
                         <div
-                            class="special-time-marker midtime-marker"
+                            class="sun-marker dawn-marker"
                             style="
-                                top:${midtimeTop}%;
-                            "
-                            title="
-                                ${MONTHS[monthIndex]}
-                                ${String(day).padStart(2,"0")}
-                                | Midtime:
-                                ${formatTime(record.midtime)}
+                                top:calc(${dawnTop}% - 2px)
                             ">
-
-                            ${formatTime(record.midtime)}
-
                         </div>
 
 
-                        <!-- EVENING : CIRCLE ONLY -->
+                        <!-- SUNRISE MARKER -->
 
                         <div
-                            class="special-time-marker evening-marker"
+                            class="sun-marker sunrise-marker"
                             style="
-                                top:${eveningTop}%;
-                            "
-                            title="
-                                ${MONTHS[monthIndex]}
-                                ${String(day).padStart(2,"0")}
-                                | Evening:
-                                ${formatTime(record.evening)}
+                                top:calc(${sunriseTop}% - 2px)
                             ">
-
-                            ${formatTime(record.evening)}
-
                         </div>
 
 
-                        <!-- FIXED TOP CIRCLE : DAWN -->
+                        <!-- SUNSET MARKER -->
 
                         <div
-                            class="special-time-marker dawn-endpoint"
-                            style="top:0%"
-                            title="Dawn: ${formatTime(record.dawn)}">
-                            ${formatTime(record.dawn)}
+                            class="sun-marker sunset-marker"
+                            style="
+                                top:calc(${sunsetTop}% - 2px)
+                            ">
                         </div>
 
 
-                        <!-- FIXED BOTTOM CIRCLE : NIGHT -->
+                        <!-- NIGHT MARKER -->
 
                         <div
-                            class="special-time-marker night-endpoint"
-                            style="top:100%"
-                            title="Night: ${formatTime(record.night)}">
-                            ${formatTime(record.night)}
+                            class="sun-marker night-marker"
+                            style="
+                                top:calc(${nightTop}% - 2px)
+                            ">
                         </div>
 
 
                     </div>
 
+
+                    <!-- SUNSET -->
 
                     <div class="sunset">
 
-                        ${formatTime(record.sunset)}
+                        ${formatTime(
+                            record.sunset
+                        )}
 
                     </div>
 
+
+                    <!-- NIGHT TIME -->
 
                     <div class="night">
 
-                        ${formatTime(record.night)}
+                        ${formatTime(
+                            record.night
+                        )}
 
                     </div>
 
+
+                    <!-- DAYLIGHT DURATION -->
 
                     <div class="duration">
 
@@ -3469,7 +3313,9 @@ function formatAxisTime(minutes){
     return html;
 
 }
-
+/* =========================================================
+   GET DAYS FOR MONTH
+========================================================= */
 
 /* =========================================================
    GET DAYS FOR MONTH
@@ -3489,24 +3335,30 @@ function getDaysForMonth(monthIndex){
         getMonthDays(monthIndex);
 
 
-    /* ALL DAYS */
+    /* =========================================
+       ALL DAYS
+    ========================================= */
 
     if(value === "all"){
 
         return Array.from(
-            { length:maxDays },
-            (_,i) => i + 1
+            {
+                length:maxDays
+            },
+            (_,i)=>i+1
         );
 
     }
 
 
-    /* SELECTED INTERVAL
-       3 Days  -> 3,6,9...
-       7 Days  -> 7,14,21,28
-       10 Days -> 10,20,30
-       15 Days -> 15,30
-    */
+    /* =========================================
+       SELECTED INTERVAL
+       Example:
+       3 Days  → 3,6,9,12...
+       7 Days  → 7,14,21,28
+       10 Days → 10,20,30
+       15 Days → 15,30
+    ========================================= */
 
     const interval =
         parseInt(
@@ -3514,22 +3366,28 @@ function getDaysForMonth(monthIndex){
             10
         );
 
+
     const days = [];
 
+
     for(
-        let day = interval;
-        day <= maxDays;
-        day += interval
+        let day=interval;
+        day<=maxDays;
+        day+=interval
     ){
 
         days.push(day);
 
     }
 
+
     return days;
 
 }
 
+/* =========================================================
+   RENDER GENERATED CHARTS
+========================================================= */
 
 function renderGeneratedCharts(){
 

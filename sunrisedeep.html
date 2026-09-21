@@ -3455,6 +3455,66 @@ function formatAxisTime(minutes){
 }
 
 
+/* =========================================================
+   GET DAYS FOR MONTH
+========================================================= */
+
+function getDaysForMonth(monthIndex){
+
+    const select =
+        document.getElementById(
+            "intervalSelect"
+        );
+
+    const value =
+        select.value;
+
+    const maxDays =
+        getMonthDays(monthIndex);
+
+
+    /* ALL DAYS */
+
+    if(value === "all"){
+
+        return Array.from(
+            { length:maxDays },
+            (_,i) => i + 1
+        );
+
+    }
+
+
+    /* SELECTED INTERVAL
+       3 Days  -> 3,6,9...
+       7 Days  -> 7,14,21,28
+       10 Days -> 10,20,30
+       15 Days -> 15,30
+    */
+
+    const interval =
+        parseInt(
+            value,
+            10
+        );
+
+    const days = [];
+
+    for(
+        let day = interval;
+        day <= maxDays;
+        day += interval
+    ){
+
+        days.push(day);
+
+    }
+
+    return days;
+
+}
+
+
 function renderGeneratedCharts(){
 
     const container =

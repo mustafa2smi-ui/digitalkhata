@@ -456,7 +456,44 @@ select{
     white-space:nowrap;
     z-index:8;
 }
+/* =========================================================
+   REMOVE MONTH BUTTON
+========================================================= */
 
+.month-remove-btn{
+    position:absolute;
+
+    top:0;
+    left:50%;
+
+    transform:translateX(
+        calc(-50% + 42px)
+    );
+
+    height:18px;
+    min-width:18px;
+
+    padding:0 4px;
+
+    border:1px solid #fecaca;
+    border-radius:5px;
+
+    background:#fff;
+    color:#dc2626;
+
+    font-size:.65rem;
+    font-weight:800;
+
+    line-height:16px;
+
+    cursor:pointer;
+
+    z-index:20;
+}
+
+.month-remove-btn:hover{
+    background:#fee2e2;
+}
 
 /* =========================================================
    DAY COLUMN
@@ -2342,7 +2379,8 @@ function formatAxisTime(minutes){
    BUILD MONTH
 ========================================================= */
 
-function buildMonthSegment(
+
+            function buildMonthSegment(
     monthIndex
 ){
 
@@ -2364,6 +2402,15 @@ function buildMonthSegment(
                     ${MONTHS[monthIndex]}
                 </div>
 
+                <button
+                    class="month-remove-btn"
+                    onclick="removeMonth(${monthIndex})"
+                    title="Remove ${MONTHS[monthIndex]}">
+
+                    ×
+
+                </button>
+
                 <div class="empty-message">
                     No data
                 </div>
@@ -2382,6 +2429,16 @@ function buildMonthSegment(
             <div class="month-label">
                 ${MONTHS[monthIndex]}
             </div>
+
+
+            <button
+                class="month-remove-btn"
+                onclick="removeMonth(${monthIndex})"
+                title="Remove ${MONTHS[monthIndex]}">
+
+                ×
+
+            </button>
 
     `;
 
@@ -2459,7 +2516,7 @@ function buildMonthSegment(
                 <div class="day-column">
 
 
-                    <!-- DATE DIRECTLY UNDER MONTH -->
+                    <!-- DATE -->
 
                     <div class="date-label">
 
@@ -2472,7 +2529,9 @@ function buildMonthSegment(
 
                     <div class="sunrise">
 
-                        ${formatTime(record.sunrise)}
+                        ${formatTime(
+                            record.sunrise
+                        )}
 
                     </div>
 
@@ -2515,7 +2574,9 @@ function buildMonthSegment(
 
                     <div class="sunset">
 
-                        ${formatTime(record.sunset)}
+                        ${formatTime(
+                            record.sunset
+                        )}
 
                     </div>
 
@@ -2547,7 +2608,6 @@ function buildMonthSegment(
     return html;
 
 }
-
 
 /* =========================================================
    GET DAYS FOR MONTH

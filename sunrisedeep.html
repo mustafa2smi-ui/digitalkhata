@@ -89,99 +89,59 @@
       padding: 20px 16px 40px;
     }
 
-    /* ==================== SEQUENTIAL MONTH CHART TABS ==================== */
-    .chart-tabs-scroll {
+    /* ==================== MONTH TABS (all 12, selectable) ==================== */
+    .month-scroll {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       margin: 8px 0 20px;
       padding: 4px 0;
     }
-    .chart-tabs-scroll::-webkit-scrollbar { display: none; }
-
-    .chart-tabs {
+    .month-scroll::-webkit-scrollbar { display: none; }
+    .month-tabs {
       display: flex;
       gap: 8px;
       flex-wrap: nowrap;
-      align-items: center;
       width: max-content;
       padding: 4px 0;
     }
-
-    .chart-tab {
+    .month-tab {
       position: relative;
       padding: 10px 18px;
       border-radius: 40px;
       background: var(--surface);
       border: 1px solid var(--border);
-      font-weight: 600;
+      font-weight: 500;
       font-size: 0.9rem;
       color: var(--text-soft);
       white-space: nowrap;
       transition: all 0.2s ease;
       box-shadow: var(--shadow-sm);
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
-    .chart-tab.active {
+    .month-tab.active {
       background: var(--primary);
       border-color: var(--primary);
       color: white;
+      font-weight: 600;
       box-shadow: 0 8px 16px -6px rgba(245,158,11,0.3);
     }
-    .chart-tab.has-data::after {
+    .month-tab.has-data::after {
       content: '';
+      position: absolute;
+      top: 6px;
+      right: 8px;
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: var(--primary);
-      display: inline-block;
-      margin-left: 2px;
+      border: 1.5px solid white;
     }
-    .chart-tab.active.has-data::after {
+    .month-tab.active.has-data::after {
       background: white;
+      border-color: var(--primary);
     }
 
-    /* "+ Add Next Month" button */
-    .add-month-btn {
-      flex-shrink: 0;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 2px dashed var(--primary);
-      background: var(--primary-soft);
-      color: var(--primary);
-      font-size: 1.2rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: var(--shadow-sm);
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .add-month-btn:hover:not(:disabled) {
-      background: var(--primary);
-      color: white;
-      border-style: solid;
-      transform: scale(1.05);
-    }
-    .add-month-btn:active:not(:disabled) {
-      transform: scale(0.95);
-    }
-    .add-month-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      border-color: var(--muted);
-      color: var(--muted);
-      background: var(--surface-2);
-    }
-
-    /* ---------- cards etc. ---------- */
     .card {
       background: var(--surface);
       border-radius: var(--radius-card);
@@ -390,112 +350,195 @@
     .btn-sm { padding: 10px 16px; font-size: 0.85rem; }
     .btn-danger { color: #b91c1c; border-color: #fecaca; background: #fef2f2; }
 
-    .chart-card { padding: 20px 16px 20px; }
-    .chart-title {
-      font-size: 1.3rem;
+    /* ==================== CHART SEQUENCE SECTION ==================== */
+    .charts-section {
+      margin-bottom: 24px;
+    }
+    .charts-section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    /* Horizontal scroll container for all charts + add button */
+    .charts-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      padding: 4px 2px 16px;
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .charts-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .charts-scroll::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .charts-row {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      width: max-content;
+    }
+
+    /* Individual chart column (chart + summary + controls inside a card) */
+    .chart-column {
+      width: 340px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-column-header {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-column-title {
+      font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: -0.01em;
-      margin-bottom: 16px;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .chart-scroll {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 8px;
-      margin-bottom: 8px;
-      scrollbar-width: thin;
+    .chart-column-title i {
+      color: var(--primary);
+      font-size: 0.95rem;
     }
 
-    /* ==================== CHART ==================== */
+    .remove-chart-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .remove-chart-btn:hover {
+      background: #fef2f2;
+      color: #b91c1c;
+    }
+
+    .chart-column-body {
+      padding: 14px 14px 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chart-scroll-inner {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+    }
+    .chart-scroll-inner::-webkit-scrollbar {
+      height: 5px;
+    }
+    .chart-scroll-inner::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    /* Compact chart inside chart column */
     .chart-grid-container {
       display: flex;
       gap: 4px;
       min-width: fit-content;
       position: relative;
     }
-
     .axis-col {
-      width: 42px;
+      width: 38px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
       position: relative;
     }
-
-    .axis-spacer-top { height: 20px; }
-    .axis-spacer-bottom { height: 20px; }
-
+    .axis-spacer-top { height: 18px; }
+    .axis-spacer-bottom { height: 18px; }
     .axis-labels { flex: 1; position: relative; }
-
     .axis-label {
       position: absolute;
-      right: 4px;
+      right: 2px;
       transform: translateY(-50%);
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: 500;
       color: var(--muted);
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
-
     .columns-wrap {
       display: flex;
-      gap: 3px;
+      gap: 2px;
       flex: 1;
       position: relative;
     }
-
     .column {
-      min-width: 46px;
+      min-width: 36px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
     .sun-time-top {
-      font-size: 0.72rem;
+      font-size: 0.62rem;
       font-weight: 700;
       color: var(--sunrise);
       text-align: center;
       white-space: nowrap;
       line-height: 1.2;
-      height: 20px;
+      height: 18px;
       display: flex;
       align-items: center;
       font-variant-numeric: tabular-nums;
     }
-
     .bar-area { width: 100%; position: relative; }
+    .bar-area-inner { width: 100%; height: 100%; position: relative; }
 
-    .bar-area-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-
-    /* ============ FIXED: pill-shaped / symmetric rounded bar ============ */
     .daylight-bar {
       width: 60%;
-      max-width: 30px;
+      max-width: 22px;
       background: linear-gradient(to bottom, #fcd34d, #fbbf24, #f59e0b);
-      /* Symmetric rounded ends — pill-like */
       border-radius: 999px;
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), 0 3px 8px rgba(245,158,11,0.25);
-      min-height: 14px;
+      min-height: 12px;
       z-index: 3;
     }
-
     .sunrise-pin, .sunset-pin {
       position: absolute;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       z-index: 4;
       box-shadow: 0 1px 4px rgba(0,0,0,0.2);
@@ -504,40 +547,38 @@
     .sunset-pin { background: var(--sunset); border: 1.5px solid white; }
 
     .sun-time-bottom {
-      font-size: 0.72rem;
+      font-size: 0.62rem;
       font-weight: 700;
       color: var(--sunset);
       text-align: center;
       white-space: nowrap;
       line-height: 1.2;
-      height: 20px;
+      height: 18px;
       display: flex;
       align-items: center;
       font-variant-numeric: tabular-nums;
     }
-
     .day-badge {
-      font-size: 0.72rem;
+      font-size: 0.6rem;
       font-weight: 700;
       color: var(--text);
       background: var(--surface-2);
-      border-radius: 14px;
-      padding: 2px 8px;
+      border-radius: 12px;
+      padding: 1px 6px;
       border: 1px solid var(--border);
-      margin-top: 4px;
+      margin-top: 3px;
       font-variant-numeric: tabular-nums;
     }
     .daylight-chip {
-      font-size: 0.58rem;
+      font-size: 0.5rem;
       font-weight: 600;
       color: var(--primary);
       background: var(--primary-soft);
-      padding: 1px 6px;
-      border-radius: 10px;
-      margin-top: 3px;
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-top: 2px;
       white-space: nowrap;
     }
-
     .grid-lines {
       position: absolute;
       inset: 0;
@@ -552,44 +593,126 @@
       background: var(--grid);
     }
 
+    /* summary inside chart column */
+    .chart-summary {
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .chart-summary-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
     .summary-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.78rem;
     }
     .summary-table th {
       text-align: left;
-      padding: 12px 8px 8px 0;
+      padding: 6px 4px 4px 0;
       font-weight: 600;
       color: var(--muted);
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      background: transparent;
     }
     .summary-table td {
-      padding: 10px 8px 10px 0;
+      padding: 5px 4px 5px 0;
       border-bottom: 1px solid var(--border);
       font-weight: 500;
+      font-size: 0.78rem;
     }
 
-    .stat-row {
+    .chart-stats {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px 16px;
-      margin-top: 16px;
-      font-size: 0.9rem;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 10px;
     }
-    .stat-item {
-      background: var(--surface-2);
-      padding: 10px 14px;
-      border-radius: 18px;
-      font-weight: 500;
+    .chart-stat {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
+      background: var(--surface-2);
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 500;
     }
-    .stat-item strong { color: var(--text); font-weight: 700; }
+    .chart-stat strong {
+      font-weight: 700;
+      color: var(--text);
+    }
+    .chart-stat-longest strong { color: #d97706; }
+    .chart-stat-shortest strong { color: #7c3aed; }
+    .chart-stat-diff strong { color: #2563eb; }
+
+    .chart-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding-top: 4px;
+    }
+    .chart-actions .btn {
+      padding: 7px 12px;
+      font-size: 0.72rem;
+      border-radius: 30px;
+    }
+
+    /* Add-next-month button (beside charts) */
+    .add-next-btn {
+      flex-shrink: 0;
+      width: 80px;
+      min-height: 200px;
+      border-radius: var(--radius-card);
+      border: 2px dashed var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      user-select: none;
+      -webkit-user-select: none;
+      padding: 12px;
+      align-self: stretch;
+    }
+    .add-next-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: white;
+      border-style: solid;
+      transform: translateY(-2px);
+    }
+    .add-next-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    .add-next-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: var(--muted);
+      color: var(--muted);
+      background: var(--surface-2);
+    }
+    .add-next-btn i {
+      font-size: 1.5rem;
+    }
+    .add-next-btn span {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-align: center;
+      line-height: 1.2;
+    }
 
     .empty-state {
       text-align: center;
@@ -672,33 +795,23 @@
       text-align: center;
     }
 
-    /* small info banner when all 12 months added */
-    .all-months-banner {
-      font-size: 0.8rem;
-      color: var(--primary);
-      background: var(--primary-soft);
-      border-radius: 14px;
-      padding: 8px 12px;
-      margin-top: 6px;
-      text-align: center;
-      font-weight: 600;
-    }
-
     @media print {
-      .sticky-header, .menu-btn, .btn, .chart-tabs-scroll, select, .table-responsive,
-      .footer, .menu-overlay, .reset-btn, .no-print {
+      .sticky-header, .menu-btn, .btn, .month-scroll, select, .table-responsive,
+      .footer, .menu-overlay, .reset-btn, .no-print, .add-next-btn, .remove-chart-btn {
         display: none !important;
       }
-      .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+      .card, .chart-column { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
       body { background: white; padding: 0; }
-      .chart-scroll { overflow: visible; }
+      .chart-scroll-inner, .charts-scroll { overflow: visible; }
+      .charts-row { flex-wrap: wrap; }
       .container { max-width: 100%; padding: 0.5in; }
     }
 
     @media (max-width: 420px) {
-      .column { min-width: 42px; }
-      .sun-time-top, .sun-time-bottom { font-size: 0.65rem; }
-      .daylight-chip { font-size: 0.52rem; }
+      .chart-column { width: 300px; }
+      .column { min-width: 32px; }
+      .sun-time-top, .sun-time-bottom { font-size: 0.58rem; }
+      .daylight-chip { font-size: 0.45rem; }
     }
   </style>
 </head>
@@ -721,9 +834,9 @@
 
 <main class="container" id="mainContainer">
 
-  <!-- Sequential month tabs with "+" button -->
-  <div class="chart-tabs-scroll">
-    <div class="chart-tabs" id="chartTabs"></div>
+  <!-- All 12 month tabs (selectable, keeps all data) -->
+  <div class="month-scroll">
+    <div class="month-tabs" id="monthTabs"></div>
   </div>
 
   <div class="card">
@@ -759,37 +872,21 @@
     <div id="errorContainer"></div>
   </div>
 
-  <div id="chartSection" class="hidden">
-    <div class="card chart-card" id="chartCard">
-      <div class="chart-title" id="chartTitle">January — Sunrise & Sunset</div>
-      <div class="chart-scroll">
-        <div id="chartWrapper"></div>
-      </div>
+  <!-- ==================== GENERATED CHARTS SEQUENCE ==================== -->
+  <div id="chartsSection" class="charts-section hidden">
+    <div class="charts-section-title">
+      <i class="fas fa-layer-group" style="margin-right: 6px;"></i> Generated Charts
     </div>
-
-    <div class="card" id="summaryCard">
-      <h3 style="font-weight: 700; font-size: 1.2rem; margin-bottom: 16px;">Daylight Difference</h3>
-      <div class="table-responsive" style="border: none; margin-bottom: 0;">
-        <table class="summary-table" id="summaryTable">
-          <thead><tr><th>Date</th><th>Sunrise</th><th>Sunset</th><th>Daylight</th></tr></thead>
-          <tbody id="summaryBody"></tbody>
-        </table>
-      </div>
-      <div class="stat-row" id="statRow"></div>
-    </div>
-
-    <div class="card no-print">
-      <div class="btn-row" style="justify-content: center;">
-        <button class="btn btn-outline" id="downloadBtn"><i class="fas fa-download"></i> Download</button>
-        <button class="btn btn-outline" id="printBtn"><i class="fas fa-print"></i> Print</button>
-        <button class="btn btn-outline" id="shareBtn"><i class="fas fa-share-alt"></i> Share</button>
+    <div class="charts-scroll" id="chartsScroll">
+      <div class="charts-row" id="chartsRow">
+        <!-- Chart columns + add button will be injected here -->
       </div>
     </div>
   </div>
 
   <div id="emptyState" class="empty-state">
     <i class="fas fa-cloud-sun" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px; display: block;"></i>
-    Tap the <strong>+</strong> button above to add a month, then enter Sunrise and Sunset times and tap <strong>Show Graph / Chart</strong>.
+    Select a month and day interval, enter Sunrise and Sunset times, then tap <strong>Show Graph / Chart</strong>.
   </div>
 
   <footer>
@@ -826,33 +923,30 @@
     };
 
     // ---------- STATE ----------
-    // addedMonths: sequential list of months the user has added, in order.
-    // Example: ["January"] or ["January","February"] or ["January","February","March"]
-    let addedMonths = ["January"];
+    // All month data (entries for each month — used for the input table)
+    let allMonthData = {};
+
+    // Generated charts sequence — order in which charts appear
+    // Example: ["January"] or ["January", "February"]
+    let generatedCharts = [];
+
+    // Currently selected month in the tabs (for data entry)
     let currentMonth = "January";
     let currentInterval = "7";
-    // All month data keyed by month name
-    let allMonthData = {};
-    let lastChartData = null;
 
     // ---------- DOM ----------
-    const chartTabs = document.getElementById('chartTabs');
+    const monthTabs = document.getElementById('monthTabs');
     const intervalSelect = document.getElementById('intervalSelect');
     const tableBody = document.getElementById('tableBody');
     const showChartBtn = document.getElementById('showChartBtn');
     const resetBtn = document.getElementById('resetBtn');
-    const chartSection = document.getElementById('chartSection');
+    const chartsSection = document.getElementById('chartsSection');
+    const chartsRow = document.getElementById('chartsRow');
+    const chartsScroll = document.getElementById('chartsScroll');
     const emptyState = document.getElementById('emptyState');
-    const chartTitle = document.getElementById('chartTitle');
-    const chartWrapper = document.getElementById('chartWrapper');
-    const summaryBody = document.getElementById('summaryBody');
-    const statRow = document.getElementById('statRow');
     const errorContainer = document.getElementById('errorContainer');
     const menuBtn = document.getElementById('menuBtn');
     const menuOverlay = document.getElementById('menuOverlay');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const printBtn = document.getElementById('printBtn');
-    const shareBtn = document.getElementById('shareBtn');
 
     // ---------- HELPERS ----------
     function timeToMinutes(t) {
@@ -906,73 +1000,28 @@
     function isValidSunrise(mins) { return mins >= SUNRISE_MIN && mins <= SUNRISE_MAX; }
     function isValidSunset(mins)  { return mins >= SUNSET_MIN && mins <= SUNSET_MAX; }
 
-    // ---------- MONTH TABS (sequential only) ----------
-    function renderChartTabs() {
-      const allAdded = addedMonths.length === MONTHS.length;
-      const tabsHtml = addedMonths.map(m => {
+    // ---------- MONTH TABS (all 12, always visible) ----------
+    function renderMonthTabs() {
+      monthTabs.innerHTML = MONTHS.map(m => {
         const hasData = allMonthData[m] && allMonthData[m].some(e => e.sunrise && e.sunset);
-        return `<button class="chart-tab ${m === currentMonth ? 'active' : ''} ${hasData ? 'has-data' : ''}" data-month="${m}">${m}</button>`;
+        return `<button class="month-tab ${m === currentMonth ? 'active' : ''} ${hasData ? 'has-data' : ''}" data-month="${m}">${m}</button>`;
       }).join('');
 
-      const addBtnHtml = `
-        <button class="add-month-btn" id="addMonthBtn" aria-label="Add next month" ${allAdded ? 'disabled' : ''} title="${allAdded ? 'All 12 months have been added' : 'Add next month'}">
-          <i class="fas ${allAdded ? 'fa-check' : 'fa-plus'}"></i>
-        </button>
-      `;
-
-      chartTabs.innerHTML = tabsHtml + addBtnHtml;
-
-      // attach events
-      chartTabs.querySelectorAll('.chart-tab').forEach(tab => {
+      monthTabs.querySelectorAll('.month-tab').forEach(tab => {
         tab.addEventListener('click', () => {
           const m = tab.dataset.month;
           if (m === currentMonth) return;
           currentMonth = m;
-          renderChartTabs();
+
+          // Ensure this month has entries for the current interval
+          ensureMonthEntries(m);
+
+          renderMonthTabs();
           renderTable();
           saveToLocal();
-          chartSection.classList.add('hidden');
-          emptyState.classList.remove('hidden');
+          // NOTE: do NOT hide charts — charts stay visible
         });
       });
-
-      const addBtn = document.getElementById('addMonthBtn');
-      if (addBtn && !allAdded) {
-        addBtn.addEventListener('click', addNextMonth);
-      } else if (addBtn && allAdded) {
-        addBtn.addEventListener('click', () => {
-          alert('All 12 months have been added.');
-        });
-      }
-    }
-
-    // Add the next chronological month
-    function addNextMonth() {
-      if (addedMonths.length >= MONTHS.length) {
-        alert('All 12 months have been added.');
-        return;
-      }
-      // Find the last added month's index
-      const lastMonth = addedMonths[addedMonths.length - 1];
-      const lastIdx = MONTHS.indexOf(lastMonth);
-      const nextMonth = MONTHS[lastIdx + 1]; // guaranteed to exist since we haven't added all
-
-      // Ensure this month has an entry array based on current interval
-      ensureMonthEntries(nextMonth);
-
-      addedMonths.push(nextMonth);
-      currentMonth = nextMonth; // switch to newly added month
-      renderChartTabs();
-      renderTable();
-      saveToLocal();
-      chartSection.classList.add('hidden');
-      emptyState.classList.remove('hidden');
-
-      // Scroll the tabs container to the end
-      const scroll = document.querySelector('.chart-tabs-scroll');
-      if (scroll) {
-        scroll.scrollTo({ left: scroll.scrollWidth, behavior: 'smooth' });
-      }
     }
 
     // Ensure a month has entries for the current interval, preserving existing
@@ -986,9 +1035,8 @@
       });
     }
 
-    // Re-generate entries for ALL added months when interval changes
-    function refreshAllAddedMonths() {
-      addedMonths.forEach(m => ensureMonthEntries(m));
+    function refreshAllMonthsData() {
+      MONTHS.forEach(m => ensureMonthEntries(m));
     }
 
     // ---------- TABLE ----------
@@ -1152,99 +1200,105 @@
       }, 0);
     }
 
-    // ---------- PERSISTENCE ----------
-    function saveToLocal() {
-      const payload = {
-        addedMonths,
-        currentMonth,
-        currentInterval,
-        allMonthData
-      };
-      localStorage.setItem('dayDiffDataV3', JSON.stringify(payload));
-    }
-
-    function loadFromLocal() {
-      const saved = localStorage.getItem('dayDiffDataV3');
-      if (saved) {
-        try {
-          const p = JSON.parse(saved);
-          if (Array.isArray(p.addedMonths) && p.addedMonths.length > 0) {
-            // sanitize: keep only valid, unique, sequential months
-            const filtered = p.addedMonths.filter(m => MONTHS.includes(m));
-            // ensure sequential order starting from January (or the first valid month)
-            addedMonths = [];
-            if (filtered.length > 0) {
-              let idx = MONTHS.indexOf(filtered[0]);
-              addedMonths.push(MONTHS[idx]);
-              for (let i = 1; i < filtered.length; i++) {
-                if (MONTHS.indexOf(filtered[i]) === idx + 1) {
-                  idx++;
-                  addedMonths.push(filtered[i]);
-                }
-              }
-            } else {
-              addedMonths = ["January"];
-            }
-          }
-          if (p.currentMonth && addedMonths.includes(p.currentMonth)) currentMonth = p.currentMonth;
-          if (p.currentInterval) currentInterval = p.currentInterval;
-          if (p.allMonthData && typeof p.allMonthData === 'object') allMonthData = p.allMonthData;
-        } catch(e) {}
-      }
-
-      // If nothing loaded or invalid, seed demo
-      const anyData = addedMonths.some(m => allMonthData[m] && allMonthData[m].some(e => e.sunrise && e.sunset));
-      if (!anyData) {
-        addedMonths = ["January"];
-        currentMonth = DEMO_DATA.month;
-        currentInterval = DEMO_DATA.interval;
-        allMonthData = {};
-        const demoDays = generateDayNumbers(DEMO_DATA.month, DEMO_DATA.interval);
-        allMonthData[DEMO_DATA.month] = demoDays.map(day => {
-          const d = DEMO_DATA.days.find(x => x.day === day);
-          return { day, sunrise: d?.sunrise || '', sunset: d?.sunset || '' };
-        });
-      }
-
-      // Make sure currentMonth is inside addedMonths
-      if (!addedMonths.includes(currentMonth)) currentMonth = addedMonths[0];
-    }
-
-    // ---------- VALIDATION ----------
-    function validateEntries() {
-      const entries = allMonthData[currentMonth] || [];
-      for (let i = 0; i < entries.length; i++) {
-        const e = entries[i];
-        if (!e.sunrise || !e.sunset) return `Please set Sunrise and Sunset for day ${e.day}.`;
-        const sr = timeToMinutes(e.sunrise);
-        const ss = timeToMinutes(e.sunset);
-        if (sr === null || ss === null) return `Invalid time value for day ${e.day}.`;
-        if (!isValidSunrise(sr)) return `Day ${e.day}: Sunrise must be between 3:00 AM and 7:00 AM.`;
-        if (!isValidSunset(ss)) return `Day ${e.day}: Sunset must be between 5:00 PM and 8:00 PM.`;
-        if (ss <= sr) return `Day ${e.day}: Sunset must be after Sunrise.`;
-      }
-      return null;
-    }
-
-    // ---------- CHART ----------
-    function buildChart() {
-      const error = validateEntries();
-      if (error) {
-        errorContainer.innerHTML = `<div class="error-msg">${error}</div>`;
+    // ---------- CHARTS RENDERING ----------
+    function renderGeneratedCharts() {
+      if (generatedCharts.length === 0) {
+        chartsSection.classList.add('hidden');
         return;
       }
-      errorContainer.innerHTML = '';
+      chartsSection.classList.remove('hidden');
 
-      const entries = allMonthData[currentMonth];
-      const data = entries.map(e => {
+      // Determine the next month that could be added
+      const allAdded = generatedCharts.length >= MONTHS.length;
+      let nextMonthName = null;
+      if (!allAdded) {
+        const lastMonth = generatedCharts[generatedCharts.length - 1];
+        const lastIdx = MONTHS.indexOf(lastMonth);
+        if (lastIdx + 1 < MONTHS.length) nextMonthName = MONTHS[lastIdx + 1];
+      }
+
+      let html = '';
+
+      generatedCharts.forEach(month => {
+        html += buildChartColumnHtml(month);
+      });
+
+      // Add the "+" button
+      html += `
+        <div class="add-next-btn" id="addNextChartBtn" ${allAdded ? 'disabled' : ''} title="${allAdded ? 'All 12 months have been added' : 'Add ' + (nextMonthName || 'next month')}">
+          <i class="fas ${allAdded ? 'fa-check' : 'fa-plus'}"></i>
+          <span>${allAdded ? 'All 12<br>Months' : 'Add ' + (nextMonthName || 'Next')}</span>
+        </div>
+      `;
+
+      chartsRow.innerHTML = html;
+
+      // Attach events
+      // Remove chart buttons
+      chartsRow.querySelectorAll('.remove-chart-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const m = btn.dataset.month;
+          if (confirm(`Remove the ${m} chart from the sequence? (Data will be kept in the table.)`)) {
+            generatedCharts = generatedCharts.filter(x => x !== m);
+            renderGeneratedCharts();
+            saveToLocal();
+          }
+        });
+      });
+
+      // Download / print / share per chart
+      chartsRow.querySelectorAll('[data-action="download"]').forEach(btn => {
+        btn.addEventListener('click', () => downloadChartImage(btn.dataset.month));
+      });
+      chartsRow.querySelectorAll('[data-action="print"]').forEach(btn => {
+        btn.addEventListener('click', () => window.print());
+      });
+      chartsRow.querySelectorAll('[data-action="share"]').forEach(btn => {
+        btn.addEventListener('click', () => shareChart(btn.dataset.month));
+      });
+
+      // Add next chart button
+      const addBtn = document.getElementById('addNextChartBtn');
+      if (addBtn && !allAdded) {
+        addBtn.addEventListener('click', addNextChart);
+      } else if (addBtn && allAdded) {
+        addBtn.addEventListener('click', () => {
+          alert('All 12 months have been added.');
+        });
+      }
+    }
+
+    // Build the HTML for a single chart column card
+    function buildChartColumnHtml(month) {
+      const entries = allMonthData[month];
+      if (!entries) return '';
+
+      // Filter entries that actually have both times
+      const filled = entries.filter(e => e.sunrise && e.sunset);
+      if (filled.length === 0) {
+        return `
+          <div class="chart-column">
+            <div class="chart-column-header">
+              <div class="chart-column-title"><i class="fas fa-sun"></i> ${month}</div>
+              <button class="remove-chart-btn" data-month="${month}" title="Remove chart"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="chart-column-body">
+              <div style="text-align:center; padding: 30px 10px; color: var(--muted); font-size: 0.85rem;">
+                No data entered yet for ${month}.<br>
+                Please enter times in the table above and click Show Graph / Chart.
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const data = filled.map(e => {
         const srMin = timeToMinutes(e.sunrise);
         const ssMin = timeToMinutes(e.sunset);
         return { day: e.day, sunrise: e.sunrise, sunset: e.sunset, srMin, ssMin, daylightMin: ssMin - srMin };
       });
 
-      lastChartData = data;
-      chartTitle.textContent = `${currentMonth} — Sunrise & Sunset`;
-
+      // Calculate scale
       const allTimes = data.flatMap(d => [d.srMin, d.ssMin]);
       const dataMin = Math.min(...allTimes);
       const dataMax = Math.max(...allTimes);
@@ -1259,7 +1313,7 @@
       const ticks = [];
       for (let t = tickStart; t <= tickEnd; t += 120) ticks.push(t);
 
-      const axisHeight = 220;
+      const axisHeight = 200;
 
       const axisLabelsHtml = ticks.map(t => {
         const pct = ((t - scaleMin) / timeRange) * 100;
@@ -1292,31 +1346,12 @@
         `;
       }).join('');
 
-      chartWrapper.innerHTML = `
-        <div class="chart-grid-container">
-          <div class="axis-col">
-            <div class="axis-spacer-top"></div>
-            <div class="axis-labels" style="height:${axisHeight}px;">
-              ${axisLabelsHtml}
-            </div>
-            <div class="axis-spacer-bottom"></div>
-            <div style="height:24px;"></div>
-            <div style="height:18px;"></div>
-          </div>
-          <div class="columns-wrap" style="height:auto;">
-            <div style="position:absolute; left:0; right:0; top:20px; height:${axisHeight}px; z-index:1; pointer-events:none;">
-              ${gridLinesHtml}
-            </div>
-            ${columnsHtml}
-          </div>
-        </div>
-      `;
-
-      summaryBody.innerHTML = data.map(d => `
+      // Summary rows
+      const summaryRows = data.map(d => `
         <tr>
           <td>${d.day.toString().padStart(2,'0')}</td>
-          <td>${minutesTo12h(d.srMin)}</td>
-          <td>${minutesTo12h(d.ssMin)}</td>
+          <td>${minutesToShort(d.srMin)}</td>
+          <td>${minutesToShort(d.ssMin)}</td>
           <td>${formatDuration(d.daylightMin)}</td>
         </tr>
       `).join('');
@@ -1326,15 +1361,175 @@
       const shortest = Math.min(...daylights);
       const diff = longest - shortest;
 
-      statRow.innerHTML = `
-        <div class="stat-item"><i class="fas fa-arrow-up" style="color:#f59e0b;"></i> Longest: <strong>${formatDuration(longest)}</strong></div>
-        <div class="stat-item"><i class="fas fa-arrow-down" style="color:#8b5cf6;"></i> Shortest: <strong>${formatDuration(shortest)}</strong></div>
-        <div class="stat-item"><i class="fas fa-arrows-alt-h" style="color:#3b82f6;"></i> Difference: <strong>${diff} minutes</strong></div>
-      `;
+      return `
+        <div class="chart-column">
+          <div class="chart-column-header">
+            <div class="chart-column-title"><i class="fas fa-sun"></i> ${month}</div>
+            <button class="remove-chart-btn" data-month="${month}" title="Remove chart"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="chart-column-body">
+            <div class="chart-scroll-inner">
+              <div class="chart-grid-container">
+                <div class="axis-col">
+                  <div class="axis-spacer-top"></div>
+                  <div class="axis-labels" style="height:${axisHeight}px;">
+                    ${axisLabelsHtml}
+                  </div>
+                  <div class="axis-spacer-bottom"></div>
+                  <div style="height:22px;"></div>
+                  <div style="height:16px;"></div>
+                </div>
+                <div class="columns-wrap" style="height:auto;">
+                  <div style="position:absolute; left:0; right:0; top:18px; height:${axisHeight}px; z-index:1; pointer-events:none;">
+                    ${gridLinesHtml}
+                  </div>
+                  ${columnsHtml}
+                </div>
+              </div>
+            </div>
 
-      chartSection.classList.remove('hidden');
-      emptyState.classList.add('hidden');
-      chartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            <div class="chart-summary">
+              <div class="chart-summary-title">Daylight Difference</div>
+              <table class="summary-table">
+                <thead>
+                  <tr><th>Day</th><th>Rise</th><th>Set</th><th>Daylight</th></tr>
+                </thead>
+                <tbody>${summaryRows}</tbody>
+              </table>
+              <div class="chart-stats">
+                <div class="chart-stat chart-stat-longest">
+                  <span><i class="fas fa-arrow-up" style="margin-right:4px;"></i>Longest</span>
+                  <strong>${formatDuration(longest)}</strong>
+                </div>
+                <div class="chart-stat chart-stat-shortest">
+                  <span><i class="fas fa-arrow-down" style="margin-right:4px;"></i>Shortest</span>
+                  <strong>${formatDuration(shortest)}</strong>
+                </div>
+                <div class="chart-stat chart-stat-diff">
+                  <span><i class="fas fa-arrows-alt-h" style="margin-right:4px;"></i>Difference</span>
+                  <strong>${diff} min</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-actions no-print">
+              <button class="btn btn-outline" data-action="download" data-month="${month}" title="Download"><i class="fas fa-download"></i></button>
+              <button class="btn btn-outline" data-action="print" title="Print"><i class="fas fa-print"></i></button>
+              <button class="btn btn-outline" data-action="share" data-month="${month}" title="Share"><i class="fas fa-share-alt"></i></button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Add next chart (creates the next chronological month's chart)
+    function addNextChart() {
+      if (generatedCharts.length >= MONTHS.length) {
+        alert('All 12 months have been added.');
+        return;
+      }
+      const lastMonth = generatedCharts[generatedCharts.length - 1];
+      const lastIdx = MONTHS.indexOf(lastMonth);
+      const nextMonth = MONTHS[lastIdx + 1];
+
+      // Make sure the month has entries for the current interval
+      ensureMonthEntries(nextMonth);
+
+      generatedCharts.push(nextMonth);
+      renderGeneratedCharts();
+      renderMonthTabs();
+      saveToLocal();
+
+      // Scroll to the end so the new chart is visible
+      setTimeout(() => {
+        if (chartsScroll) {
+          chartsScroll.scrollTo({ left: chartsScroll.scrollWidth, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+
+    // Generate chart for the currently selected month
+    function showChartForCurrentMonth() {
+      const error = validateEntries(currentMonth);
+      if (error) {
+        errorContainer.innerHTML = `<div class="error-msg">${error}</div>`;
+        return;
+      }
+      errorContainer.innerHTML = '';
+
+      // If this month is already in generatedCharts, just refresh
+      if (!generatedCharts.includes(currentMonth)) {
+        generatedCharts.push(currentMonth);
+      }
+      renderGeneratedCharts();
+      renderMonthTabs();
+      saveToLocal();
+
+      // Scroll to the charts section
+      setTimeout(() => {
+        chartsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // ---------- VALIDATION ----------
+    function validateEntries(month) {
+      const entries = allMonthData[month] || [];
+      for (let i = 0; i < entries.length; i++) {
+        const e = entries[i];
+        if (!e.sunrise || !e.sunset) return `Please set Sunrise and Sunset for day ${e.day} in ${month}.`;
+        const sr = timeToMinutes(e.sunrise);
+        const ss = timeToMinutes(e.sunset);
+        if (sr === null || ss === null) return `Invalid time value for day ${e.day} in ${month}.`;
+        if (!isValidSunrise(sr)) return `${month} day ${e.day}: Sunrise must be between 3:00 AM and 7:00 AM.`;
+        if (!isValidSunset(ss)) return `${month} day ${e.day}: Sunset must be between 5:00 PM and 8:00 PM.`;
+        if (ss <= sr) return `${month} day ${e.day}: Sunset must be after Sunrise.`;
+      }
+      return null;
+    }
+
+    // ---------- PERSISTENCE ----------
+    function saveToLocal() {
+      const payload = {
+        currentMonth,
+        currentInterval,
+        allMonthData,
+        generatedCharts
+      };
+      localStorage.setItem('dayDiffDataV4', JSON.stringify(payload));
+    }
+
+    function loadFromLocal() {
+      const saved = localStorage.getItem('dayDiffDataV4');
+      let loaded = false;
+      if (saved) {
+        try {
+          const p = JSON.parse(saved);
+          if (p.currentMonth && MONTHS.includes(p.currentMonth)) currentMonth = p.currentMonth;
+          if (p.currentInterval) currentInterval = p.currentInterval;
+          if (p.allMonthData && typeof p.allMonthData === 'object') allMonthData = p.allMonthData;
+          if (Array.isArray(p.generatedCharts)) {
+            generatedCharts = p.generatedCharts.filter(m => MONTHS.includes(m));
+          }
+          loaded = true;
+        } catch(e) {}
+      }
+
+      // Ensure all months have entry arrays for the current interval
+      refreshAllMonthsData();
+
+      // If no data at all, seed demo
+      const anyData = MONTHS.some(m => allMonthData[m] && allMonthData[m].some(e => e.sunrise && e.sunset));
+      if (!anyData && !loaded) {
+        currentMonth = DEMO_DATA.month;
+        currentInterval = DEMO_DATA.interval;
+        allMonthData = {};
+        refreshAllMonthsData();
+        const demoDays = generateDayNumbers(DEMO_DATA.month, DEMO_DATA.interval);
+        allMonthData[DEMO_DATA.month] = demoDays.map(day => {
+          const d = DEMO_DATA.days.find(x => x.day === day);
+          return { day, sunrise: d?.sunrise || '', sunset: d?.sunset || '' };
+        });
+      }
     }
 
     // ---------- RESET ----------
@@ -1343,39 +1538,47 @@
         const entries = allMonthData[currentMonth] || [];
         entries.forEach(e => { e.sunrise = ''; e.sunset = ''; });
         renderTable();
-        renderChartTabs();
+        renderMonthTabs();
         saveToLocal();
-        chartSection.classList.add('hidden');
-        emptyState.classList.remove('hidden');
         errorContainer.innerHTML = '';
+
+        // Refresh the chart if this month is currently displayed
+        if (generatedCharts.includes(currentMonth)) {
+          renderGeneratedCharts();
+        }
       }
     }
 
     // ---------- DOWNLOAD / PRINT / SHARE ----------
-    async function downloadChartImage() {
-      if (!lastChartData) { alert('Please generate chart first.'); return; }
-      const target = document.getElementById('chartSection');
-      const controls = target.querySelector('.no-print');
-      if (controls) controls.style.display = 'none';
+    async function downloadChartImage(month) {
+      const chartEl = chartsRow.querySelector(`.chart-column[data-month="${month}"]`);
+      if (!chartEl) { alert('Chart not found.'); return; }
+      const actions = chartEl.querySelector('.chart-actions');
+      if (actions) actions.style.display = 'none';
       try {
-        const canvas = await html2canvas(target, {
+        const canvas = await html2canvas(chartEl, {
           scale: 2, backgroundColor: '#ffffff', allowTaint: false, logging: false, useCORS: true
         });
         const link = document.createElement('a');
-        link.download = `day-difference-${currentMonth.toLowerCase()}.png`;
+        link.download = `day-difference-${month.toLowerCase()}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       } catch (e) {
         alert('Download failed. Please try again.');
       } finally {
-        if (controls) controls.style.display = 'flex';
+        if (actions) actions.style.display = 'flex';
       }
     }
 
-    function shareChart() {
-      if (!lastChartData) { alert('Generate chart first.'); return; }
-      const month = currentMonth;
-      const summary = lastChartData.map(d => `Day ${d.day}: ${minutesTo12h(d.srMin)} → ${minutesTo12h(d.ssMin)} (${formatDuration(d.daylightMin)})`).join('\n');
+    function shareChart(month) {
+      const entries = allMonthData[month] || [];
+      const filled = entries.filter(e => e.sunrise && e.sunset);
+      if (filled.length === 0) { alert('No data for this month.'); return; }
+      const summary = filled.map(e => {
+        const srMin = timeToMinutes(e.sunrise);
+        const ssMin = timeToMinutes(e.sunset);
+        return `Day ${e.day}: ${minutesTo12h(srMin)} → ${minutesTo12h(ssMin)} (${formatDuration(ssMin - srMin)})`;
+      }).join('\n');
       const text = `Day Difference Chart for ${month}\n\n${summary}\n\nCreated with Day Difference Generator`;
       if (navigator.share) {
         navigator.share({ title: `Day Difference - ${month}`, text }).catch(() => {});
@@ -1392,15 +1595,14 @@
     function initEvents() {
       intervalSelect.addEventListener('change', (e) => {
         currentInterval = e.target.value;
-        refreshAllAddedMonths();
+        refreshAllMonthsData();
         renderTable();
-        renderChartTabs();
+        renderMonthTabs();
+        renderGeneratedCharts(); // regenerate charts with the new interval data
         saveToLocal();
-        chartSection.classList.add('hidden');
-        emptyState.classList.remove('hidden');
       });
 
-      showChartBtn.addEventListener('click', buildChart);
+      showChartBtn.addEventListener('click', showChartForCurrentMonth);
       resetBtn.addEventListener('click', resetData);
 
       menuBtn.addEventListener('click', () => menuOverlay.classList.add('open'));
@@ -1415,10 +1617,6 @@
         });
       });
 
-      downloadBtn.addEventListener('click', downloadChartImage);
-      printBtn.addEventListener('click', () => window.print());
-      shareBtn.addEventListener('click', shareChart);
-
       document.querySelectorAll('footer a').forEach(a => {
         a.addEventListener('click', (e) => { e.preventDefault(); alert('Demo footer link.'); });
       });
@@ -1427,14 +1625,11 @@
     // ---------- INIT ----------
     function init() {
       loadFromLocal();
-      // Ensure added months have entries for the current interval
-      refreshAllAddedMonths();
-      renderChartTabs();
+      renderMonthTabs();
       intervalSelect.value = currentInterval;
       renderTable();
+      renderGeneratedCharts();
       initEvents();
-      chartSection.classList.add('hidden');
-      emptyState.classList.remove('hidden');
     }
 
     init();

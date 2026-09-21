@@ -794,6 +794,28 @@ select{
     color:#c2410c;
 }
 
+
+/* =========================================================
+   ENDPOINT TIME CIRCLES
+   Same compact style as Midtime / Evening.
+========================================================= */
+
+.dawn-endpoint{
+    background:#2563eb;
+}
+
+.sunrise-endpoint{
+    background:#f59e0b;
+}
+
+.sunset-endpoint{
+    background:#f59e0b;
+}
+
+.night-endpoint{
+    background:#7c3aed;
+}
+
 /* =========================================================
    DAYLIGHT DURATION
 ========================================================= */
@@ -3381,43 +3403,43 @@ function formatAxisTime(minutes){
                         </div>
 
 
-                        <!-- DAWN MARKER -->
+                        <!-- DAWN : ENDPOINT CIRCLE -->
 
                         <div
-                            class="sun-marker dawn-marker"
-                            style="
-                                top:calc(${dawnTop}% - 2px)
-                            ">
+                            class="special-time-marker dawn-endpoint"
+                            style="top:${dawnTop}%"
+                            title="Dawn: ${formatTime(record.dawn)}">
+                            ${formatTime(record.dawn)}
                         </div>
 
 
-                        <!-- SUNRISE MARKER -->
+                        <!-- SUNRISE : ENDPOINT CIRCLE -->
 
                         <div
-                            class="sun-marker sunrise-marker"
-                            style="
-                                top:calc(${sunriseTop}% - 2px)
-                            ">
+                            class="special-time-marker sunrise-endpoint"
+                            style="top:${sunriseTop}%"
+                            title="Sunrise: ${formatTime(record.sunrise)}">
+                            ${formatTime(record.sunrise)}
                         </div>
 
 
-                        <!-- SUNSET MARKER -->
+                        <!-- SUNSET : ENDPOINT CIRCLE -->
 
                         <div
-                            class="sun-marker sunset-marker"
-                            style="
-                                top:calc(${sunsetTop}% - 2px)
-                            ">
+                            class="special-time-marker sunset-endpoint"
+                            style="top:${sunsetTop}%"
+                            title="Sunset: ${formatTime(record.sunset)}">
+                            ${formatTime(record.sunset)}
                         </div>
 
 
-                        <!-- NIGHT MARKER -->
+                        <!-- NIGHT : ENDPOINT CIRCLE -->
 
                         <div
-                            class="sun-marker night-marker"
-                            style="
-                                top:calc(${nightTop}% - 2px)
-                            ">
+                            class="special-time-marker night-endpoint"
+                            style="top:${nightTop}%"
+                            title="Night: ${formatTime(record.night)}">
+                            ${formatTime(record.night)}
                         </div>
 
 

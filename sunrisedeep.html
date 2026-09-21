@@ -222,7 +222,7 @@ select{
 .data-table{
     width:100%;
     border-collapse:collapse;
-    min-width:440px;
+    min-width:980px;
 }
 
 .data-table th,
@@ -354,11 +354,11 @@ select{
 }
 
 .axis-header-space{
-    height:40px;
+    height:74px;
 }
 
 .axis-bar-area{
-    height:220px;
+    height:320px;
     position:relative;
 }
 
@@ -398,8 +398,8 @@ select{
     position:absolute;
     left:0;
     right:0;
-    top:40px;
-    height:220px;
+    top:74px;
+    height:320px;
     pointer-events:none;
     z-index:0;
 }
@@ -427,22 +427,6 @@ select{
     z-index:2;
 }
 
-
-/*
-   Month name + date are now above every column.
-
-   Example:
-
-       January
-          07
-        06:15
-           |
-         BAR
-           |
-        18:02
-
-*/
-
 .month-label{
     position:absolute;
     top:0;
@@ -456,6 +440,8 @@ select{
     white-space:nowrap;
     z-index:8;
 }
+
+
 /* =========================================================
    REMOVE MONTH BUTTON
 ========================================================= */
@@ -495,6 +481,7 @@ select{
     background:#fee2e2;
 }
 
+
 /* =========================================================
    DAY COLUMN
 ========================================================= */
@@ -502,10 +489,10 @@ select{
 .day-column{
     position:relative;
 
-    width:34px;
-    min-width:34px;
+    width:48px;
+    min-width:48px;
 
-    height:312px;
+    height:394px;
 
     display:flex;
     flex-direction:column;
@@ -527,9 +514,6 @@ select{
 
     z-index:5;
 }
-/* =========================================================
-   DATE UNDER MONTH NAME
-========================================================= */
 
 .date-label{
     height:18px;
@@ -572,19 +556,20 @@ select{
     z-index:5;
 }
 
+
 /* =========================================================
    BAR AREA
 ========================================================= */
 
 .bar-area{
-    height:220px;
+    height:320px;
     width:100%;
     position:relative;
 }
 
 
 /* =========================================================
-   DAYLIGHT BAR
+   DAYLIGHT BAR (only colored bar remaining)
 ========================================================= */
 
 .daylight-bar{
@@ -611,35 +596,78 @@ select{
 
 
 /* =========================================================
-   SUN MARKERS
+   SPECIAL TIME MARKERS
+   All four (Dawn, Midtime, Evening, Night) use this style.
+   They render as colored circles with the time text inside.
 ========================================================= */
 
-.sun-marker{
+.special-time-marker{
     position:absolute;
 
     left:50%;
 
-    width:5px;
-    height:5px;
+    min-width:20px;
+    height:18px;
 
-    transform:translateX(-50%);
+    padding:0 5px;
 
-    border-radius:50%;
+    transform:translate(-50%,-50%);
 
-    z-index:4;
+    border-radius:999px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    box-sizing:border-box;
+
+    color:#fff;
+
+    font-size:6px;
+
+    font-weight:800;
+
+    line-height:1;
+
+    white-space:nowrap;
+
+    text-align:center;
+
+    border:0;
+
+    box-shadow:0 1px 2px rgba(0,0,0,.15);
+
+    z-index:12;
 }
 
-.sunrise-marker{
-    background:#f59e0b;
+.dawn-marker-pill{
+    background:#2563eb;
 }
 
-.sunset-marker{
-    background:#ef4444;
+.midtime-marker{
+    background:#16a34a;
+}
+
+.evening-marker{
+    background:#f97316;
+}
+
+.night-marker-pill{
+    background:#7c3aed;
+}
+
+.midtime-time{
+    color:#15803d;
+}
+
+.evening-time{
+    color:#c2410c;
 }
 
 
 /* =========================================================
-   SUNSET
+   SUNSET / NIGHT LABELS
 ========================================================= */
 
 .sunset{
@@ -669,58 +697,8 @@ select{
 
     z-index:5;
 }
-  /* =========================================================
-   DAWN BAR
-========================================================= */
-
-.dawn-bar{
-    position:absolute;
-
-    left:7px;
-    right:7px;
-
-    border-radius:7px;
-
-    background:linear-gradient(
-        to bottom,
-        #60a5fa,
-        #2563eb
-    );
-
-    box-shadow:
-        0 1px 3px rgba(0,0,0,.15);
-
-    min-height:4px;
-
-    z-index:3;
-}
 
 
-/* =========================================================
-   NIGHT BAR
-========================================================= */
-
-.night-bar{
-    position:absolute;
-
-    left:7px;
-    right:7px;
-
-    border-radius:7px;
-
-    background:linear-gradient(
-        to bottom,
-        #a78bfa,
-        #7c3aed
-    );
-
-    box-shadow:
-        0 1px 3px rgba(0,0,0,.15);
-
-    min-height:4px;
-
-    z-index:3;
-}
 /* =========================================================
    DAYLIGHT DURATION
 ========================================================= */
@@ -971,8 +949,8 @@ select{
     }
 
     .day-column{
-        width:34px;
-        min-width:34px;
+        width:48px;
+        min-width:48px;
     }
 
     .shared-axis{
@@ -1044,8 +1022,16 @@ select{
     }
 
     .sunrise,
-    .sunset{
+    .sunset,
+    .dawn,
+    .night{
         font-size:.46rem;
+    }
+
+    .special-time-marker{
+        width:18px;
+        height:18px;
+        font-size:5.5px;
     }
 
     .date-label{
@@ -1067,10 +1053,6 @@ select{
 
 <body>
 
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
 
 <header class="app-header">
 
@@ -1102,19 +1084,11 @@ select{
 <main class="container">
 
 
-<!-- =====================================================
-     MONTH TABS
-===================================================== -->
-
 <div
     class="month-tabs"
     id="monthTabs">
 </div>
 
-
-<!-- =====================================================
-     INPUT CARD
-===================================================== -->
 
 <section class="card input-card">
 
@@ -1181,23 +1155,27 @@ select{
 
                 <tr>
 
-    <th>Day</th>
+                    <th>Day</th>
 
-    <th>Dawn</th>
+                    <th>Dawn</th>
 
-    <th>Sunrise</th>
+                    <th>Sunrise</th>
 
-    <th>Sunset</th>
+                    <th>Midtime</th>
 
-    <th>Night</th>
+                    <th>Evening</th>
 
-    <th>Dawn → Sunrise</th>
+                    <th>Sunset</th>
 
-    <th>Daylight</th>
+                    <th>Night</th>
 
-    <th>Sunset → Night</th>
+                    <th>Dawn → Sunrise</th>
 
-</tr>
+                    <th>Daylight</th>
+
+                    <th>Sunset → Night</th>
+
+                </tr>
 
             </thead>
 
@@ -1211,10 +1189,6 @@ select{
 
 </section>
 
-
-<!-- =====================================================
-     GENERATED CHART
-===================================================== -->
 
 <section class="generated-section">
 
@@ -1289,10 +1263,6 @@ select{
 
 </main>
 
-
-<!-- =====================================================
-     MINUTE MODAL
-===================================================== -->
 
 <div
     class="modal-backdrop"
@@ -1378,24 +1348,6 @@ const STORAGE_KEY =
 const GENERATED_KEY =
     "dayDiffGeneratedV8";
 
-
-/*
-    Main chart scale:
-
-    03:00 → 21:00
-
-    Tick labels:
-
-    04:00
-    06:00
-    08:00
-    10:00
-    12:00
-    14:00
-    16:00
-    18:00
-    20:00
-*/
 
 const SCALE_MIN =
     3 * 60;
@@ -1627,9 +1579,6 @@ function getDaysForCurrentMonth(){
     }
 
 
-    
-
-
     return days;
 
 }
@@ -1710,6 +1659,10 @@ function getDayData(
 
             sunrise:"06:00",
 
+            midtime:"12:00",
+
+            evening:"16:30",
+
             sunset:"18:00",
 
             night:"19:20"
@@ -1724,13 +1677,6 @@ function getDayData(
             monthIndex
         ][day];
 
-
-    /*
-       Existing old data migration.
-
-       Agar purane record me Dawn/Night nahi hai,
-       to automatically calculate karke add hoga.
-    */
 
     if(!record.dawn){
 
@@ -1770,6 +1716,20 @@ function getDayData(
     }
 
 
+    if(!record.midtime){
+
+        record.midtime = "12:00";
+
+    }
+
+
+    if(!record.evening){
+
+        record.evening = "16:30";
+
+    }
+
+
     return record;
 
 }
@@ -1778,7 +1738,6 @@ function getDayData(
 /* =========================================================
    TABLE
 ========================================================= */
-
 
 function renderTable(){
 
@@ -1844,16 +1803,10 @@ function renderTable(){
 
             tr.innerHTML = `
 
-                <!-- DAY -->
-
                 <td class="day-cell">
-
                     ${String(day).padStart(2,"0")}
-
                 </td>
 
-
-                <!-- DAWN -->
 
                 <td>
 
@@ -1865,7 +1818,6 @@ function renderTable(){
                             −
                         </button>
 
-
                         <button
                             class="time-display dawn-time"
                             onclick="openMinutePicker(${day},'dawn')">
@@ -1873,7 +1825,6 @@ function renderTable(){
                             ${formatTime(record.dawn)}
 
                         </button>
-
 
                         <button
                             class="step-btn"
@@ -1886,8 +1837,6 @@ function renderTable(){
                 </td>
 
 
-                <!-- SUNRISE -->
-
                 <td>
 
                     <div class="time-control">
@@ -1898,7 +1847,6 @@ function renderTable(){
                             −
                         </button>
 
-
                         <button
                             class="time-display"
                             onclick="openMinutePicker(${day},'sunrise')">
@@ -1906,7 +1854,6 @@ function renderTable(){
                             ${formatTime(record.sunrise)}
 
                         </button>
-
 
                         <button
                             class="step-btn"
@@ -1919,7 +1866,63 @@ function renderTable(){
                 </td>
 
 
-                <!-- SUNSET -->
+                <td>
+
+                    <div class="time-control">
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'midtime',-1)">
+                            −
+                        </button>
+
+                        <button
+                            class="time-display midtime-time"
+                            onclick="openMinutePicker(${day},'midtime')">
+
+                            ${formatTime(record.midtime)}
+
+                        </button>
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'midtime',1)">
+                            +
+                        </button>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div class="time-control">
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'evening',-1)">
+                            −
+                        </button>
+
+                        <button
+                            class="time-display evening-time"
+                            onclick="openMinutePicker(${day},'evening')">
+
+                            ${formatTime(record.evening)}
+
+                        </button>
+
+                        <button
+                            class="step-btn"
+                            onclick="changeMinute(${day},'evening',1)">
+                            +
+                        </button>
+
+                    </div>
+
+                </td>
+
 
                 <td>
 
@@ -1931,7 +1934,6 @@ function renderTable(){
                             −
                         </button>
 
-
                         <button
                             class="time-display"
                             onclick="openMinutePicker(${day},'sunset')">
@@ -1939,7 +1941,6 @@ function renderTable(){
                             ${formatTime(record.sunset)}
 
                         </button>
-
 
                         <button
                             class="step-btn"
@@ -1952,8 +1953,6 @@ function renderTable(){
                 </td>
 
 
-                <!-- NIGHT -->
-
                 <td>
 
                     <div class="time-control">
@@ -1964,7 +1963,6 @@ function renderTable(){
                             −
                         </button>
 
-
                         <button
                             class="time-display night-time"
                             onclick="openMinutePicker(${day},'night')">
@@ -1972,7 +1970,6 @@ function renderTable(){
                             ${formatTime(record.night)}
 
                         </button>
-
 
                         <button
                             class="step-btn"
@@ -1985,30 +1982,18 @@ function renderTable(){
                 </td>
 
 
-                <!-- DAWN DIFFERENCE -->
-
                 <td class="duration-cell dawn-duration-cell">
-
                     ${dawnDuration}
-
                 </td>
 
-
-                <!-- DAYLIGHT -->
 
                 <td class="duration-cell">
-
                     ${daylight}
-
                 </td>
 
 
-                <!-- NIGHT DIFFERENCE -->
-
                 <td class="duration-cell night-duration-cell">
-
                     ${nightDuration}
-
                 </td>
 
             `;
@@ -2025,6 +2010,7 @@ function renderTable(){
     saveData();
 
 }
+
 
 /* =========================================================
    TIME FUNCTIONS
@@ -2071,11 +2057,6 @@ function minutesToTime(minutes){
 }
 
 
-/*
-   IMPORTANT:
-   No AM / PM now.
-*/
-
 function formatTime(time){
 
     const parts =
@@ -2098,84 +2079,69 @@ function formatTime(time){
 
 function getLimits(type){
 
-    /* =========================
-       DAWN
-       03:00 → 07:00
-    ========================= */
-
     if(type === "dawn"){
 
         return {
-
             min:3 * 60,
-
             max:7 * 60
-
         };
 
     }
 
-
-    /* =========================
-       SUNRISE
-       03:00 → 07:00
-    ========================= */
 
     if(type === "sunrise"){
 
         return {
-
             min:3 * 60,
-
             max:7 * 60
-
         };
 
     }
 
 
-    /* =========================
-       SUNSET
-       17:00 → 20:00
-    ========================= */
+    if(type === "midtime"){
+
+        return {
+            min:8 * 60,
+            max:16 * 60
+        };
+
+    }
+
+
+    if(type === "evening"){
+
+        return {
+            min:12 * 60,
+            max:19 * 60
+        };
+
+    }
+
 
     if(type === "sunset"){
 
         return {
-
             min:17 * 60,
-
             max:20 * 60
-
         };
 
     }
 
 
-    /* =========================
-       NIGHT / AFTER SUNSET
-       17:00 → 21:00
-    ========================= */
-
     if(type === "night"){
 
         return {
-
             min:17 * 60,
-
             max:21 * 60
-
         };
 
     }
 
 
     return {
-
         min:3 * 60,
-
         max:21 * 60
-
     };
 
 }
@@ -2633,11 +2599,6 @@ function buildSharedAxis(){
 }
 
 
-/*
-   No AM / PM.
-   24-hour format only.
-*/
-
 function formatAxisTime(minutes){
 
     const hour =
@@ -2660,9 +2621,8 @@ function formatAxisTime(minutes){
 /* =========================================================
    BUILD MONTH
 ========================================================= */
-/*
 
-            function buildMonthSegment(
+function buildMonthSegment(
     monthIndex
 ){
 
@@ -2734,339 +2694,63 @@ function formatAxisTime(minutes){
                     day
                 );
 
-
-            const sunrise =
-                timeToMinutes(
-                    record.sunrise
-                );
-
-
-            const sunset =
-                timeToMinutes(
-                    record.sunset
-                );
-
-
-            let top =
-                timeToPercent(
-                    sunrise
-                );
-
-
-            let bottom =
-                timeToPercent(
-                    sunset
-                );
-
-
-            top =
-                Math.max(
-                    0,
-                    Math.min(
-                        100,
-                        top
-                    )
-                );
-
-
-            bottom =
-                Math.max(
-                    0,
-                    Math.min(
-                        100,
-                        bottom
-                    )
-                );
-
-
-            const height =
-                Math.max(
-                    1,
-                    bottom - top
-                );
-
-
-            const duration =
-                calculateDuration(
-                    record.sunrise,
-                    record.sunset
-                );
-
-
-            html += `
-
-                <div class="day-column">
-
-
-                    <!-- DATE -->
-
-                    <div class="date-label">
-
-                        ${String(day).padStart(2,"0")}
-
-                    </div>
-
-
-                    <!-- SUNRISE -->
-
-                    <div class="sunrise">
-
-                        ${formatTime(
-                            record.sunrise
-                        )}
-
-                    </div>
-
-
-                    <!-- BAR AREA -->
-
-                    <div class="bar-area">
-
-
-                        <div
-                            class="daylight-bar"
-                            style="
-                                top:${top}%;
-                                height:${height}%;
-                            "
-                            title="${MONTHS[monthIndex]} ${String(day).padStart(2,"0")} - ${duration}">
-                        </div>
-
-
-                        <div
-                            class="sun-marker sunrise-marker"
-                            style="
-                                top:calc(${top}% - 2px)
-                            ">
-                        </div>
-
-
-                        <div
-                            class="sun-marker sunset-marker"
-                            style="
-                                top:calc(${bottom}% - 2px)
-                            ">
-                        </div>
-
-
-                    </div>
-
-
-                    <!-- SUNSET -->
-
-                    <div class="sunset">
-
-                        ${formatTime(
-                            record.sunset
-                        )}
-
-                    </div>
-
-
-                    <!-- DURATION -->
-
-                    <div class="duration">
-
-                        ${duration}
-
-                    </div>
-
-
-                </div>
-
-            `;
-
-        }
-    );
-
-
-    html += `
-
-        </div>
-
-    `;
-
-
-    return html;
-
-}
-*/
-  function buildMonthSegment(
-    monthIndex
-){
-
-    const days =
-        getDaysForMonth(
-            monthIndex
-        );
-
-
-    if(
-        days.length === 0
-    ){
-
-        return `
-
-            <div class="empty-month">
-
-                <div class="month-label">
-                    ${MONTHS[monthIndex]}
-                </div>
-
-                <button
-                    class="month-remove-btn"
-                    onclick="removeMonth(${monthIndex})"
-                    title="Remove ${MONTHS[monthIndex]}">
-
-                    ×
-
-                </button>
-
-                <div class="empty-message">
-                    No data
-                </div>
-
-            </div>
-
-        `;
-
-    }
-
-
-    let html = `
-
-        <div class="month-segment">
-
-            <div class="month-label">
-                ${MONTHS[monthIndex]}
-            </div>
-
-
-            <button
-                class="month-remove-btn"
-                onclick="removeMonth(${monthIndex})"
-                title="Remove ${MONTHS[monthIndex]}">
-
-                ×
-
-            </button>
-
-    `;
-
-
-    days.forEach(
-        day => {
-
-            const record =
-                getDayData(
-                    monthIndex,
-                    day
-                );
-
-
-            /* =========================
-               TIME VALUES
-            ========================= */
 
             const dawn =
-                timeToMinutes(
-                    record.dawn
-                );
-
+                timeToMinutes(record.dawn);
 
             const sunrise =
-                timeToMinutes(
-                    record.sunrise
-                );
+                timeToMinutes(record.sunrise);
 
+            const midtime =
+                timeToMinutes(record.midtime);
+
+            const evening =
+                timeToMinutes(record.evening);
 
             const sunset =
-                timeToMinutes(
-                    record.sunset
-                );
-
+                timeToMinutes(record.sunset);
 
             const night =
-                timeToMinutes(
-                    record.night
-                );
+                timeToMinutes(record.night);
 
-
-            /* =========================
-               POSITION
-            ========================= */
 
             let dawnTop =
-                timeToPercent(
-                    dawn
-                );
-
+                timeToPercent(dawn);
 
             let sunriseTop =
-                timeToPercent(
-                    sunrise
-                );
+                timeToPercent(sunrise);
 
+            let midtimeTop =
+                timeToPercent(midtime);
+
+            let eveningTop =
+                timeToPercent(evening);
 
             let sunsetTop =
-                timeToPercent(
-                    sunset
-                );
-
+                timeToPercent(sunset);
 
             let nightTop =
-                timeToPercent(
-                    night
-                );
+                timeToPercent(night);
 
-
-            /* =========================
-               CLAMP
-            ========================= */
 
             dawnTop =
-                Math.max(
-                    0,
-                    Math.min(
-                        100,
-                        dawnTop
-                    )
-                );
-
+                Math.max(0, Math.min(100, dawnTop));
 
             sunriseTop =
-                Math.max(
-                    0,
-                    Math.min(
-                        100,
-                        sunriseTop
-                    )
-                );
+                Math.max(0, Math.min(100, sunriseTop));
 
+            midtimeTop =
+                Math.max(0, Math.min(100, midtimeTop));
+
+            eveningTop =
+                Math.max(0, Math.min(100, eveningTop));
 
             sunsetTop =
-                Math.max(
-                    0,
-                    Math.min(
-                        100,
-                        sunsetTop
-                    )
-                );
-
+                Math.max(0, Math.min(100, sunsetTop));
 
             nightTop =
-                Math.max(
-                    0,
-                    Math.min(
-                        100,
-                        nightTop
-                    )
-                );
+                Math.max(0, Math.min(100, nightTop));
 
-
-            /* =========================
-               DURATIONS
-            ========================= */
 
             const dawnDuration =
                 calculateDuration(
@@ -3089,32 +2773,11 @@ function formatAxisTime(minutes){
                 );
 
 
-            /* =========================
-               BAR HEIGHTS
-            ========================= */
-
-            const dawnHeight =
-                Math.max(
-                    0.5,
-                    sunriseTop -
-                    dawnTop
-                );
-
+            /* Only daylight bar remains — a single colored bar
+               between sunrise and sunset. */
 
             const daylightHeight =
-                Math.max(
-                    1,
-                    sunsetTop -
-                    sunriseTop
-                );
-
-
-            const nightHeight =
-                Math.max(
-                    0.5,
-                    nightTop -
-                    sunsetTop
-                );
+                Math.max(1, sunsetTop - sunriseTop);
 
 
             html += `
@@ -3122,64 +2785,25 @@ function formatAxisTime(minutes){
                 <div class="day-column">
 
 
-                    <!-- DATE -->
-
                     <div class="date-label">
-
                         ${String(day).padStart(2,"0")}
-
                     </div>
 
-
-                    <!-- DAWN TIME -->
 
                     <div class="dawn">
-
-                        ${formatTime(
-                            record.dawn
-                        )}
-
+                        ${formatTime(record.dawn)}
                     </div>
 
-
-                    <!-- SUNRISE TIME -->
 
                     <div class="sunrise">
-
-                        ${formatTime(
-                            record.sunrise
-                        )}
-
+                        ${formatTime(record.sunrise)}
                     </div>
 
-
-                    <!-- BAR AREA -->
 
                     <div class="bar-area">
 
 
-                        <!-- DAWN -->
-
-                        <div
-                            class="dawn-bar"
-                            style="
-                                top:${dawnTop}%;
-                                height:${dawnHeight}%;
-                            "
-                            title="
-                                ${MONTHS[monthIndex]}
-                                ${String(day).padStart(2,"0")}
-                                | Dawn:
-                                ${formatTime(record.dawn)}
-                                →
-                                Sunrise:
-                                ${formatTime(record.sunrise)}
-                                | ${dawnDuration}
-                            ">
-                        </div>
-
-
-                        <!-- DAYLIGHT -->
+                        <!-- DAYLIGHT BAR (only colored bar) -->
 
                         <div
                             class="daylight-bar"
@@ -3192,106 +2816,94 @@ function formatAxisTime(minutes){
                                 ${String(day).padStart(2,"0")}
                                 | Sunrise:
                                 ${formatTime(record.sunrise)}
-                                →
-                                Sunset:
+                                → Sunset:
                                 ${formatTime(record.sunset)}
                                 | ${daylight}
                             ">
                         </div>
 
 
-                        <!-- NIGHT -->
+                        <!-- DAWN : CIRCLE WITH TIME INSIDE -->
 
                         <div
-                            class="night-bar"
-                            style="
-                                top:${sunsetTop}%;
-                                height:${nightHeight}%;
-                            "
+                            class="special-time-marker dawn-marker-pill"
+                            style="top:${dawnTop}%"
+                            title="
+                                ${MONTHS[monthIndex]}
+                                ${String(day).padStart(2,"0")}
+                                | Dawn:
+                                ${formatTime(record.dawn)}
+                                → Sunrise:
+                                ${formatTime(record.sunrise)}
+                                | ${dawnDuration}
+                            ">
+                            ${formatTime(record.dawn)}
+                        </div>
+
+
+                        <!-- MIDTIME : CIRCLE WITH TIME INSIDE -->
+
+                        <div
+                            class="special-time-marker midtime-marker"
+                            style="top:${midtimeTop}%"
+                            title="
+                                ${MONTHS[monthIndex]}
+                                ${String(day).padStart(2,"0")}
+                                | Midtime:
+                                ${formatTime(record.midtime)}
+                            ">
+                            ${formatTime(record.midtime)}
+                        </div>
+
+
+                        <!-- EVENING : CIRCLE WITH TIME INSIDE -->
+
+                        <div
+                            class="special-time-marker evening-marker"
+                            style="top:${eveningTop}%"
+                            title="
+                                ${MONTHS[monthIndex]}
+                                ${String(day).padStart(2,"0")}
+                                | Evening:
+                                ${formatTime(record.evening)}
+                            ">
+                            ${formatTime(record.evening)}
+                        </div>
+
+
+                        <!-- NIGHT : CIRCLE WITH TIME INSIDE -->
+
+                        <div
+                            class="special-time-marker night-marker-pill"
+                            style="top:${nightTop}%"
                             title="
                                 ${MONTHS[monthIndex]}
                                 ${String(day).padStart(2,"0")}
                                 | Sunset:
                                 ${formatTime(record.sunset)}
-                                →
-                                Night:
+                                → Night:
                                 ${formatTime(record.night)}
                                 | ${nightDuration}
                             ">
-                        </div>
-
-
-                        <!-- DAWN MARKER -->
-
-                        <div
-                            class="sun-marker dawn-marker"
-                            style="
-                                top:calc(${dawnTop}% - 2px)
-                            ">
-                        </div>
-
-
-                        <!-- SUNRISE MARKER -->
-
-                        <div
-                            class="sun-marker sunrise-marker"
-                            style="
-                                top:calc(${sunriseTop}% - 2px)
-                            ">
-                        </div>
-
-
-                        <!-- SUNSET MARKER -->
-
-                        <div
-                            class="sun-marker sunset-marker"
-                            style="
-                                top:calc(${sunsetTop}% - 2px)
-                            ">
-                        </div>
-
-
-                        <!-- NIGHT MARKER -->
-
-                        <div
-                            class="sun-marker night-marker"
-                            style="
-                                top:calc(${nightTop}% - 2px)
-                            ">
+                            ${formatTime(record.night)}
                         </div>
 
 
                     </div>
 
-
-                    <!-- SUNSET -->
 
                     <div class="sunset">
-
-                        ${formatTime(
-                            record.sunset
-                        )}
-
+                        ${formatTime(record.sunset)}
                     </div>
 
-
-                    <!-- NIGHT TIME -->
 
                     <div class="night">
-
-                        ${formatTime(
-                            record.night
-                        )}
-
+                        ${formatTime(record.night)}
                     </div>
 
 
-                    <!-- DAYLIGHT DURATION -->
-
                     <div class="duration">
-
                         ${daylight}
-
                     </div>
 
 
@@ -3304,18 +2916,14 @@ function formatAxisTime(minutes){
 
 
     html += `
-
         </div>
-
     `;
 
 
     return html;
 
 }
-/* =========================================================
-   GET DAYS FOR MONTH
-========================================================= */
+
 
 /* =========================================================
    GET DAYS FOR MONTH
@@ -3335,30 +2943,15 @@ function getDaysForMonth(monthIndex){
         getMonthDays(monthIndex);
 
 
-    /* =========================================
-       ALL DAYS
-    ========================================= */
-
     if(value === "all"){
 
         return Array.from(
-            {
-                length:maxDays
-            },
-            (_,i)=>i+1
+            { length:maxDays },
+            (_,i) => i + 1
         );
 
     }
 
-
-    /* =========================================
-       SELECTED INTERVAL
-       Example:
-       3 Days  → 3,6,9,12...
-       7 Days  → 7,14,21,28
-       10 Days → 10,20,30
-       15 Days → 15,30
-    ========================================= */
 
     const interval =
         parseInt(
@@ -3366,28 +2959,22 @@ function getDaysForMonth(monthIndex){
             10
         );
 
-
     const days = [];
 
-
     for(
-        let day=interval;
-        day<=maxDays;
-        day+=interval
+        let day = interval;
+        day <= maxDays;
+        day += interval
     ){
 
         days.push(day);
 
     }
 
-
     return days;
 
 }
 
-/* =========================================================
-   RENDER GENERATED CHARTS
-========================================================= */
 
 function renderGeneratedCharts(){
 
@@ -3572,10 +3159,6 @@ function addNextMonth(){
     saveGeneratedMonths();
 
 
-    /*
-       Automatically move to next month.
-    */
-
     currentMonth =
         nextMonth;
 
@@ -3631,19 +3214,12 @@ document
         }
     );
 
+
 /* =========================================================
    REMOVE GENERATED MONTH
 ========================================================= */
 
 function removeMonth(monthIndex){
-
-    /*
-       Remove only from generated chart.
-
-       IMPORTANT:
-       Month ka entered Sunrise/Sunset data
-       delete nahi hoga.
-    */
 
     generatedMonths =
         generatedMonths.filter(
@@ -3657,18 +3233,14 @@ function removeMonth(monthIndex){
     renderGeneratedCharts();
 
 
-    /*
-       Agar wahi month currently selected hai,
-       to usi month ko input ke liye selected
-       rehne denge.
-    */
-
     showToast(
         MONTHS[monthIndex] +
         " removed from chart"
     );
 
 }
+
+
 /* =========================================================
    DOWNLOAD
 ========================================================= */
@@ -3781,10 +3353,6 @@ async function shareChart(){
             });
 
         }catch(error){
-
-            /*
-               User cancelled sharing.
-            */
 
         }
 

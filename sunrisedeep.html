@@ -2606,7 +2606,11 @@ function formatAxisTime(minutes){
    GET DAYS FOR MONTH
 ========================================================= */
 
-function getDaysForCurrentMonth(){
+/* =========================================================
+   GET DAYS FOR MONTH
+========================================================= */
+
+function getDaysForMonth(monthIndex){
 
     const select =
         document.getElementById(
@@ -2617,8 +2621,12 @@ function getDaysForCurrentMonth(){
         select.value;
 
     const maxDays =
-        getMonthDays(currentMonth);
+        getMonthDays(monthIndex);
 
+
+    /* =========================================
+       ALL DAYS
+    ========================================= */
 
     if(value === "all"){
 
@@ -2631,6 +2639,15 @@ function getDaysForCurrentMonth(){
 
     }
 
+
+    /* =========================================
+       SELECTED INTERVAL
+       Example:
+       3 Days  → 3,6,9,12...
+       7 Days  → 7,14,21,28
+       10 Days → 10,20,30
+       15 Days → 15,30
+    ========================================= */
 
     const interval =
         parseInt(
@@ -2656,7 +2673,6 @@ function getDaysForCurrentMonth(){
     return days;
 
 }
-
 
 /* =========================================================
    RENDER GENERATED CHARTS

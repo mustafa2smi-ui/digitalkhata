@@ -543,6 +543,7 @@ select{
 ========================================================= */
 
 .sunrise{
+    display:none;
     height:18px;
     line-height:18px;
 
@@ -657,6 +658,15 @@ select{
     background:#7c3aed;
 }
 
+/* Fixed endpoint circles: Sunrise at the top, Sunset at the bottom. */
+.sunrise-circle{
+    background:#f59e0b;
+}
+
+.sunset-circle{
+    background:#ef4444;
+}
+
 .midtime-time{
     color:#15803d;
 }
@@ -671,6 +681,7 @@ select{
 ========================================================= */
 
 .sunset{
+    display:none;
     height:18px;
     line-height:18px;
 
@@ -2823,21 +2834,18 @@ function buildMonthSegment(
                         </div>
 
 
-                        <!-- DAWN : CIRCLE WITH TIME INSIDE -->
+                        <!-- SUNRISE : TOP CIRCLE -->
 
                         <div
-                            class="special-time-marker dawn-marker-pill"
-                            style="top:${dawnTop}%"
+                            class="special-time-marker sunrise-circle"
+                            style="top:${sunriseTop}%"
                             title="
                                 ${MONTHS[monthIndex]}
                                 ${String(day).padStart(2,"0")}
-                                | Dawn:
-                                ${formatTime(record.dawn)}
-                                → Sunrise:
+                                | Sunrise:
                                 ${formatTime(record.sunrise)}
-                                | ${dawnDuration}
                             ">
-                            ${formatTime(record.dawn)}
+                            ${formatTime(record.sunrise)}
                         </div>
 
 
@@ -2871,21 +2879,18 @@ function buildMonthSegment(
                         </div>
 
 
-                        <!-- NIGHT : CIRCLE WITH TIME INSIDE -->
+                        <!-- SUNSET : BOTTOM CIRCLE -->
 
                         <div
-                            class="special-time-marker night-marker-pill"
-                            style="top:${nightTop}%"
+                            class="special-time-marker sunset-circle"
+                            style="top:${sunsetTop}%"
                             title="
                                 ${MONTHS[monthIndex]}
                                 ${String(day).padStart(2,"0")}
                                 | Sunset:
                                 ${formatTime(record.sunset)}
-                                → Night:
-                                ${formatTime(record.night)}
-                                | ${nightDuration}
                             ">
-                            ${formatTime(record.night)}
+                            ${formatTime(record.sunset)}
                         </div>
 
 
